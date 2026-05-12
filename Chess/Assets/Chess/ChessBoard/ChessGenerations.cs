@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using System.Linq;
+
 namespace Chess
 {
 using System.Collections.Concurrent;

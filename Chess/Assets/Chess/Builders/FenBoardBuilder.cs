@@ -10,6 +10,8 @@
 using System;
 using System.Collections.Generic;
 
+using System.Linq;
+
 namespace Chess
 {
 using System.Text.RegularExpressions;
@@ -243,7 +245,7 @@ internal class FenBoardBuilder
             i--;
         }
 
-        return new string(span.Slice(0, offset));
+        return new string(span, 0, offset);
     }
 
     private string GetActiveColor()
@@ -264,7 +266,7 @@ internal class FenBoardBuilder
         // Castling not available
         if (offset == 0) span[offset++] = '-';
 
-        return new string(span.Slice(0, offset));
+        return new string(span, 0, offset);
     }
 
     private string GetEnPassantTargetSquare()
