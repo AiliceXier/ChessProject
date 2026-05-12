@@ -1,48 +1,6 @@
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(36,23): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Types\Move.cs(124,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Exceptions.cs(61,104): error CS1061: 'Move[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Move[]' could be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\FenBoardBuilder.cs(75,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(41,38): error CS1955: Non-invocable member 'List<Piece>.Count' cannot be used like a method.
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(46,43): error CS1955: Non-invocable member 'List<Piece>.Count' cannot be used like a method.
-
-Assets\Chess\Builders\FenBoardBuilder.cs(73,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Builders\SanBuilder.cs(31,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Types\Move.cs(122,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(148,46): error CS1061: 'List<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Builders\SanBuilder.cs(99,93): error CS1061: 'IEnumerable<Move>' does not contain a definition for 'ToList' and no accessible extension method 'ToList' accepting a first argument of type 'IEnumerable<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(167,46): error CS1061: 'List<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(55,24): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(57,41): error CS1061: 'List<Piece>' does not contain a definition for 'First' and no accessible extension method 'First' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(58,40): error CS1061: 'List<Piece>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(62,29): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(64,41): error CS1061: 'List<Piece>' does not contain a definition for 'First' and no accessible extension method 'First' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(65,40): error CS1061: 'List<Piece>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(205,69): error CS1061: 'List<Move>' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Builders\SanBuilder.cs(212,93): error CS1061: 'IEnumerable<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'IEnumerable<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Builders\FenBoardBuilder.cs(246,32): error CS1061: 'char[]' does not contain a definition for 'Slice' and no accessible extension method 'Slice' accepting a first argument of type 'char[]' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Builders\FenBoardBuilder.cs(267,32): error CS1061: 'char[]' does not contain a definition for 'Slice' and no accessible extension method 'Slice' accepting a first argument of type 'char[]' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessConversions.cs(69,87): error CS1061: 'Piece[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Piece[]' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessConversions.cs(71,87): error CS1061: 'Piece[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Piece[]' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessValidations.cs(536,37): error CS1061: 'List<Move>' does not contain a definition for 'Any' and no accessible extension method 'Any' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessValidations.cs(548,49): error CS1061: 'List<Move>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\SanBuilder.cs(33,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
