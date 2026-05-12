@@ -7,6 +7,9 @@
 // *****************************************************
 //                                    Made by Geras1mleo
 
+using System;
+using System.Collections.Generic;
+
 namespace Chess
 {
 using System.Text.RegularExpressions;
@@ -109,7 +112,7 @@ internal class FenBoardBuilder
         return (true, null);
     }
 
-    private static void PlacePiecesOnBoard(FenBoardBuilder builder, ReadOnlySpan<char> piecesSpan)
+    private static void PlacePiecesOnBoard(FenBoardBuilder builder, string piecesSpan)
     {
         int x = 0, y = 7;
         foreach (var fenChar in piecesSpan)
@@ -207,7 +210,7 @@ internal class FenBoardBuilder
 
     private string GetPiecePlacement()
     {
-        Span<char> span = stackalloc char[71]; // Max lenght is 71
+        char[] span = new char[71]; // Max lenght is 71
         int offset = 0;
 
         int i = 7;
@@ -250,7 +253,7 @@ internal class FenBoardBuilder
 
     private string GetCastlingAvailability()
     {
-        Span<char> span = stackalloc char[4]; // Max lenght is 4
+        char[] span = new char[4]; // Max lenght is 4
         int offset = 0;
 
         if (CastleWK) span[offset++] = 'K';

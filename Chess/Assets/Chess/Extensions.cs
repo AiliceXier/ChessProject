@@ -7,6 +7,9 @@
 // *****************************************************
 //                                    Made by Geras1mleo
 
+using System;
+using System.Collections.Generic;
+
 namespace Chess
 {
 
@@ -38,46 +41,15 @@ internal static class Extensions
         return list;
     }
 
-    public static Span<Piece> PiecesSpan(this Piece[,] pieces)
+    internal static Piece[] PiecesSpan(this Piece?[,] pieces)
     {
-        var piecesLength1 = pieces.GetLength(0);
-        var piecesLength2 = pieces.GetLength(1);
-
-        int nonNullCount = 0;
-        for (int i = 0; i < piecesLength1; i++)
-        {
-            for (int j = 0; j < piecesLength2; j++)
-            {
-                if (pieces[i, j] != null)
-                {
-                    nonNullCount++;
-                }
-            }
-        }
-
-        var piecesFlat = new Piece[nonNullCount];
-        int offset = 0;
-        for (int i = 0; i < piecesLength1 && offset < piecesFlat.Length; i++)
-        {
-            for (int j = 0; j < piecesLength2 && offset < piecesFlat.Length; j++)
-            {
-                if (pieces[i, j] != null)
-                {
-                    piecesFlat[offset++] = pieces[i, j];
-                }
-            }
-        }
-
-        return new Span<Piece>(piecesFlat);
+        return PiecesList(pieces).ToArray();
     }
 
-
-    public static int InsertSpan(this Span<char> span, int offset, ReadOnlySpan<char> source)
+    internal static int InsertChars(this char[] span, int offset, string source)
     {
         for (int i = 0; i < source.Length; i++)
-        {
             span[offset++] = source[i];
-        }
         return offset;
     }
 }

@@ -7,6 +7,9 @@
 // *****************************************************
 //                                    Made by Geras1mleo
 
+using System;
+using System.Collections.Generic;
+
 namespace Chess
 {
 using System.Text.RegularExpressions;
@@ -14,7 +17,7 @@ using System.Text.RegularExpressions;
 /// <summary>
 /// Coordinate like Position on Chess table counting from 0
 /// </summary>
-public struct Position
+public class Position
 {
     /// <summary>
     /// Whether X and Y are in valid range [0; ChessBoard.MAX_COLS/MAX_ROWS[

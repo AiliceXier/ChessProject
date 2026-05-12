@@ -7,6 +7,9 @@
 // *****************************************************
 //                                    Made by Geras1mleo
 
+using System;
+using System.Collections.Generic;
+
 namespace Chess
 {
 using System.Text.RegularExpressions;
@@ -161,12 +164,12 @@ internal static class SanBuilder
         if (move is not { HasValue: true })
             return (false, new ChessArgumentException(board, "Given move is null or doesn't have valid positions values"));
 
-        Span<char> span = stackalloc char[10];
+        char[] span = new char[10];
         int offset = 0;
 
         if (move.Parameter is MoveCastle)
         {
-            offset = span.InsertSpan(offset, move.Parameter.ShortStr.AsSpan());
+            offset = span.InsertChars(offset, move.Parameter.ShortStr);
         }
         else
         {
@@ -176,7 +179,7 @@ internal static class SanBuilder
 
                 // Only rooks, knights, bishops(second from promotion) and queens(second from promotion) can have ambiguous moves
                 if (move.Piece.Type != PieceType.King)
-                    offset = span.InsertSpan(offset, HandleAmbiguousMovesNotation(move, board));
+                    offset = span.InsertChars(offset, HandleAmbiguousMovesNotation(move, board));
             }
 
             if (move.CapturedPiece is not null)
@@ -188,27 +191,27 @@ internal static class SanBuilder
             }
 
             // Destination position
-            offset = span.InsertSpan(offset, move.NewPosition.ToString().AsSpan());
+            offset = span.InsertChars(offset, move.NewPosition.ToString());
 
             if (move.Parameter is MovePromotion)
-                offset = span.InsertSpan(offset, move.Parameter.ShortStr.AsSpan());
+                offset = span.InsertChars(offset, move.Parameter.ShortStr);
         }
 
         if (move.IsCheck && move.IsMate) span[offset++] = '#';
         else if (move.IsCheck) span[offset++] = '+';
         else if (move.IsMate) span[offset++] = '$';
 
-        san = new string(span.Slice(0, offset));
+        san = new string(span, 0, offset);
         move.San = san;
 
         return (true, null);
     }
 
-    private static ReadOnlySpan<char> HandleAmbiguousMovesNotation(Move move, ChessBoard board)
+    private static string HandleAmbiguousMovesNotation(Move move, ChessBoard board)
     {
         var ambiguousMoves = GetMovesOfPieceOnPosition(move.Piece, move.NewPosition, board).Where(m => m.OriginalPosition != move.OriginalPosition).ToList();
 
-        Span<char> span = stackalloc char[2];
+        char[] span = new char[2];
 
         if (ambiguousMoves.Any())
         {
@@ -222,7 +225,7 @@ internal static class SanBuilder
                 span[0] = move.OriginalPosition.File();
         }
 
-        return new ReadOnlySpan<char>(span.Trim(stackalloc char[] { '\0' }).ToArray());
+        return new string(span).TrimEnd('\0');
     }
 
     private static IEnumerable<Move> GetMovesOfPieceOnPosition(Piece piece, Position newPosition, ChessBoard board)
