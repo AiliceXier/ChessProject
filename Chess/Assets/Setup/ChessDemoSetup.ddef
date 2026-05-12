@@ -1,0 +1,6 @@
+{
+  "name": "ChessDemoSetup",
+  "excludePaths": [
+    "EloRatings.lb"
+  ]
+}

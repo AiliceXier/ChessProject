@@ -1,0 +1,463 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using TMPro;
+using Chess;
+using Unity.Services.Authentication;
+using Unity.Services.CloudCode;
+using Unity.Services.CloudCode.Subscriptions;
+using Unity.Services.Core;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using WebSocketSharp;
+
+public class Player : MonoBehaviour
+{
+    private GameObject _selectedPiece;
+    public Camera playerCamera;
+    public GameObject cameraPivot;
+    public TextMeshProUGUI lobbyInputCodeText;
+    public TextMeshProUGUI lobbyCodeText;
+    
+    public TextMeshProUGUI playerNameText;
+
+    public GameObject resignButton;
+    public GameObject uiPanel;
+    public TextMeshProUGUI resultText;
+    public GameObject board;
+    
+    private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
+    private const string StartingBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    private bool _gameStarted;
+    private bool _isWhite;
+    private string _currentSession;
+    private Task _initializationTask;
+    private bool _isInitialized;
+
+    private readonly Color32 _selectedColor = new (84, 84, 255, 255);
+    private readonly Color32 _lightColor = new(223, 210, 194, 255);
+    private readonly Color32 _darkColor = new (84, 84, 84, 255);
+
+    private enum GameMode { Online, Local }
+    private GameMode _gameMode = GameMode.Online;
+    private ChessBoard _localBoard;
+    private bool _localWhiteTurn = true;
+
+    private async void Start()
+    {
+        SyncBoard(StartingBoard);
+        _initializationTask = InitializeAsync();
+    }
+
+    private async Task InitializeAsync()
+    {
+        try
+        {
+            await UnityServices.InitializeAsync();
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await SubscribeToPlayerMessages();
+            resignButton.SetActive(false);
+            _isInitialized = true;
+            Debug.Log("Unity Services initialized and player signed in successfully.");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to initialize Unity Services: {e.Message}");
+            resultText.text = "Failed to initialize. Please restart the game.";
+            uiPanel.SetActive(true);
+        }
+    }
+
+    public async void CreateGame()
+    {
+        await WaitForInitialization();
+        if (!_isInitialized) return;
+
+        try
+        {
+            var hostGameResponse = await CloudCodeService.Instance.CallModuleEndpointAsync<HostGameResponse>("ChessCloudCode", "HostGame");
+            lobbyCodeText.text = hostGameResponse.LobbyCode;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+            resultText.text = "Create game failed. Please try again.";
+            uiPanel.SetActive(true);
+        }
+    }
+
+    private void SetPov()
+    {
+        var angle = _isWhite ? 0 : 180;
+        cameraPivot.transform.eulerAngles = new Vector3(0, angle, 0);
+    }
+
+    public async void Resign()
+    {
+        if (_gameMode == GameMode.Local)
+        {
+            var resigningColor = _localWhiteTurn ? PieceColor.White : PieceColor.Black;
+            _localBoard.Resign(resigningColor);
+            SyncBoard(_localBoard.ToFen());
+            uiPanel.SetActive(true);
+            resignButton.SetActive(false);
+            resultText.text = $"{(_localWhiteTurn ? "White" : "Black")} resigns. {(_localWhiteTurn ? "Black" : "White")} wins!";
+            playerNameText.text = "Game Over";
+            _gameStarted = false;
+            return;
+        }
+
+        if (_initializationTask != null && !_initializationTask.IsCompleted)
+        {
+            await _initializationTask;
+        }
+        if (!_isInitialized) return;
+
+        try
+        {
+            var boardUpdate = await CloudCodeService.Instance.CallModuleEndpointAsync<BoardUpdateResponse>("ChessCloudCode", "Resign",
+                new Dictionary<string, object> { { "session", _currentSession } });
+            OnBoardUpdate(boardUpdate);
+        }
+        catch (LobbyServiceException exception)
+        {
+            Debug.LogException(exception);
+        }
+    }
+    
+    public async void JoinLobbyByCode()
+    {
+        await WaitForInitialization();
+        if (!_isInitialized) return;
+
+        try
+        {
+            // There's a weird no space character that gets added to the end of the lobby code, let's remove it for now
+            var sanitizedLobbyCode = Regex.Replace(lobbyInputCodeText.text, @"\s", "").Replace("\u200B", "");
+
+            if (string.IsNullOrWhiteSpace(sanitizedLobbyCode))
+            {
+                resultText.text = "Please enter a valid lobby code.";
+                uiPanel.SetActive(true);
+                return;
+            }
+            
+            var joinGameResponse = await CloudCodeService.Instance.CallModuleEndpointAsync<JoinGameResponse>("ChessCloudCode", "JoinGame",
+                new Dictionary<string, object> { { "lobbyCode", sanitizedLobbyCode } });
+            lobbyCodeText.text = sanitizedLobbyCode;
+            
+            OnGameStart(joinGameResponse);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogException(exception);
+            resultText.text = "Join game failed. Check lobby code or wait for opponent.";
+            uiPanel.SetActive(true);
+        }
+    }
+
+    public void StartLocalGame()
+    {
+        _gameMode = GameMode.Local;
+        _currentSession = null;
+        _localBoard = new ChessBoard();
+        _localWhiteTurn = true;
+        _gameStarted = true;
+        SyncBoard(_localBoard.ToFen());
+        uiPanel.SetActive(false);
+        resignButton.SetActive(true);
+        SetPovLocal();
+        playerNameText.text = "White's Turn";
+    }
+
+    private bool CurrentPlayerIsWhite() =>
+        _gameMode == GameMode.Local ? _localWhiteTurn : _isWhite;
+
+    private void SetPovLocal() =>
+        cameraPivot.transform.eulerAngles = new Vector3(0, _localWhiteTurn ? 0 : 180, 0);
+
+    private void MakeLocalMove(string fromFen, string toFen)
+    {
+        var move = new Move(fromFen, toFen);
+        if (!_localBoard.IsValidMove(move))
+        {
+            Debug.Log($"Invalid move: {fromFen} -> {toFen}");
+            SelectPiece(null);
+            return;
+        }
+
+        _localBoard.Move(move);
+        SelectPiece(null);
+        SyncBoard(_localBoard.ToFen());
+
+        if (_localBoard.IsEndGame)
+        {
+            uiPanel.SetActive(true);
+            resignButton.SetActive(false);
+            resultText.text = _localBoard.EndGame?.EndgameType.ToString();
+            playerNameText.text = "Game Over";
+            _gameStarted = false;
+            return;
+        }
+
+        _localWhiteTurn = !_localWhiteTurn;
+        SetPovLocal();
+        playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+    }
+
+    private void SyncBoard(string fen)
+    {
+        var boardState = FenToDict(fen);
+        try
+        {
+            foreach (Transform child in board.transform)
+            {
+                Destroy(child.gameObject);
+            }
+            foreach (var piece in boardState)
+            {
+                var pieceType = char.ToLower(piece.Value) switch
+                {
+                    'p' => "Pawn",
+                    'n' => "Knight",
+                    'b' => "Bishop",
+                    'r' => "Rook",
+                    'q' => "Queen",
+                    'k' => "King",
+                    _ => ""
+                };
+                var prefabName = pieceType + (char.IsUpper(piece.Value) ? "Light" : "Dark");
+                if (!_prefabs.ContainsKey(prefabName))
+                {
+                    _prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");    
+                }
+                
+                var newObject = Instantiate(_prefabs[prefabName], board.transform);
+                newObject.GameObject().transform.position = new Vector3(piece.Key.Item1, 0, piece.Key.Item2);
+                newObject.GameObject().transform.rotation = Quaternion.Euler(0, char.IsLower(piece.Value)? 180 : 0, 0);
+            }
+        }
+        catch (CloudCodeException exception)
+        {
+            Debug.LogException(exception);
+        }
+    }
+
+    private async void MakeMove(GameObject piece, Vector3 toPos)
+    {
+        if (piece == null) return;
+
+        var fromFen = PosToFen(piece.transform.position);
+        var toFen = PosToFen(toPos);
+
+        if (_gameMode == GameMode.Local)
+        {
+            MakeLocalMove(fromFen, toFen);
+            return;
+        }
+
+        if (_initializationTask != null && !_initializationTask.IsCompleted)
+        {
+            await _initializationTask;
+        }
+        if (!_isInitialized) return;
+
+        var result = await CloudCodeService.Instance.CallModuleEndpointAsync<BoardUpdateResponse>(
+            "ChessCloudCode",
+            "MakeMove",
+            new Dictionary<string, object>
+            {
+                { "session", _currentSession },
+                { "fromPosition", fromFen },
+                { "toPosition", toFen }
+            });
+
+        SelectPiece(null);
+        OnBoardUpdate(result);
+    }
+
+    private async void OnBoardUpdate(BoardUpdateResponse boardUpdateResponse)
+    {
+        SyncBoard(boardUpdateResponse.Board);
+        if (boardUpdateResponse.GameOver)
+        {
+            uiPanel.SetActive(true);
+            resignButton.SetActive(false);
+            resultText.text = boardUpdateResponse.EndgameType;
+        }
+    }
+
+    private async void OnGameStart(JoinGameResponse joinGameResponse)
+    {
+        Debug.Log($"Opponent joined: {joinGameResponse.OpponentId}");
+        _currentSession = joinGameResponse.Session;
+        SyncBoard(joinGameResponse.Board);
+        uiPanel.SetActive(false);
+        resignButton.SetActive(true);
+        _isWhite = joinGameResponse.IsWhite;
+        SetPov();
+        _gameStarted = true;
+    }
+
+    private async Task WaitForInitialization()
+    {
+        if (_initializationTask != null && !_initializationTask.IsCompleted)
+        {
+            await _initializationTask;
+        }
+    }
+
+    private Task SubscribeToPlayerMessages()
+    {
+        var callbacks = new SubscriptionEventCallbacks();
+        callbacks.MessageReceived += @event =>
+        {
+            switch (@event.MessageType)
+            {
+                case "boardUpdated":
+                    var message = JsonConvert.DeserializeObject<BoardUpdateResponse>(@event.Message);
+                    OnBoardUpdate(message);
+                    break;
+                case "opponentJoined":
+                    var opponentJoinedMessage = JsonConvert.DeserializeObject<JoinGameResponse>(@event.Message);
+                    OnGameStart(opponentJoinedMessage);
+                    break;
+                default:
+                    Debug.Log($"Got unsupported player Message: {JsonConvert.SerializeObject(@event, Formatting.Indented)}");
+                    break;
+            }
+        };
+        callbacks.ConnectionStateChanged += @event =>
+        {
+            if (@event == EventConnectionState.Subscribed && _currentSession != null && _gameStarted)
+            {
+            }
+            Debug.Log($"Got player subscription ConnectionStateChanged: {@event.ToString()}");
+        };
+        callbacks.Kicked += () =>
+        {
+            Debug.Log($"Got player subscription Kicked");
+        };
+        callbacks.Error += @event =>
+        {
+            Debug.Log($"Got player subscription Error: {JsonConvert.SerializeObject(@event, Formatting.Indented)}");
+        };
+        return CloudCodeService.Instance.SubscribeToPlayerMessagesAsync(callbacks);
+    }
+
+    public void PlayerInteract(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        if (_gameMode == GameMode.Online && string.IsNullOrEmpty(_currentSession)) return;
+        if (_gameMode == GameMode.Local && (!_gameStarted || (_localBoard != null && _localBoard.IsEndGame))) return;
+
+        var mousePosition = Mouse.current.position.ReadValue();
+        var rayOrigin = playerCamera.ScreenPointToRay(mousePosition);
+        if (Physics.Raycast(rayOrigin, out var hitInfo))
+        {
+            var hitObj = hitInfo.transform.gameObject;
+            var playerIsWhite = CurrentPlayerIsWhite();
+
+            if (hitObj.name == "Board"
+                || (_selectedPiece != null && hitObj.name.Contains("Light") != playerIsWhite))
+            {
+                var boardPos = new Vector3(Mathf.RoundToInt(hitInfo.point.x), 0, Mathf.RoundToInt(hitInfo.point.z));
+                MakeMove(_selectedPiece, boardPos);
+            }
+            else if (hitObj.name.Contains("Light") == playerIsWhite)
+            {
+                SelectPiece(hitObj);
+                Debug.Log($"Piece selected: {_selectedPiece.name}");
+            }
+            else
+            {
+                SelectPiece(null);
+            }
+        }
+        else
+        {
+            SelectPiece(null);
+        }
+    }
+
+    private void SelectPiece(GameObject piece)
+    {
+        if (_selectedPiece != null)
+        {
+            ChangeMaterialColor(_selectedPiece,
+                _selectedPiece.name.Contains("Light") ? _lightColor : _darkColor);
+        }
+        _selectedPiece = piece;
+        if (_selectedPiece == null) return;
+        ChangeMaterialColor(_selectedPiece, _selectedColor);
+    }
+
+    private static Dictionary<Tuple<int, int>, char> FenToDict(string fen)
+    {
+        var fenParts = fen.Split(' ');
+        var boardState = fenParts[0];
+        var ranks = boardState.Split('/');
+
+        var coordinatesDict = new Dictionary<Tuple<int, int>, char>();
+        var x = 0;
+        var y = 7;
+
+        foreach (var rank in ranks)
+        {
+            foreach (var c in rank)
+            {
+                if (char.IsDigit(c))
+                {
+                    x += int.Parse(c.ToString());
+                }
+                else
+                {
+                    var coordinates = new Tuple<int, int>(x, y);
+                    coordinatesDict.Add(coordinates, c);
+                    x += 1;
+                }
+            }
+            x = 0;
+            y -= 1;
+        }
+
+        return coordinatesDict;
+    }
+
+    private void ChangeMaterialColor(GameObject obj, Color newColor)
+    {
+        var selectedRenderer = obj.GetComponent<Renderer>();
+        selectedRenderer.material.color = newColor;
+    }
+    
+    public class HostGameResponse
+    {
+        public string LobbyCode { get; set; }
+    }    
+    
+    public class BoardUpdateResponse
+    {
+        public string Board { get; set; }
+        public bool GameOver { get; set; }
+        public string EndgameType { get; set; }
+    }
+
+    public class JoinGameResponse
+    {        
+        public string Session { get; set; }
+        public string Board { get; set; }
+        public string OpponentId { get; set; }
+        public bool IsWhite { get; set; }
+    }
+
+    private string PosToFen(Vector3 pos)
+    {
+        return (char)(pos.x + 97) + ((char)pos.z + 1).ToString();
+    }
+}

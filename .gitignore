@@ -1,0 +1,37 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Visual Studio
+.vs/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.userosscache
+*.suo
+*.opendb
+*.db
+
+# Rider
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Unity meta files (keep)
+!*.meta
+
+# Cloud Code build output
+ChessCloudCode/bin/
+ChessCloudCode/obj/
+
+# Python
+__pycache__/
+*.pyc
