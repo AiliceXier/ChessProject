@@ -1,59 +1,110 @@
-NotFound
-(404) HTTP/1.1 404 Not Found
-Error
-Module could not be found
+Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(57,37): error CS0246: The type or namespace name 'IEqualityComparer<>' could not be found (are you missing a using directive or an assembly reference?)
 
-UnityEngine.Debug:LogError (object)
-Unity.Services.CloudCode.CloudCodeInternal:BuildException (bool,long,int,string,Unity.Services.CloudCode.Internal.Http.HttpException) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:181)
-Unity.Services.CloudCode.CloudCodeInternal/<GetRunModuleScriptResponse>d__16:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:141)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Response`1<Unity.Services.CloudCode.Internal.Models.RunModuleResponse>>:SetException (System.Exception)
-Unity.Services.CloudCode.CloudCodeInternal/<GetModuleResponseAsync>d__21:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:243)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Response`1<Unity.Services.CloudCode.Internal.Models.RunModuleResponse>>:SetException (System.Exception)
-Unity.Services.CloudCode.Internal.Apis.CloudCode.CloudCodeApiClient/<RunModuleAsync>d__7:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Apis/CloudCodeApi.cs:138)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Http.HttpClientResponse>:SetResult (Unity.Services.CloudCode.Internal.Http.HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.HttpClient/<MakeRequestAsync>d__2:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:44)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Http.HttpClientResponse>:SetResult (Unity.Services.CloudCode.Internal.Http.HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.HttpClient/<CreateWebRequestAsync>d__4:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:69)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Http.HttpClientResponse>:SetResult (Unity.Services.CloudCode.Internal.Http.HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.HttpClient/<CreateHttpClientResponse>d__6:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:105)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<Unity.Services.CloudCode.Internal.Http.HttpClientResponse>:SetResult (Unity.Services.CloudCode.Internal.Http.HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.HttpClient/<>c__DisplayClass6_0/<<CreateHttpClientResponse>b__0>d:MoveNext () (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:102)
-System.Threading.Tasks.TaskCompletionSource`1<Unity.Services.CloudCode.Internal.Http.HttpClientResponse>:SetResult (Unity.Services.CloudCode.Internal.Http.HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.UnityWebRequestHelpers/<>c__DisplayClass0_0:<GetAwaiter>b__0 (UnityEngine.AsyncOperation) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/UnityWebRequestHelpers.cs:34)
-UnityEngine.AsyncOperation:InvokeCompletionEvent ()
+Assets\Chess\Types\Enums.cs(27,2): error CS0246: The type or namespace name 'FlagsAttribute' could not be found (are you missing a using directive or an assembly reference?)
 
-HttpException`1: (404) HTTP/1.1 404 Not Found
-Unity.Services.CloudCode.Internal.Http.ResponseHandler.HandleAsyncResponse (Unity.Services.CloudCode.Internal.Http.HttpClientResponse response, System.Collections.Generic.Dictionary`2[TKey,TValue] statusCodeToTypeMap) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/ResponseHandler.cs:122)
-Unity.Services.CloudCode.Internal.Http.ResponseHandler.HandleAsyncResponse[T] (Unity.Services.CloudCode.Internal.Http.HttpClientResponse response, System.Collections.Generic.Dictionary`2[TKey,TValue] statusCodeToTypeMap) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/ResponseHandler.cs:226)
-Unity.Services.CloudCode.Internal.Apis.CloudCode.CloudCodeApiClient.RunModuleAsync (Unity.Services.CloudCode.Internal.CloudCode.RunModuleRequest request, Unity.Services.CloudCode.Internal.Configuration operationConfiguration) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Apis/CloudCodeApi.cs:137)
-Unity.Services.CloudCode.CloudCodeInternal.GetModuleResponseAsync (System.String module, System.String function, System.Collections.Generic.Dictionary`2[TKey,TValue] args) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:243)
-Unity.Services.CloudCode.CloudCodeInternal.GetRunModuleScriptResponse (System.String module, System.String function, System.Collections.Generic.Dictionary`2[TKey,TValue] args) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:137)
-Rethrow as CloudCodeException: NotFound
-(404) HTTP/1.1 404 Not Found
-Error
-Module could not be found
-Unity.Services.CloudCode.CloudCodeInternal.GetRunModuleScriptResponse (System.String module, System.String function, System.Collections.Generic.Dictionary`2[TKey,TValue] args) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:141)
-Unity.Services.CloudCode.CloudCodeInternal.CallModuleEndpointAsync[TResult] (System.String module, System.String function, System.Collections.Generic.Dictionary`2[TKey,TValue] args) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:60)
-Player.CreateGame () (at Assets/Player.cs:79)
-UnityEngine.Debug:LogException(Exception)
-<CreateGame>d__22:MoveNext() (at Assets/Player.cs:84)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetException(Exception)
-Unity.Services.CloudCode.<CallModuleEndpointAsync>d__9`1:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:62)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetException(Exception)
-Unity.Services.CloudCode.<GetRunModuleScriptResponse>d__16:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:157)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetException(Exception)
-Unity.Services.CloudCode.<GetModuleResponseAsync>d__21:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/CloudCode.cs:243)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetException(Exception)
-Unity.Services.CloudCode.Internal.Apis.CloudCode.<RunModuleAsync>d__7:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Apis/CloudCodeApi.cs:138)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.<MakeRequestAsync>d__2:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:44)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.<CreateWebRequestAsync>d__4:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:69)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.<CreateHttpClientResponse>d__6:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:105)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.<<CreateHttpClientResponse>b__0>d:MoveNext() (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/HttpClient.cs:102)
-System.Threading.Tasks.TaskCompletionSource`1:SetResult(HttpClientResponse)
-Unity.Services.CloudCode.Internal.Http.<>c__DisplayClass0_0:<GetAwaiter>b__0(AsyncOperation) (at ./Library/PackageCache/com.unity.services.cloudcode@2.4.0/Runtime/com.unity.services.cloudcode.internal/Http/UnityWebRequestHelpers.cs:34)
-UnityEngine.AsyncOperation:InvokeCompletionEvent()
+Assets\Chess\Types\Enums.cs(27,2): error CS0246: The type or namespace name 'Flags' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\Events.cs(20,40): error CS0246: The type or namespace name 'EventArgs' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(31,35): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\Exceptions.cs(14,31): error CS0246: The type or namespace name 'Exception' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(36,36): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(46,35): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\Position.cs(37,18): error CS8773: Feature 'struct field initializers' is not available in C# 9.0. Please use language version 10.0 or greater.
+
+Assets\Chess\Types\Position.cs(42,18): error CS8773: Feature 'struct field initializers' is not available in C# 9.0. Please use language version 10.0 or greater.
+
+Assets\Chess\Types\Position.cs(65,12): error CS8773: Feature 'parameterless struct constructors' is not available in C# 9.0. Please use language version 10.0 or greater.
+
+Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(100,29): error CS0246: The type or namespace name 'DisallowNullAttribute' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(100,29): error CS0246: The type or namespace name 'DisallowNull' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Extensions.cs(19,46): error CS0246: The type or namespace name 'IList<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Builders\FenBoardBuilder.cs(112,69): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\EndGameTypes\EndGameProvider.cs(16,22): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Extensions.cs(25,21): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Builders\SanBuilder.cs(207,20): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\SimpleEnum.cs(66,19): error CS0246: The type or namespace name 'IEnumerable<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Builders\FenBoardBuilder.cs(174,41): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Extensions.cs(41,19): error CS0246: The type or namespace name 'Span<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Builders\SanBuilder.cs(228,20): error CS0246: The type or namespace name 'IEnumerable<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\SimpleEnum.cs(20,29): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Types\SimpleEnum.cs(21,29): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Extensions.cs(75,39): error CS0246: The type or namespace name 'Span<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Extensions.cs(75,68): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(64,12): error CS0246: The type or namespace name 'IReadOnlyDictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(197,12): error CS0246: The type or namespace name 'IReadOnlyList<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(202,12): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(229,14): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(263,9): error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
+
+Assets\Chess\ChessBoard\ChessBoard.cs(537,31): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(40,13): error CS0246: The type or namespace name 'Task' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(105,36): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(186,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(224,91): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(253,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(295,91): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(303,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(308,50): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(308,129): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(59,23): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(192,23): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessBoard.cs(293,43): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessEvents.cs(39,22): error CS0246: The type or namespace name 'SynchronizationContext' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(293,29): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\ChessBoard\ChessGenerations.cs(301,29): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\Fen.cs(26,52): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\Fen.cs(26,52): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\Pgn.cs(32,52): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\Pgn.cs(32,52): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\San.cs(25,46): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\San.cs(25,46): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\San.cs(57,43): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
+
+Assets\Chess\Conversions\San.cs(57,43): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
 

@@ -25,7 +25,14 @@
       "Bash(cp -r /tmp/gera-chess/ChessLibrary/Builders \"D:/unity/my_chess/Chess/Assets/Chess/\")",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(grep *)",
+      "Bash(python fix_errors.py)",
+      "Bash(sed -i 's/ReadOnlySpan<char> piecesSpan/string piecesSpan/' Builders/FenBoardBuilder.cs)",
+      "Bash(sed -i 's/Span<char> span = stackalloc char\\\\[71\\\\]/char[] span = new char[71]/' Builders/FenBoardBuilder.cs)",
+      "Bash(sed -i 's/Span<char> span = stackalloc char\\\\[4\\\\]/char[] span = new char[4]/' Builders/FenBoardBuilder.cs)",
+      "Bash(sed -i 's/Span<char> span = stackalloc char\\\\[10\\\\]/char[] span = new char[10]/' Builders/SanBuilder.cs)",
+      "Bash(sed -i 's/private static ReadOnlySpan<char> HandleAmbiguousMovesNotation/private static string HandleAmbiguousMovesNotation/' Builders/SanBuilder.cs)"
     ]
   }
 }
