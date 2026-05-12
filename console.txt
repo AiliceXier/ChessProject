@@ -1,110 +1,48 @@
-Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(57,37): error CS0246: The type or namespace name 'IEqualityComparer<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(36,23): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Enums.cs(27,2): error CS0246: The type or namespace name 'FlagsAttribute' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Types\Exceptions.cs(61,104): error CS1061: 'Move[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Move[]' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Enums.cs(27,2): error CS0246: The type or namespace name 'Flags' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(41,38): error CS1955: Non-invocable member 'List<Piece>.Count' cannot be used like a method.
 
-Assets\Chess\Types\Events.cs(20,40): error CS0246: The type or namespace name 'EventArgs' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(46,43): error CS1955: Non-invocable member 'List<Piece>.Count' cannot be used like a method.
 
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(31,35): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\FenBoardBuilder.cs(73,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Exceptions.cs(14,31): error CS0246: The type or namespace name 'Exception' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\SanBuilder.cs(31,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(36,36): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Types\Move.cs(122,49): error CS1061: 'GroupCollection' does not contain a definition for 'Values' and no accessible extension method 'Values' accepting a first argument of type 'GroupCollection' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(46,35): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessBoard.cs(148,46): error CS1061: 'List<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Position.cs(37,18): error CS8773: Feature 'struct field initializers' is not available in C# 9.0. Please use language version 10.0 or greater.
+Assets\Chess\Builders\SanBuilder.cs(99,93): error CS1061: 'IEnumerable<Move>' does not contain a definition for 'ToList' and no accessible extension method 'ToList' accepting a first argument of type 'IEnumerable<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Position.cs(42,18): error CS8773: Feature 'struct field initializers' is not available in C# 9.0. Please use language version 10.0 or greater.
+Assets\Chess\ChessBoard\ChessBoard.cs(167,46): error CS1061: 'List<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\Position.cs(65,12): error CS8773: Feature 'parameterless struct constructors' is not available in C# 9.0. Please use language version 10.0 or greater.
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(55,24): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(100,29): error CS0246: The type or namespace name 'DisallowNullAttribute' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(57,41): error CS1061: 'List<Piece>' does not contain a definition for 'First' and no accessible extension method 'First' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\RepetitionRule.cs(100,29): error CS0246: The type or namespace name 'DisallowNull' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(58,40): error CS1061: 'List<Piece>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Extensions.cs(19,46): error CS0246: The type or namespace name 'IList<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(62,29): error CS1061: 'List<Piece>' does not contain a definition for 'All' and no accessible extension method 'All' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Builders\FenBoardBuilder.cs(112,69): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(64,41): error CS1061: 'List<Piece>' does not contain a definition for 'First' and no accessible extension method 'First' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\ChessBoard\EndGameTypes\EndGameProvider.cs(16,22): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\EndGameTypes\InsufficientMaterialRule.cs(65,40): error CS1061: 'List<Piece>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Piece>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Extensions.cs(25,21): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessBoard.cs(205,69): error CS1061: 'List<Move>' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Builders\SanBuilder.cs(207,20): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\SanBuilder.cs(212,93): error CS1061: 'IEnumerable<Move>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'IEnumerable<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\SimpleEnum.cs(66,19): error CS0246: The type or namespace name 'IEnumerable<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\FenBoardBuilder.cs(246,32): error CS1061: 'char[]' does not contain a definition for 'Slice' and no accessible extension method 'Slice' accepting a first argument of type 'char[]' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Builders\FenBoardBuilder.cs(174,41): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\Builders\FenBoardBuilder.cs(267,32): error CS1061: 'char[]' does not contain a definition for 'Slice' and no accessible extension method 'Slice' accepting a first argument of type 'char[]' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Extensions.cs(41,19): error CS0246: The type or namespace name 'Span<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessConversions.cs(69,87): error CS1061: 'Piece[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Piece[]' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Builders\SanBuilder.cs(228,20): error CS0246: The type or namespace name 'IEnumerable<>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessConversions.cs(71,87): error CS1061: 'Piece[]' does not contain a definition for 'Select' and no accessible extension method 'Select' accepting a first argument of type 'Piece[]' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\SimpleEnum.cs(20,29): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessValidations.cs(536,37): error CS1061: 'List<Move>' does not contain a definition for 'Any' and no accessible extension method 'Any' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
 
-Assets\Chess\Types\SimpleEnum.cs(21,29): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Extensions.cs(75,39): error CS0246: The type or namespace name 'Span<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Extensions.cs(75,68): error CS0246: The type or namespace name 'ReadOnlySpan<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(64,12): error CS0246: The type or namespace name 'IReadOnlyDictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(197,12): error CS0246: The type or namespace name 'IReadOnlyList<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(202,12): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(229,14): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(263,9): error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
-
-Assets\Chess\ChessBoard\ChessBoard.cs(537,31): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(40,13): error CS0246: The type or namespace name 'Task' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(105,36): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(186,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(224,91): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(253,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(295,91): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(303,89): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(308,50): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(308,129): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(59,23): error CS0246: The type or namespace name 'Dictionary<,>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(192,23): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessBoard.cs(293,43): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessEvents.cs(39,22): error CS0246: The type or namespace name 'SynchronizationContext' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(293,29): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\ChessBoard\ChessGenerations.cs(301,29): error CS0246: The type or namespace name 'List<>' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\Fen.cs(26,52): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\Fen.cs(26,52): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\Pgn.cs(32,52): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\Pgn.cs(32,52): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\San.cs(25,46): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\San.cs(25,46): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\San.cs(57,43): error CS0246: The type or namespace name 'NotNullWhenAttribute' could not be found (are you missing a using directive or an assembly reference?)
-
-Assets\Chess\Conversions\San.cs(57,43): error CS0246: The type or namespace name 'NotNullWhen' could not be found (are you missing a using directive or an assembly reference?)
+Assets\Chess\ChessBoard\ChessValidations.cs(548,49): error CS1061: 'List<Move>' does not contain a definition for 'Last' and no accessible extension method 'Last' accepting a first argument of type 'List<Move>' could be found (are you missing a using directive or an assembly reference?)
 
