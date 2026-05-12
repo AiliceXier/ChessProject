@@ -72,12 +72,12 @@ internal class FenBoardBuilder
 
         builder = new FenBoardBuilder();
 
-        foreach (var group in matches[0].Groups.Values)
+        foreach (var group in matches[0].Groups.Cast<Group>())
         {
             switch (group.Name)
             {
                 case "1":
-                    PlacePiecesOnBoard(builder, group.Value.AsSpan());
+                    PlacePiecesOnBoard(builder, group.Value);
                     break;
                 case "3":
                     builder.Turn = PieceColor.FromChar(group.Value[0]);

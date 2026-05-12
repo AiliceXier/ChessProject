@@ -30,7 +30,7 @@ internal static class SanBuilder
         var originalPos = new Position();
         var isCapture = false;
 
-        foreach (var group in matches[0].Groups.Values)
+        foreach (var group in matches[0].Groups.Cast<Group>())
         {
             if (!group.Success) continue;
 
