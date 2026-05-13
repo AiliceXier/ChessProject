@@ -44,10 +44,12 @@ public class Player : MonoBehaviour
     private readonly Color32 _lightColor = new(223, 210, 194, 255);
     private readonly Color32 _darkColor = new (84, 84, 84, 255);
 
-    private enum GameMode { Online, Local }
+    private enum GameMode { Online, Local, Robot }
     private GameMode _gameMode = GameMode.Online;
     private ChessBoard _localBoard;
     private bool _localWhiteTurn = true;
+    private ChessAI _chessAI;
+    private bool _aiThinking;
 
     private async void Start()
     {
@@ -100,6 +102,18 @@ public class Player : MonoBehaviour
 
     public async void Resign()
     {
+        if (_gameMode == GameMode.Robot)
+        {
+            _localBoard.Resign(PieceColor.White);
+            SyncBoard(_localBoard.ToFen());
+            uiPanel.SetActive(true);
+            resignButton.SetActive(false);
+            resultText.text = "You resign. AI wins!";
+            playerNameText.text = "Game Over";
+            _gameStarted = false;
+            return;
+        }
+
         if (_gameMode == GameMode.Local)
         {
             var resigningColor = _localWhiteTurn ? PieceColor.White : PieceColor.Black;
@@ -176,20 +190,40 @@ public class Player : MonoBehaviour
         playerNameText.text = "White's Turn";
     }
 
+    public void StartRobotGame()
+    {
+        _gameMode = GameMode.Robot;
+        _currentSession = null;
+        _localBoard = new ChessBoard();
+        _gameStarted = true;
+        _aiThinking = false;
+        _chessAI = new ChessAI(maxDepth: 3);
+        SyncBoard(_localBoard.ToFen());
+        uiPanel.SetActive(false);
+        resignButton.SetActive(true);
+        cameraPivot.transform.eulerAngles = Vector3.zero;
+        playerNameText.text = "Your Turn (White)";
+    }
+
     private bool CurrentPlayerIsWhite() =>
-        _gameMode == GameMode.Local ? _localWhiteTurn : _isWhite;
+        _gameMode switch
+        {
+            GameMode.Local => _localWhiteTurn,
+            GameMode.Robot => true,
+            _ => _isWhite
+        };
 
     private void SetPovLocal() =>
         cameraPivot.transform.eulerAngles = new Vector3(0, _localWhiteTurn ? 0 : 180, 0);
 
-    private void MakeLocalMove(string fromFen, string toFen)
+    private bool MakeLocalMove(string fromFen, string toFen)
     {
         var move = new Move(fromFen, toFen);
         if (!_localBoard.IsValidMove(move))
         {
             Debug.Log($"Invalid move: {fromFen} -> {toFen}");
             SelectPiece(null);
-            return;
+            return false;
         }
 
         _localBoard.Move(move);
@@ -203,12 +237,52 @@ public class Player : MonoBehaviour
             resultText.text = _localBoard.EndGame?.EndgameType.ToString();
             playerNameText.text = "Game Over";
             _gameStarted = false;
-            return;
+            return true;
         }
 
         _localWhiteTurn = !_localWhiteTurn;
         SetPovLocal();
         playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+        return true;
+    }
+
+    private async Task DoRobotMoveAsync()
+    {
+        _aiThinking = true;
+        playerNameText.text = "AI Thinking...";
+
+        Move aiMove = null;
+        var boardSnapshot = _localBoard;
+        await Task.Run(() =>
+        {
+            aiMove = _chessAI.GetBestMove(boardSnapshot);
+        });
+
+        if (aiMove == null || !_gameStarted || _gameMode != GameMode.Robot)
+        {
+            _aiThinking = false;
+            return;
+        }
+
+        _localBoard.Move(aiMove);
+        SyncBoard(_localBoard.ToFen());
+
+        if (_localBoard.IsEndGame)
+        {
+            uiPanel.SetActive(true);
+            resignButton.SetActive(false);
+            resultText.text = _localBoard.EndGame?.EndgameType.ToString();
+            playerNameText.text = "Game Over";
+            _gameStarted = false;
+        }
+        else
+        {
+            _localWhiteTurn = true;
+            cameraPivot.transform.eulerAngles = Vector3.zero;
+            playerNameText.text = "Your Turn (White)";
+        }
+
+        _aiThinking = false;
     }
 
     private void SyncBoard(string fen)
@@ -259,6 +333,15 @@ public class Player : MonoBehaviour
         if (_gameMode == GameMode.Local)
         {
             MakeLocalMove(fromFen, toFen);
+            return;
+        }
+
+        if (_gameMode == GameMode.Robot)
+        {
+            if (MakeLocalMove(fromFen, toFen) && !_localBoard.IsEndGame)
+            {
+                _ = DoRobotMoveAsync();
+            }
             return;
         }
 
@@ -354,8 +437,9 @@ public class Player : MonoBehaviour
     public void PlayerInteract(InputAction.CallbackContext context)
     {
         if (!context.performed) return;
+        if (_aiThinking) return;
         if (_gameMode == GameMode.Online && string.IsNullOrEmpty(_currentSession)) return;
-        if (_gameMode == GameMode.Local && (!_gameStarted || (_localBoard != null && _localBoard.IsEndGame))) return;
+        if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && (!_gameStarted || (_localBoard != null && _localBoard.IsEndGame))) return;
 
         var mousePosition = Mouse.current.position.ReadValue();
         var rayOrigin = playerCamera.ScreenPointToRay(mousePosition);
