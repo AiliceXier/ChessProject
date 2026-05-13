@@ -216,7 +216,7 @@ public class Player : MonoBehaviour
     private void SetPovLocal() =>
         cameraPivot.transform.eulerAngles = new Vector3(0, _localWhiteTurn ? 0 : 180, 0);
 
-    private bool MakeLocalMove(string fromFen, string toFen)
+    private bool MakeLocalMove(string fromFen, string toFen, bool updateUI = true)
     {
         var move = new Move(fromFen, toFen);
         if (!_localBoard.IsValidMove(move))
@@ -240,9 +240,12 @@ public class Player : MonoBehaviour
             return true;
         }
 
-        _localWhiteTurn = !_localWhiteTurn;
-        SetPovLocal();
-        playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+        if (updateUI)
+        {
+            _localWhiteTurn = !_localWhiteTurn;
+            SetPovLocal();
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+        }
         return true;
     }
 
@@ -338,7 +341,7 @@ public class Player : MonoBehaviour
 
         if (_gameMode == GameMode.Robot)
         {
-            if (MakeLocalMove(fromFen, toFen) && !_localBoard.IsEndGame)
+            if (MakeLocalMove(fromFen, toFen, updateUI: false) && !_localBoard.IsEndGame)
             {
                 _ = DoRobotMoveAsync();
             }
