@@ -189,7 +189,9 @@ public class Move
         if (source.CapturedPiece is not null)
             CapturedPiece = new Piece(source.CapturedPiece);
 
-        if (source.Parameter is not null)
+        if (source.Parameter is MoveEnPassant ep)
+            Parameter = new MoveEnPassant { CapturedPawnPosition = ep.CapturedPawnPosition };
+        else if (source.Parameter is not null)
             Parameter = IMoveParameter.FromString(source.Parameter.ShortStr);
 
         IsCheck = source.IsCheck;

@@ -108,7 +108,7 @@ public class Player : MonoBehaviour
             SyncBoard(_localBoard.ToFen());
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
-            resultText.text = "You resign. AI wins!";
+            resultText.text = GetRobotEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
             return;
@@ -121,7 +121,7 @@ public class Player : MonoBehaviour
             SyncBoard(_localBoard.ToFen());
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
-            resultText.text = $"{(_localWhiteTurn ? "White" : "Black")} resigns. {(_localWhiteTurn ? "Black" : "White")} wins!";
+            resultText.text = GetEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
             return;
@@ -234,7 +234,9 @@ public class Player : MonoBehaviour
         {
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
-            resultText.text = _localBoard.EndGame?.EndgameType.ToString();
+            resultText.text = _gameMode == GameMode.Robot
+                ? GetRobotEndGameText(_localBoard.EndGame)
+                : GetEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
             return true;
@@ -254,38 +256,47 @@ public class Player : MonoBehaviour
         _aiThinking = true;
         playerNameText.text = "AI Thinking...";
 
-        Move aiMove = null;
-        var boardSnapshot = _localBoard;
-        await Task.Run(() =>
+        try
         {
-            aiMove = _chessAI.GetBestMove(boardSnapshot);
-        });
+            Move aiMove = null;
+            var boardSnapshot = ChessBoard.LoadFromFen(_localBoard.ToFen());
+            await Task.Run(() =>
+            {
+                aiMove = _chessAI.GetBestMove(boardSnapshot);
+            });
 
-        if (aiMove == null || !_gameStarted || _gameMode != GameMode.Robot)
-        {
-            _aiThinking = false;
-            return;
+            if (aiMove == null || !_gameStarted || _gameMode != GameMode.Robot)
+            {
+                return;
+            }
+
+            _localBoard.Move(aiMove);
+            SyncBoard(_localBoard.ToFen());
+
+            if (_localBoard.IsEndGame)
+            {
+                uiPanel.SetActive(true);
+                resignButton.SetActive(false);
+                resultText.text = GetRobotEndGameText(_localBoard.EndGame);
+                playerNameText.text = "Game Over";
+                _gameStarted = false;
+            }
+            else
+            {
+                _localWhiteTurn = true;
+                cameraPivot.transform.eulerAngles = Vector3.zero;
+                playerNameText.text = "Your Turn (White)";
+            }
         }
-
-        _localBoard.Move(aiMove);
-        SyncBoard(_localBoard.ToFen());
-
-        if (_localBoard.IsEndGame)
+        catch (Exception e)
         {
-            uiPanel.SetActive(true);
-            resignButton.SetActive(false);
-            resultText.text = _localBoard.EndGame?.EndgameType.ToString();
-            playerNameText.text = "Game Over";
-            _gameStarted = false;
-        }
-        else
-        {
-            _localWhiteTurn = true;
-            cameraPivot.transform.eulerAngles = Vector3.zero;
+            Debug.LogException(e);
             playerNameText.text = "Your Turn (White)";
         }
-
-        _aiThinking = false;
+        finally
+        {
+            _aiThinking = false;
+        }
     }
 
     private void SyncBoard(string fen)
@@ -376,6 +387,14 @@ public class Player : MonoBehaviour
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
             resultText.text = boardUpdateResponse.EndgameType;
+            playerNameText.text = "Game Over";
+            _gameStarted = false;
+        }
+        else
+        {
+            var fenParts = boardUpdateResponse.Board.Split(' ');
+            var isWhiteTurn = fenParts.Length > 1 && fenParts[1] == "w";
+            playerNameText.text = isWhiteTurn == _isWhite ? "Your Turn" : "Opponent's Turn";
         }
     }
 
@@ -389,6 +408,7 @@ public class Player : MonoBehaviour
         _isWhite = joinGameResponse.IsWhite;
         SetPov();
         _gameStarted = true;
+        playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
     }
 
     private async Task WaitForInitialization()
@@ -541,6 +561,40 @@ public class Player : MonoBehaviour
         public string Board { get; set; }
         public string OpponentId { get; set; }
         public bool IsWhite { get; set; }
+    }
+
+    private string GetEndGameText(EndGameInfo endGame)
+    {
+        if (endGame == null) return "Game Over";
+        return endGame.EndgameType switch
+        {
+            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "Checkmate - White Wins!" : "Checkmate - Black Wins!",
+            EndgameType.Stalemate => "Stalemate - Draw",
+            EndgameType.DrawDeclared => "Draw",
+            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "White Wins by Resignation" : "Black Wins by Resignation",
+            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "White Wins on Time" : "Black Wins on Time",
+            EndgameType.InsufficientMaterial => "Draw - Insufficient Material",
+            EndgameType.FiftyMoveRule => "Draw - Fifty Move Rule",
+            EndgameType.Repetition => "Draw - Repetition",
+            _ => endGame.EndgameType.ToString()
+        };
+    }
+
+    private string GetRobotEndGameText(EndGameInfo endGame)
+    {
+        if (endGame == null) return "Game Over";
+        return endGame.EndgameType switch
+        {
+            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "Checkmate - You Win!" : "Checkmate - AI Wins!",
+            EndgameType.Stalemate => "Stalemate - Draw",
+            EndgameType.DrawDeclared => "Draw",
+            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "You Win by Resignation" : "AI Wins by Resignation",
+            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "You Win on Time" : "AI Wins on Time",
+            EndgameType.InsufficientMaterial => "Draw - Insufficient Material",
+            EndgameType.FiftyMoveRule => "Draw - Fifty Move Rule",
+            EndgameType.Repetition => "Draw - Repetition",
+            _ => endGame.EndgameType.ToString()
+        };
     }
 
     private string PosToFen(Vector3 pos)

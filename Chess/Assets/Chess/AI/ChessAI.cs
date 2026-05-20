@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Chess
@@ -14,7 +15,7 @@ namespace Chess
 
         public Move GetBestMove(ChessBoard board)
         {
-            var moves = board.Moves(generateSan: false);
+            var moves = GenerateMovesSync(board);
             if (moves.Length == 0)
                 return null;
 
@@ -24,10 +25,9 @@ namespace Chess
 
             foreach (var move in moves)
             {
-                var clone = ChessBoard.LoadFromFen(board.ToFen());
-                clone.Move(new Move(move.OriginalPosition, move.NewPosition));
-
-                int score = Minimax(clone, _maxDepth - 1, int.MinValue + 1, int.MaxValue - 1, !isMaximizing);
+                board.Move(new Move(move.OriginalPosition, move.NewPosition));
+                int score = Minimax(board, _maxDepth - 1, int.MinValue + 1, int.MaxValue - 1, !isMaximizing);
+                board.Cancel();
 
                 if (isMaximizing)
                 {
@@ -47,16 +47,16 @@ namespace Chess
             if (depth == 0 || board.IsEndGame)
                 return Evaluate(board);
 
-            var moves = board.Moves(generateSan: false);
+            var moves = GenerateMovesSync(board);
 
             if (isMaximizing)
             {
                 int maxEval = int.MinValue;
                 foreach (var move in moves)
                 {
-                    var clone = ChessBoard.LoadFromFen(board.ToFen());
-                    clone.Move(new Move(move.OriginalPosition, move.NewPosition));
-                    int eval = Minimax(clone, depth - 1, alpha, beta, false);
+                    board.Move(new Move(move.OriginalPosition, move.NewPosition));
+                    int eval = Minimax(board, depth - 1, alpha, beta, false);
+                    board.Cancel();
                     if (eval > maxEval) maxEval = eval;
                     if (eval > alpha) alpha = eval;
                     if (beta <= alpha) break;
@@ -68,15 +68,30 @@ namespace Chess
                 int minEval = int.MaxValue;
                 foreach (var move in moves)
                 {
-                    var clone = ChessBoard.LoadFromFen(board.ToFen());
-                    clone.Move(new Move(move.OriginalPosition, move.NewPosition));
-                    int eval = Minimax(clone, depth - 1, alpha, beta, true);
+                    board.Move(new Move(move.OriginalPosition, move.NewPosition));
+                    int eval = Minimax(board, depth - 1, alpha, beta, true);
+                    board.Cancel();
                     if (eval < minEval) minEval = eval;
                     if (eval < beta) beta = eval;
                     if (beta <= alpha) break;
                 }
                 return moves.Length == 0 ? Evaluate(board) : minEval;
             }
+        }
+
+        private static Move[] GenerateMovesSync(ChessBoard board)
+        {
+            var moves = new List<Move>();
+            for (short i = 0; i < 8; i++)
+            for (short j = 0; j < 8; j++)
+            {
+                if (board.pieces[i, j] != null)
+                {
+                    var pieceMoves = board.Moves(new Position { Y = i, X = j }, generateSan: false);
+                    moves.AddRange(pieceMoves);
+                }
+            }
+            return moves.ToArray();
         }
 
         private static int Evaluate(ChessBoard board)
