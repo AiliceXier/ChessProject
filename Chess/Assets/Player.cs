@@ -152,7 +152,6 @@ public class Player : MonoBehaviour
 
         try
         {
-            // There's a weird no space character that gets added to the end of the lobby code, let's remove it for now
             var sanitizedLobbyCode = Regex.Replace(lobbyInputCodeText.text, @"\s", "").Replace("\u200B", "");
 
             if (string.IsNullOrWhiteSpace(sanitizedLobbyCode))

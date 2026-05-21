@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "com.emeryporter.unitymcp": {
+      "version": "https://github.com/Bluepuff71/UnityMCP.git?path=/Package",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.2",
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "846caa5b15fe9758c4ed0caa60022b80c1c81229"
+    },
     "com.unity.collab-proxy": {
       "version": "2.7.1",
       "depth": 0,
@@ -70,7 +80,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "3.2.1",
+      "version": "3.2.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
