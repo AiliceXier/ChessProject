@@ -23,6 +23,7 @@ namespace Chess.Leaderboard
         [Header("设置")]
         public int maxEntries = 20;
         public string gameMode = "default";
+        public bool showOnStart = false;
 
         private void Start()
         {
@@ -33,7 +34,21 @@ namespace Chess.Leaderboard
                 closeButton.onClick.AddListener(HideLeaderboard);
 
             if (panel != null)
-                panel.SetActive(false);
+                panel.SetActive(showOnStart);
+
+            if (showOnStart)
+                RefreshData();
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                if (panel != null && panel.activeSelf)
+                    HideLeaderboard();
+                else
+                    ShowLeaderboard();
+            }
         }
 
         public void ShowLeaderboard()
