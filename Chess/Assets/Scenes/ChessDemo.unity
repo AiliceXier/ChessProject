@@ -6837,7 +6837,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2.000122, y: -3}
+  m_AnchoredPosition: {x: -2.000061, y: -3}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1544248099
@@ -8232,6 +8232,7 @@ GameObject:
   - component: {fileID: 1881174975}
   - component: {fileID: 1881174974}
   - component: {fileID: 1881174976}
+  - component: {fileID: 1881174977}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8260,6 +8261,7 @@ MonoBehaviour:
   uiPanel: {fileID: 74450292}
   resultText: {fileID: 220347695}
   board: {fileID: 631113151}
+  moveHistoryUI: {fileID: 1881174977}
 --- !u!4 &1881174975
 Transform:
   m_ObjectHideFlags: 0
@@ -8369,6 +8371,26 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 1974944749}
+--- !u!114 &1881174977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881174973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5aa3b0d5d07f6d488ed2473d41f3dd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  panelColor: {r: 0.12, g: 0.12, b: 0.12, a: 0.95}
+  headerColor: {r: 0.18, g: 0.18, b: 0.18, a: 1}
+  evenRowColor: {r: 0.14, g: 0.14, b: 0.14, a: 0.9}
+  oddRowColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.9}
+  moveColor: {r: 0.95, g: 0.95, b: 0.6, a: 1}
+  numColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  btnColor: {r: 0.25, g: 0.25, b: 0.3, a: 0.9}
 --- !u!1 &1895953542
 GameObject:
   m_ObjectHideFlags: 0

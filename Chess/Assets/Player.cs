@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using TMPro;
 using Chess;
 using Chess.Leaderboard;
+using Chess.UI;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.Subscriptions;
@@ -33,6 +34,8 @@ public class Player : MonoBehaviour
     public GameObject uiPanel;
     public TextMeshProUGUI resultText;
     public GameObject board;
+    
+    public MoveHistoryUI moveHistoryUI;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
     private const string StartingBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -65,6 +68,8 @@ public class Player : MonoBehaviour
     private async void Start()
     {
         SyncBoard(StartingBoard);
+        if (moveHistoryUI == null)
+            moveHistoryUI = gameObject.AddComponent<MoveHistoryUI>();
         _initializationTask = InitializeAsync();
     }
 
@@ -201,6 +206,7 @@ public class Player : MonoBehaviour
         resignButton.SetActive(true);
         SetPovLocal();
         playerNameText.text = "White's Turn";
+        if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
     }
 
     public void StartRobotGame()
@@ -217,6 +223,7 @@ public class Player : MonoBehaviour
         resignButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
         playerNameText.text = "Your Turn (White)";
+        if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
     }
 
     private bool CurrentPlayerIsWhite() =>
@@ -244,6 +251,7 @@ public class Player : MonoBehaviour
         SelectPiece(null);
         SyncBoard(_localBoard.ToFen());
         _moveCount++;
+        if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
 
         if (_localBoard.IsEndGame)
         {
@@ -289,6 +297,7 @@ public class Player : MonoBehaviour
             _localBoard.Move(aiMove);
             SyncBoard(_localBoard.ToFen());
             _moveCount++;
+            if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
 
             if (_localBoard.IsEndGame)
             {
