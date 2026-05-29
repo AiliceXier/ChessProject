@@ -210,11 +210,8 @@ namespace Chess.Leaderboard
             if (resp.data == null || resp.data.Count == 0)
                 return;
 
-            var selectedMode = GetSelectedGameMode();
-            var showMode = selectedMode == "all";
-
             foreach (var entry in resp.data)
-                CreateEntry(entry, showMode);
+                CreateEntry(entry, showMode: true);
         }
 
         private void CreateEntry(ScoreEntry entry, bool showMode)
