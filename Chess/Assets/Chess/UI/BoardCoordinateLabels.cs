@@ -5,10 +5,10 @@ namespace Chess.UI
 {
     public class BoardCoordinateLabels : MonoBehaviour
     {
-        public GameObject boardPivot;
-        public float labelOffset = 0.5f;
-        public float labelY = 0.05f;
-        public int fontSize = 24;
+        public GameObject board;
+        public float labelOffset = 0.4f;
+        public float labelY = 0.01f;
+        public int fontSize = 6;
         public Color labelColor = new Color(0.85f, 0.85f, 0.85f, 0.9f);
 
         private void Start()
@@ -18,18 +18,18 @@ namespace Chess.UI
 
         private void GenerateLabels()
         {
-            var pivot = boardPivot != null ? boardPivot.transform : transform;
+            var parent = board != null ? board.transform : transform;
 
             string[] files = { "a", "b", "c", "d", "e", "f", "g", "h" };
             string[] ranks = { "1", "2", "3", "4", "5", "6", "7", "8" };
 
             for (int i = 0; i < 8; i++)
             {
-                CreateLabel($"File_{files[i]}", new Vector3(i, labelY, -labelOffset), files[i], pivot);
-                CreateLabel($"FileB_{files[i]}", new Vector3(i, labelY, 8 + labelOffset), files[i], pivot);
+                CreateLabel($"File_{files[i]}", new Vector3(i, labelY, -labelOffset), files[i], parent);
+                CreateLabel($"FileB_{files[i]}", new Vector3(i, labelY, 8 + labelOffset - 1), files[i], parent);
 
-                CreateLabel($"Rank_{ranks[i]}", new Vector3(-labelOffset, labelY, i), ranks[i], pivot);
-                CreateLabel($"RankR_{ranks[i]}", new Vector3(8 + labelOffset, labelY, i), ranks[i], pivot);
+                CreateLabel($"Rank_{ranks[i]}", new Vector3(-labelOffset, labelY, i), ranks[i], parent);
+                CreateLabel($"RankR_{ranks[i]}", new Vector3(8 + labelOffset - 1, labelY, i), ranks[i], parent);
             }
         }
 

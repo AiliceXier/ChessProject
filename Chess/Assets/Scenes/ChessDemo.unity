@@ -748,10 +748,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bf95e4fc3b21e74dbfebde00d341433, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardPivot: {fileID: 161468093}
-  labelOffset: 0.5
-  labelY: 0.05
-  fontSize: 24
+  board: {fileID: 631113151}
+  labelOffset: 0.4
+  labelY: 0.01
+  fontSize: 6
   labelColor: {r: 0.85, g: 0.85, b: 0.85, a: 0.9}
 --- !u!1 &177126004
 GameObject:
@@ -6855,7 +6855,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2.000061, y: -3}
+  m_AnchoredPosition: {x: -2.000061, y: -2.9999695}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1544248099
@@ -8282,6 +8282,10 @@ MonoBehaviour:
   board: {fileID: 631113151}
   moveHistoryUI: {fileID: 1881174977}
   commandInputUI: {fileID: 1881174978}
+  difficultySelector: {fileID: 0}
+  evaluationBar: {fileID: 0}
+  hintSystem: {fileID: 0}
+  chatUI: {fileID: 0}
 --- !u!4 &1881174975
 Transform:
   m_ObjectHideFlags: 0
