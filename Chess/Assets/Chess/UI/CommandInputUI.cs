@@ -307,6 +307,18 @@ namespace Chess.UI
                 return;
             }
 
+            if (cmd.StartsWith("load fen ", StringComparison.OrdinalIgnoreCase))
+            {
+                LoadFen(cmd.Substring(9).Trim());
+                return;
+            }
+
+            if (cmd.StartsWith("load pgn ", StringComparison.OrdinalIgnoreCase))
+            {
+                LoadPgn(cmd.Substring(9).Trim());
+                return;
+            }
+
             TryMakeMove(cmd);
         }
 
@@ -339,12 +351,14 @@ namespace Chess.UI
             AppendOutput("  坐标格式: e2e4 / e7e8q (升变)\n");
             AppendOutput("  SAN格式: e4 / Nf3 / O-O / O-O-O\n");
             AppendOutput("命令:\n");
-            AppendOutput("  help  - 显示帮助\n");
-            AppendOutput("  board - 显示ASCII棋盘\n");
-            AppendOutput("  fen   - 显示当前FEN\n");
-            AppendOutput("  pgn   - 显示PGN棋谱\n");
-            AppendOutput("  undo  - 悔棋\n");
-            AppendOutput("  clear - 清屏\n");
+            AppendOutput("  help       - 显示帮助\n");
+            AppendOutput("  board      - 显示ASCII棋盘\n");
+            AppendOutput("  fen        - 显示当前FEN\n");
+            AppendOutput("  pgn        - 显示PGN棋谱\n");
+            AppendOutput("  undo       - 悔棋\n");
+            AppendOutput("  load fen <FEN> - 从FEN恢复棋局\n");
+            AppendOutput("  load pgn <PGN> - 从PGN恢复棋局\n");
+            AppendOutput("  clear      - 清屏\n");
         }
 
         private void ShowAsciiBoard()
@@ -392,6 +406,46 @@ namespace Chess.UI
             player.UndoLastLocalMove();
             AppendOutputColored("悔棋成功\n", successColor);
             ShowAsciiBoard();
+        }
+
+        private void LoadFen(string fen)
+        {
+            if (player == null)
+            {
+                AppendOutputColored("错误: 未连接到游戏控制器\n", errorColor);
+                return;
+            }
+
+            var result = player.LoadFromFen(fen);
+            if (result.success)
+            {
+                AppendOutputColored($"从FEN恢复棋局成功\n", successColor);
+                ShowAsciiBoard();
+            }
+            else
+            {
+                AppendOutputColored($"FEN恢复失败: {result.error}\n", errorColor);
+            }
+        }
+
+        private void LoadPgn(string pgn)
+        {
+            if (player == null)
+            {
+                AppendOutputColored("错误: 未连接到游戏控制器\n", errorColor);
+                return;
+            }
+
+            var result = player.LoadFromPgn(pgn);
+            if (result.success)
+            {
+                AppendOutputColored($"从PGN恢复棋局成功\n", successColor);
+                ShowAsciiBoard();
+            }
+            else
+            {
+                AppendOutputColored($"PGN恢复失败: {result.error}\n", errorColor);
+            }
         }
 
         private void AppendOutput(string text)

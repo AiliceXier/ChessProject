@@ -932,4 +932,82 @@ public class Player : MonoBehaviour
             playerNameText.text = "Your Turn (White)";
         }
     }
+
+    public (bool success, string error) LoadFromFen(string fen)
+    {
+        if (string.IsNullOrWhiteSpace(fen))
+            return (false, "FEN不能为空");
+
+        try
+        {
+            var newBoard = ChessBoard.LoadFromFen(fen);
+            if (newBoard == null)
+                return (false, "无效的FEN字符串");
+
+            _localBoard = newBoard;
+            _gameMode = GameMode.Local;
+            _currentSession = null;
+            _gameStarted = true;
+            _moveCount = 0;
+            _localWhiteTurn = _localBoard.Turn == PieceColor.White;
+
+            SyncBoard(_localBoard.ToFen());
+            uiPanel.SetActive(false);
+            resignButton.SetActive(true);
+            SetPovLocal();
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+
+            return (true, "");
+        }
+        catch (Exception e)
+        {
+            return (false, e.Message);
+        }
+    }
+
+    public (bool success, string error) LoadFromPgn(string pgn)
+    {
+        if (string.IsNullOrWhiteSpace(pgn))
+            return (false, "PGN不能为空");
+
+        try
+        {
+            var newBoard = ChessBoard.LoadFromPgn(pgn);
+            if (newBoard == null)
+                return (false, "无效的PGN字符串");
+
+            _localBoard = newBoard;
+            _gameMode = GameMode.Local;
+            _currentSession = null;
+            _gameStarted = !_localBoard.IsEndGame;
+            _moveCount = _localBoard.ExecutedMoves.Count;
+            _localWhiteTurn = _localBoard.Turn == PieceColor.White;
+
+            SyncBoard(_localBoard.ToFen());
+
+            if (_localBoard.IsEndGame)
+            {
+                uiPanel.SetActive(true);
+                resignButton.SetActive(false);
+                resultText.text = GetEndGameText(_localBoard.EndGame);
+                playerNameText.text = "Game Over";
+            }
+            else
+            {
+                uiPanel.SetActive(false);
+                resignButton.SetActive(true);
+                SetPovLocal();
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            }
+
+            if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+
+            return (true, "");
+        }
+        catch (Exception e)
+        {
+            return (false, e.Message);
+        }
+    }
 }
