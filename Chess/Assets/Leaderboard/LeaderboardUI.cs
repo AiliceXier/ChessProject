@@ -390,13 +390,22 @@ namespace Chess.Leaderboard
             var cleanText = System.Text.RegularExpressions.Regex.Replace(optionText, @"^Option\s*\d+\s*:\s*", "");
             Debug.Log($"[LeaderboardUI] GetSelectedGameMode() optionText='{optionText}' cleanText='{cleanText}'");
 
+            // 直接是有效 API 模式名 (all, robot, local, online, default)
+            var validModes = new HashSet<string> { "all", "robot", "local", "online", "default" };
+            if (validModes.Contains(cleanText))
+            {
+                Debug.Log($"[LeaderboardUI]   cleanText is valid API mode → '{cleanText}'");
+                return cleanText;
+            }
+
+            // 尝试中文名映射
             if (DisplayNameToMode.TryGetValue(cleanText, out var mode))
             {
-                Debug.Log($"[LeaderboardUI]   matched → '{mode}'");
+                Debug.Log($"[LeaderboardUI]   chinese match → '{mode}'");
                 return mode;
             }
 
-            Debug.LogWarning($"[LeaderboardUI]   no match in DisplayNameToMode, fallback to gameMode='{gameMode}'");
+            Debug.LogWarning($"[LeaderboardUI]   no match for '{cleanText}', fallback to gameMode='{gameMode}'");
             return gameMode;
         }
 
