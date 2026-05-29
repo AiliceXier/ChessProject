@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
     public DifficultySelector difficultySelector;
     public EvaluationBar evaluationBar;
     public HintSystem hintSystem;
+    public ChatUI chatUI;
     private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
@@ -84,6 +85,8 @@ public class Player : MonoBehaviour
             evaluationBar = gameObject.AddComponent<EvaluationBar>();
         if (hintSystem == null)
             hintSystem = gameObject.AddComponent<HintSystem>();
+        if (chatUI == null)
+            chatUI = gameObject.AddComponent<ChatUI>();
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
         _initializationTask = InitializeAsync();
@@ -1060,6 +1063,27 @@ public class Player : MonoBehaviour
         catch (Exception e)
         {
             return (false, e.Message);
+        }
+    }
+
+    public async void SendChatMessage(string message)
+    {
+        if (_gameMode != GameMode.Online || _currentSession == null) return;
+
+        try
+        {
+            await CloudCodeService.Instance.CallModuleEndpointAsync(
+                "chess",
+                "SendMessage",
+                new Dictionary<string, object>
+                {
+                    { "lobbyId", _currentSession },
+                    { "message", message }
+                });
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"发送聊天消息失败: {e.Message}");
         }
     }
 }
