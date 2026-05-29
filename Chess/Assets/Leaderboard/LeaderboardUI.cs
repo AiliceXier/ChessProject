@@ -62,8 +62,15 @@ namespace Chess.Leaderboard
 
         private void Start()
         {
+            Debug.Log($"[LeaderboardUI] Start() - panel:{panel != null} openBtn:{openButton != null} refreshBtn:{refreshButton != null} closeBtn:{closeButton != null} modeDD:{modeDropdown != null} nameInput:{playerNameInput != null} player:{player != null} loading:{loadingIndicator != null} myRank:{myRankText != null} entryPrefab:{entryPrefab != null} contentParent:{contentParent != null}");
+
             if (openButton != null)
+            {
                 openButton.onClick.AddListener(ToggleLeaderboard);
+                Debug.Log("[LeaderboardUI] openButton listener added");
+            }
+            else
+                Debug.LogError("[LeaderboardUI] openButton is NULL!");
 
             if (refreshButton != null)
                 refreshButton.onClick.AddListener(RefreshData);
@@ -72,18 +79,31 @@ namespace Chess.Leaderboard
                 closeButton.onClick.AddListener(HideLeaderboard);
 
             if (modeDropdown != null)
+            {
                 modeDropdown.onValueChanged.AddListener(OnModeChanged);
+                Debug.Log($"[LeaderboardUI] modeDropdown listener added, options count={modeDropdown.options.Count}, value={modeDropdown.value}");
+                for (int i = 0; i < modeDropdown.options.Count; i++)
+                    Debug.Log($"[LeaderboardUI]   option[{i}]='{modeDropdown.options[i].text}'");
+            }
+            else
+                Debug.LogError("[LeaderboardUI] modeDropdown is NULL!");
 
             if (playerNameInput != null)
             {
                 playerNameInput.text = currentPlayerName;
                 playerNameInput.onEndEdit.AddListener(OnPlayerNameChanged);
+                Debug.Log($"[LeaderboardUI] playerNameInput init, text='{playerNameInput.text}'");
             }
+            else
+                Debug.LogError("[LeaderboardUI] playerNameInput is NULL!");
 
             if (player != null)
             {
                 player.SetLeaderboardPlayerName(currentPlayerName);
+                Debug.Log("[LeaderboardUI] player.SetLeaderboardPlayerName called");
             }
+            else
+                Debug.LogWarning("[LeaderboardUI] player ref is NULL");
 
             if (panel != null)
                 panel.SetActive(showOnStart);
@@ -103,6 +123,7 @@ namespace Chess.Leaderboard
 
         public void ToggleLeaderboard()
         {
+            Debug.Log($"[LeaderboardUI] ToggleLeaderboard() - panel active={panel?.activeSelf}");
             if (panel != null && panel.activeSelf)
                 HideLeaderboard();
             else
@@ -111,6 +132,7 @@ namespace Chess.Leaderboard
 
         public void ShowLeaderboard()
         {
+            Debug.Log("[LeaderboardUI] ShowLeaderboard()");
             if (panel != null)
                 panel.SetActive(true);
             RefreshData();
@@ -118,27 +140,34 @@ namespace Chess.Leaderboard
 
         public void HideLeaderboard()
         {
+            Debug.Log("[LeaderboardUI] HideLeaderboard()");
             if (panel != null)
                 panel.SetActive(false);
         }
 
         public void RefreshData()
         {
+            Debug.Log($"[LeaderboardUI] RefreshData() _isLoading={_isLoading}");
             if (_isLoading) return;
 
             var selectedMode = GetSelectedGameMode();
+            Debug.Log($"[LeaderboardUI] selectedMode='{selectedMode}'");
+
             if (selectedMode == "all")
             {
+                Debug.Log("[LeaderboardUI] → LoadAllModesData()");
                 StartCoroutine(LoadAllModesData());
             }
             else
             {
+                Debug.Log($"[LeaderboardUI] → LoadSingleModeData('{selectedMode}')");
                 StartCoroutine(LoadSingleModeData(selectedMode));
             }
         }
 
         private IEnumerator LoadSingleModeData(string mode)
         {
+            Debug.Log($"[LeaderboardUI] LoadSingleModeData('{mode}') START url={LeaderboardAPI.BASE_URL}/leaderboard?limit={maxEntries}&game_mode={mode}");
             SetLoading(true);
             yield return LeaderboardAPI.GetLeaderboard(
                 limit: maxEntries,
@@ -146,6 +175,7 @@ namespace Chess.Leaderboard
                 onSuccess: OnDataLoaded,
                 onError: OnError
             );
+            Debug.Log($"[LeaderboardUI] LoadSingleModeData('{mode}') DONE");
             SetLoading(false);
 
             StartCoroutine(LoadMyRank(mode));
@@ -153,6 +183,7 @@ namespace Chess.Leaderboard
 
         private IEnumerator LoadAllModesData()
         {
+            Debug.Log($"[LeaderboardUI] LoadAllModesData() START url={LeaderboardAPI.BASE_URL}/leaderboard/all?limit={maxEntries}");
             SetLoading(true);
 
             yield return LeaderboardAPI.GetAllModesLeaderboard(
@@ -161,28 +192,32 @@ namespace Chess.Leaderboard
                 onError: OnError
             );
 
+            Debug.Log("[LeaderboardUI] LoadAllModesData() DONE");
             SetLoading(false);
         }
 
         private void OnAllModesDataLoaded(AllModesLeaderboardResponse resp)
         {
+            Debug.Log($"[LeaderboardUI] OnAllModesDataLoaded() success={resp.success}, data count={(resp.data != null ? resp.data.Count : 0)}");
             ClearEntries();
 
             if (resp.data == null || resp.data.Count == 0)
             {
-                Debug.Log("[LeaderboardUI] 全模式排行榜数据为空");
+                Debug.LogWarning("[LeaderboardUI] 全模式排行榜数据为空");
                 return;
             }
 
             var allEntries = new List<ScoreEntry>();
             foreach (var modeData in resp.data)
             {
+                Debug.Log($"[LeaderboardUI]   mode='{modeData.game_mode}', entries={modeData.entries?.Count ?? 0}");
                 if (modeData.entries != null)
                     allEntries.AddRange(modeData.entries);
             }
 
             allEntries.Sort((a, b) => b.score.CompareTo(a.score));
 
+            Debug.Log($"[LeaderboardUI] rendering {System.Math.Min(allEntries.Count, maxEntries)} entries (showMode=true)");
             for (int i = 0; i < allEntries.Count && i < maxEntries; i++)
             {
                 allEntries[i].rank = i + 1;
@@ -193,6 +228,7 @@ namespace Chess.Leaderboard
         private IEnumerator LoadMyRank(string mode)
         {
             var name = GetCurrentPlayerName();
+            Debug.Log($"[LeaderboardUI] LoadMyRank('{mode}') player='{name}'");
             if (string.IsNullOrEmpty(name)) yield break;
 
             yield return LeaderboardAPI.GetPlayerRank(
@@ -200,58 +236,80 @@ namespace Chess.Leaderboard
                 mode,
                 onSuccess: resp =>
                 {
+                    Debug.Log($"[LeaderboardUI] GetPlayerRank OK - rank={resp.data?.rank}");
                     if (resp.success && resp.data != null)
                         UpdateMyRankText(resp.data.rank);
                     else
                         UpdateMyRankText(null);
                 },
-                onError: _ => UpdateMyRankText(null)
+                onError: err =>
+                {
+                    Debug.LogWarning($"[LeaderboardUI] GetPlayerRank ERROR: {err}");
+                    UpdateMyRankText(null);
+                }
             );
         }
 
         private void OnDataLoaded(LeaderboardResponse resp)
         {
+            Debug.Log($"[LeaderboardUI] OnDataLoaded() success={resp.success}, data count={(resp.data != null ? resp.data.Count : 0)}");
             ClearEntries();
 
             if (resp.data == null || resp.data.Count == 0)
             {
-                Debug.Log("[LeaderboardUI] 排行榜数据为空");
+                Debug.LogWarning("[LeaderboardUI] 排行榜数据为空");
                 return;
             }
 
             var selectedMode = GetSelectedGameMode();
             var showMode = selectedMode == "all";
 
+            Debug.Log($"[LeaderboardUI] rendering {resp.data.Count} entries, showMode={showMode}");
             foreach (var entry in resp.data)
             {
+                Debug.Log($"[LeaderboardUI]   entry: rank={entry.rank} name='{entry.player_name}' score={entry.score} mode='{entry.game_mode}' date='{entry.created_at}'");
                 CreateEntry(entry, showMode);
             }
         }
 
         private void CreateEntry(ScoreEntry entry, bool showMode)
         {
-            if (entryPrefab == null || contentParent == null) return;
+            if (entryPrefab == null)
+            {
+                Debug.LogError("[LeaderboardUI] CreateEntry FAIL - entryPrefab is null");
+                return;
+            }
+            if (contentParent == null)
+            {
+                Debug.LogError("[LeaderboardUI] CreateEntry FAIL - contentParent is null");
+                return;
+            }
 
             var go = Instantiate(entryPrefab, contentParent);
+            Debug.Log($"[LeaderboardUI] CreateEntry() go={go.name}, childCount={go.transform.childCount}");
 
             // 处理旧版 Text
             var texts = go.GetComponentsInChildren<Text>();
+            Debug.Log($"[LeaderboardUI]   legacy Text components: {texts.Length}");
             foreach (var t in texts)
                 ApplyEntryText(t, t.name, entry, showMode, t);
 
             // 处理 TMP_Text
             var tmpTexts = go.GetComponentsInChildren<TMP_Text>();
+            Debug.Log($"[LeaderboardUI]   TMP_Text components: {tmpTexts.Length}");
             foreach (var t in tmpTexts)
                 ApplyEntryText(t, t.name, entry, showMode, null);
 
             if (entry.player_name == GetCurrentPlayerName())
             {
+                Debug.Log($"[LeaderboardUI]   highlight current player: {entry.player_name}");
                 if (go.TryGetComponent<Image>(out var img))
                     img.color = new Color(1f, 0.9f, 0.5f);
             }
 
             if (entry.rank <= 3)
             {
+                Debug.Log($"[LeaderboardUI]   medal color: rank={entry.rank}");
                 if (go.TryGetComponent<Image>(out var img))
                 {
                     img.color = entry.rank switch
@@ -281,19 +339,20 @@ namespace Chess.Leaderboard
                 SetTextValue("date", FormatDate(entry.created_at));
             return;
 
-            void SetTextValue(string _key, string _val)
+            void SetTextValue(string key, string val)
             {
                 if (legacyText != null)
-                    legacyText.text = _val;
+                    legacyText.text = val;
                 else if (textComp is TMP_Text tmp)
-                    tmp.text = _val;
+                    tmp.text = val;
+                Debug.Log($"[LeaderboardUI]   SetText '{key}'='{val}' on '{objName}' (legacy={legacyText != null})");
             }
         }
 
         private void ClearEntries()
         {
             if (contentParent == null) return;
-
+            Debug.Log($"[LeaderboardUI] ClearEntries() removing {contentParent.childCount} children");
             for (int i = contentParent.childCount - 1; i >= 0; i--)
             {
                 Destroy(contentParent.GetChild(i).gameObject);
@@ -302,11 +361,15 @@ namespace Chess.Leaderboard
 
         private void OnModeChanged(int index)
         {
+            string optionText = modeDropdown != null && index < modeDropdown.options.Count
+                ? modeDropdown.options[index].text : "???";
+            Debug.Log($"[LeaderboardUI] OnModeChanged(index={index}, text='{optionText}')");
             RefreshData();
         }
 
         private void OnPlayerNameChanged(string newName)
         {
+            Debug.Log($"[LeaderboardUI] OnPlayerNameChanged('{newName}')");
             if (!string.IsNullOrEmpty(newName))
             {
                 currentPlayerName = newName.Trim();
@@ -317,14 +380,23 @@ namespace Chess.Leaderboard
 
         private string GetSelectedGameMode()
         {
-            if (modeDropdown == null) return gameMode;
+            if (modeDropdown == null)
+            {
+                Debug.LogWarning($"[LeaderboardUI] GetSelectedGameMode() modeDropdown is null, return gameMode='{gameMode}'");
+                return gameMode;
+            }
 
             var optionText = modeDropdown.options[modeDropdown.value].text;
-            // 兼容 "Option X: " 前缀
             var cleanText = System.Text.RegularExpressions.Regex.Replace(optionText, @"^Option\s*\d+\s*:\s*", "");
-            if (DisplayNameToMode.TryGetValue(cleanText, out var mode))
-                return mode;
+            Debug.Log($"[LeaderboardUI] GetSelectedGameMode() optionText='{optionText}' cleanText='{cleanText}'");
 
+            if (DisplayNameToMode.TryGetValue(cleanText, out var mode))
+            {
+                Debug.Log($"[LeaderboardUI]   matched → '{mode}'");
+                return mode;
+            }
+
+            Debug.LogWarning($"[LeaderboardUI]   no match in DisplayNameToMode, fallback to gameMode='{gameMode}'");
             return gameMode;
         }
 
@@ -338,14 +410,17 @@ namespace Chess.Leaderboard
         private void SetLoading(bool loading)
         {
             _isLoading = loading;
+            Debug.Log($"[LeaderboardUI] SetLoading({loading})");
             if (loadingIndicator != null)
                 loadingIndicator.SetActive(loading);
         }
 
         private void UpdateMyRankText(int? rank)
         {
+            var text = rank.HasValue ? $"我的排名：第 {rank.Value} 名" : "我的排名：--";
+            Debug.Log($"[LeaderboardUI] UpdateMyRankText: '{text}'");
             if (myRankText != null)
-                myRankText.text = rank.HasValue ? $"我的排名：第 {rank.Value} 名" : "我的排名：--";
+                myRankText.text = text;
         }
 
         private static string GetModeDisplayName(string mode)
@@ -364,7 +439,7 @@ namespace Chess.Leaderboard
 
         private void OnError(string error)
         {
-            Debug.LogError($"[LeaderboardUI] 加载失败: {error}");
+            Debug.LogError($"[LeaderboardUI] OnError: {error}");
         }
     }
 }
