@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TMPro;
 using Chess;
+using Chess.Animation;
 using Chess.Leaderboard;
 using Chess.UI;
 using Unity.Services.Authentication;
@@ -37,6 +38,7 @@ public class Player : MonoBehaviour
     
     public MoveHistoryUI moveHistoryUI;
     public CommandInputUI commandInputUI;
+    private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
     private const string StartingBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -73,6 +75,8 @@ public class Player : MonoBehaviour
             moveHistoryUI = gameObject.AddComponent<MoveHistoryUI>();
         if (commandInputUI == null)
             commandInputUI = gameObject.AddComponent<CommandInputUI>();
+        _moveAnimator = gameObject.AddComponent<MoveAnimator>();
+        _moveAnimator.board = board;
         _initializationTask = InitializeAsync();
     }
 
@@ -334,37 +338,64 @@ public class Player : MonoBehaviour
         var boardState = FenToDict(fen);
         try
         {
-            foreach (Transform child in board.transform)
+            if (_moveAnimator != null && _moveAnimator.IsAnimating)
+                return;
+
+            if (_moveAnimator != null)
             {
-                Destroy(child.gameObject);
+                StartCoroutine(_moveAnimator.AnimateSyncBoard(boardState, _prefabs, (go, c) =>
+                {
+                    go.name = GetPieceTypeName(c) + (char.IsUpper(c) ? "Light" : "Dark") + "(Clone)";
+                }));
             }
-            foreach (var piece in boardState)
+            else
             {
-                var pieceType = char.ToLower(piece.Value) switch
+                foreach (Transform child in board.transform)
                 {
-                    'p' => "Pawn",
-                    'n' => "Knight",
-                    'b' => "Bishop",
-                    'r' => "Rook",
-                    'q' => "Queen",
-                    'k' => "King",
-                    _ => ""
-                };
-                var prefabName = pieceType + (char.IsUpper(piece.Value) ? "Light" : "Dark");
-                if (!_prefabs.ContainsKey(prefabName))
-                {
-                    _prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");    
+                    Destroy(child.gameObject);
                 }
-                
-                var newObject = Instantiate(_prefabs[prefabName], board.transform);
-                newObject.GameObject().transform.position = new Vector3(piece.Key.Item1, 0, piece.Key.Item2);
-                newObject.GameObject().transform.rotation = Quaternion.Euler(0, char.IsLower(piece.Value)? 180 : 0, 0);
+                foreach (var piece in boardState)
+                {
+                    var pieceType = char.ToLower(piece.Value) switch
+                    {
+                        'p' => "Pawn",
+                        'n' => "Knight",
+                        'b' => "Bishop",
+                        'r' => "Rook",
+                        'q' => "Queen",
+                        'k' => "King",
+                        _ => ""
+                    };
+                    var prefabName = pieceType + (char.IsUpper(piece.Value) ? "Light" : "Dark");
+                    if (!_prefabs.ContainsKey(prefabName))
+                    {
+                        _prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");
+                    }
+
+                    var newObject = Instantiate(_prefabs[prefabName], board.transform);
+                    newObject.GameObject().transform.position = new Vector3(piece.Key.Item1, 0, piece.Key.Item2);
+                    newObject.GameObject().transform.rotation = Quaternion.Euler(0, char.IsLower(piece.Value) ? 180 : 0, 0);
+                }
             }
         }
         catch (CloudCodeException exception)
         {
             Debug.LogException(exception);
         }
+    }
+
+    private static string GetPieceTypeName(char c)
+    {
+        return char.ToLower(c) switch
+        {
+            'p' => "Pawn",
+            'n' => "Knight",
+            'b' => "Bishop",
+            'r' => "Rook",
+            'q' => "Queen",
+            'k' => "King",
+            _ => ""
+        };
     }
 
     private async void MakeMove(GameObject piece, Vector3 toPos)
