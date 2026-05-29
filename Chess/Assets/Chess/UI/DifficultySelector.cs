@@ -19,10 +19,10 @@ namespace Chess.UI
 
         private static readonly (string name, int depth)[] Difficulties =
         {
-            ("简单", 1),
-            ("中等", 3),
-            ("困难", 4),
-            ("大师", 5)
+            ("Easy", 1),
+            ("Medium", 3),
+            ("Hard", 4),
+            ("Master", 5)
         };
 
         public int SelectedDepth => Difficulties[_selectedDifficulty].depth;
@@ -67,7 +67,7 @@ namespace Chess.UI
 
             var titleObj = CreateUIObj("Title", _panel.transform);
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "选择AI难度";
+            titleTxt.text = "Select AI Difficulty";
             titleTxt.fontSize = 20;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
@@ -88,7 +88,7 @@ namespace Chess.UI
                 btnLe.preferredHeight = 40;
 
                 var btnTxt = btnObj.AddComponent<TextMeshProUGUI>();
-                btnTxt.text = $"{Difficulties[i].name} (深度 {Difficulties[i].depth})";
+                btnTxt.text = $"{Difficulties[i].name} (Depth {Difficulties[i].depth})";
                 btnTxt.fontSize = 16;
                 btnTxt.alignment = TextAlignmentOptions.Center;
                 btnTxt.color = Color.white;

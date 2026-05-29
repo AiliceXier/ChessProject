@@ -53,7 +53,7 @@ namespace Chess.UI
             var titleLe = titleObj.AddComponent<LayoutElement>();
             titleLe.preferredHeight = 60;
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "♚ 国际象棋 ♔";
+            titleTxt.text = "Chess";
             titleTxt.fontSize = 42;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
@@ -71,19 +71,19 @@ namespace Chess.UI
 
             AddSpacer(_panel.transform, 20);
 
-            CreateModeCard("🎮 本地双人", "与朋友在同一设备上对弈", cardColor, () =>
+            CreateModeCard("Local Game", "Play with a friend on the same device", cardColor, () =>
             {
                 player?.StartLocalGame();
                 Hide();
             });
 
-            CreateModeCard("🤖 人机对战", "挑战AI，选择难度等级", cardColor, () =>
+            CreateModeCard("vs AI", "Challenge the AI, choose difficulty", cardColor, () =>
             {
                 player?.StartRobotGame();
                 Hide();
             });
 
-            CreateModeCard("🌐 在线对战", "通过房间代码与远方的朋友对弈", cardColor, () =>
+            CreateModeCard("Online Game", "Play with a friend using lobby code", cardColor, () =>
             {
                 ShowOnlineOptions();
             });
@@ -174,13 +174,13 @@ namespace Chess.UI
             var titleLe = titleObj.AddComponent<LayoutElement>();
             titleLe.preferredHeight = 50;
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "🌐 在线对战";
+            titleTxt.text = "Online Game";
             titleTxt.fontSize = 32;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
             titleTxt.color = goldColor;
 
-            CreateModeCard("创建房间", "创建新房间并等待对手加入", cardColor, () =>
+            CreateModeCard("Create Room", "Create a new room and wait for opponent", cardColor, () =>
             {
                 player?.CreateGame();
                 Hide();
@@ -214,12 +214,12 @@ namespace Chess.UI
             phRt.offsetMin = new Vector2(10, 4);
             phRt.offsetMax = new Vector2(-10, -4);
             var phTmp = phObj.AddComponent<TextMeshProUGUI>();
-            phTmp.text = "输入房间代码...";
+            phTmp.text = "Enter lobby code...";
             phTmp.fontSize = 16;
             phTmp.color = new Color(0.4f, 0.4f, 0.4f);
             inputField.placeholder = phTmp;
 
-            CreateModeCard("加入房间", "输入房间代码加入对局", cardColor, () =>
+            CreateModeCard("Join Room", "Enter lobby code to join a game", cardColor, () =>
             {
                 var code = inputField.text;
                 if (!string.IsNullOrWhiteSpace(code))
@@ -232,7 +232,7 @@ namespace Chess.UI
 
             AddSpacer(_panel.transform, 10);
 
-            CreateModeCard("← 返回主菜单", "", new Color(0.15f, 0.15f, 0.15f, 0.9f), () =>
+            CreateModeCard("< Back", "", new Color(0.15f, 0.15f, 0.15f, 0.9f), () =>
             {
                 if (_panel != null) Destroy(_panel);
                 BuildUI();

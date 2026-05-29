@@ -69,7 +69,7 @@ namespace Chess.UI
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "棋谱";
+            tmp.text = "Moves";
             tmp.fontSize = 16;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -103,7 +103,7 @@ namespace Chess.UI
             var titleImg = titleObj.AddComponent<Image>();
             titleImg.color = headerColor;
             var titleText = titleObj.AddComponent<TextMeshProUGUI>();
-            titleText.text = "棋谱记录";
+            titleText.text = "Move History";
             titleText.fontSize = 18;
             titleText.fontStyle = FontStyles.Bold;
             titleText.alignment = TextAlignmentOptions.Center;
@@ -188,7 +188,7 @@ namespace Chess.UI
             var moves = _board.ExecutedMoves;
             if (moves == null || moves.Count == 0)
             {
-                AddLabelEntry("暂无走法记录");
+                AddLabelEntry("No moves yet");
                 return;
             }
 

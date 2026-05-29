@@ -52,7 +52,7 @@ namespace Chess.UI
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "走法提示";
+            tmp.text = "Hint";
             tmp.fontSize = 14;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;

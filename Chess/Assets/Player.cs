@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Failed to initialize Unity Services: {e.Message}");
-            resultText.text = "初始化失败，请重启游戏";
+            resultText.text = "Failed to initialize. Please restart the game.";
             uiPanel.SetActive(true);
         }
     }
@@ -124,7 +124,7 @@ public class Player : MonoBehaviour
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            resultText.text = "创建房间失败，请重试";
+            resultText.text = "Create game failed. Please try again.";
             uiPanel.SetActive(true);
         }
     }
@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
             resultText.text = GetRobotEndGameText(_localBoard.EndGame);
-            playerNameText.text = "游戏结束";
+            playerNameText.text = "Game Over";
             _gameStarted = false;
             SubmitGameScore(_localBoard.EndGame);
             return;
@@ -158,7 +158,7 @@ public class Player : MonoBehaviour
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
             resultText.text = GetEndGameText(_localBoard.EndGame);
-            playerNameText.text = "游戏结束";
+            playerNameText.text = "Game Over";
             _gameStarted = false;
             SubmitGameScore(_localBoard.EndGame);
             return;
@@ -199,7 +199,7 @@ public class Player : MonoBehaviour
 
             if (string.IsNullOrWhiteSpace(sanitizedLobbyCode))
             {
-                resultText.text = "请输入有效的房间代码";
+                resultText.text = "Please enter a valid lobby code.";
             uiPanel.SetActive(true);
                 return;
             }
@@ -213,7 +213,7 @@ public class Player : MonoBehaviour
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            resultText.text = "加入房间失败，请检查房间代码";
+            resultText.text = "Join game failed. Check lobby code or wait for opponent.";
             uiPanel.SetActive(true);
         }
     }
@@ -230,7 +230,7 @@ public class Player : MonoBehaviour
         uiPanel.SetActive(false);
         resignButton.SetActive(true);
         SetPovLocal();
-        playerNameText.text = "白方走棋";
+        playerNameText.text = "White's Turn";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
     }
 
@@ -257,7 +257,7 @@ public class Player : MonoBehaviour
         uiPanel.SetActive(false);
         resignButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
-        playerNameText.text = "你的回合（白方）";
+        playerNameText.text = "Your Turn (White)";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
     }
 
@@ -296,7 +296,7 @@ public class Player : MonoBehaviour
             resultText.text = _gameMode == GameMode.Robot
                 ? GetRobotEndGameText(_localBoard.EndGame)
                 : GetEndGameText(_localBoard.EndGame);
-            playerNameText.text = "游戏结束";
+            playerNameText.text = "Game Over";
             _gameStarted = false;
             SubmitGameScore(_localBoard.EndGame);
             return true;
@@ -306,7 +306,7 @@ public class Player : MonoBehaviour
         {
             _localWhiteTurn = !_localWhiteTurn;
             SetPovLocal();
-            playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
         }
         return true;
     }
@@ -314,7 +314,7 @@ public class Player : MonoBehaviour
     private async Task DoRobotMoveAsync()
     {
         _aiThinking = true;
-        playerNameText.text = "AI思考中...";
+        playerNameText.text = "AI Thinking...";
 
         try
         {
@@ -341,7 +341,7 @@ public class Player : MonoBehaviour
                 uiPanel.SetActive(true);
                 resignButton.SetActive(false);
                 resultText.text = GetRobotEndGameText(_localBoard.EndGame);
-                playerNameText.text = "游戏结束";
+                playerNameText.text = "Game Over";
                 _gameStarted = false;
                 SubmitGameScore(_localBoard.EndGame);
             }
@@ -349,13 +349,13 @@ public class Player : MonoBehaviour
             {
                 _localWhiteTurn = true;
                 cameraPivot.transform.eulerAngles = Vector3.zero;
-                playerNameText.text = "你的回合（白方）";
+                playerNameText.text = "Your Turn (White)";
             }
         }
         catch (Exception e)
         {
             Debug.LogException(e);
-            playerNameText.text = "你的回合（白方）";
+            playerNameText.text = "Your Turn (White)";
         }
         finally
         {
@@ -478,7 +478,7 @@ public class Player : MonoBehaviour
             uiPanel.SetActive(true);
             resignButton.SetActive(false);
             resultText.text = boardUpdateResponse.EndgameType;
-            playerNameText.text = "游戏结束";
+            playerNameText.text = "Game Over";
             _gameStarted = false;
             SubmitOnlineScore(boardUpdateResponse.EndgameType);
         }
@@ -486,7 +486,7 @@ public class Player : MonoBehaviour
         {
             var fenParts = boardUpdateResponse.Board.Split(' ');
             var isWhiteTurn = fenParts.Length > 1 && fenParts[1] == "w";
-            playerNameText.text = isWhiteTurn == _isWhite ? "你的回合" : "对手回合";
+            playerNameText.text = isWhiteTurn == _isWhite ? "Your Turn" : "Opponent's Turn";
         }
     }
 
@@ -500,7 +500,7 @@ public class Player : MonoBehaviour
         _isWhite = joinGameResponse.IsWhite;
         SetPov();
         _gameStarted = true;
-        playerNameText.text = _isWhite ? "你的回合（白方）" : "你的回合（黑方）";
+        playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
     }
 
     private async Task WaitForInitialization()
@@ -657,34 +657,34 @@ public class Player : MonoBehaviour
 
     private string GetEndGameText(EndGameInfo endGame)
     {
-        if (endGame == null) return "游戏结束";
+        if (endGame == null) return "Game Over";
         return endGame.EndgameType switch
         {
-            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "将杀 - 白方胜！" : "将杀 - 黑方胜！",
-            EndgameType.Stalemate => "逼和 - 平局",
-            EndgameType.DrawDeclared => "平局",
-            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "白方胜（对手认输）" : "黑方胜（对手认输）",
-            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "白方胜（超时）" : "黑方胜（超时）",
-            EndgameType.InsufficientMaterial => "平局 - 子力不足",
-            EndgameType.FiftyMoveRule => "平局 - 五十步规则",
-            EndgameType.Repetition => "平局 - 三次重复",
+            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "Checkmate - White Wins!" : "Checkmate - Black Wins!",
+            EndgameType.Stalemate => "Stalemate - Draw",
+            EndgameType.DrawDeclared => "Draw",
+            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "White Wins by Resignation" : "Black Wins by Resignation",
+            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "White Wins on Time" : "Black Wins on Time",
+            EndgameType.InsufficientMaterial => "Draw - Insufficient Material",
+            EndgameType.FiftyMoveRule => "Draw - Fifty Move Rule",
+            EndgameType.Repetition => "Draw - Repetition",
             _ => endGame.EndgameType.ToString()
         };
     }
 
     private string GetRobotEndGameText(EndGameInfo endGame)
     {
-        if (endGame == null) return "游戏结束";
+        if (endGame == null) return "Game Over";
         return endGame.EndgameType switch
         {
-            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "将杀 - 你赢了！" : "将杀 - AI赢了！",
-            EndgameType.Stalemate => "逼和 - 平局",
-            EndgameType.DrawDeclared => "平局",
-            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "你赢了（AI认输）" : "AI赢了（你认输）",
-            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "你赢了（AI超时）" : "AI赢了（超时）",
-            EndgameType.InsufficientMaterial => "平局 - 子力不足",
-            EndgameType.FiftyMoveRule => "平局 - 五十步规则",
-            EndgameType.Repetition => "平局 - 三次重复",
+            EndgameType.Checkmate => endGame.WonSide == PieceColor.White ? "Checkmate - You Win!" : "Checkmate - AI Wins!",
+            EndgameType.Stalemate => "Stalemate - Draw",
+            EndgameType.DrawDeclared => "Draw",
+            EndgameType.Resigned => endGame.WonSide == PieceColor.White ? "You Win by Resignation" : "AI Wins by Resignation",
+            EndgameType.Timeout => endGame.WonSide == PieceColor.White ? "You Win on Time" : "AI Wins on Time",
+            EndgameType.InsufficientMaterial => "Draw - Insufficient Material",
+            EndgameType.FiftyMoveRule => "Draw - Fifty Move Rule",
+            EndgameType.Repetition => "Draw - Repetition",
             _ => endGame.EndgameType.ToString()
         };
     }
@@ -750,11 +750,11 @@ public class Player : MonoBehaviour
             onSuccess: resp =>
             {
                 if (resp.success)
-                    Debug.Log($"[Leaderboard] 分数已提交: {_leaderboardPlayerName} -> {score} (模式: {mode}, 排名: 第{resp.data.rank}名)");
+                    Debug.Log($"[Leaderboard] Score submitted: {_leaderboardPlayerName} -> {score} (mode: {mode}, rank: #{resp.data.rank})");
             },
             onError: err =>
             {
-                Debug.LogWarning($"[Leaderboard] 提交失败: {err}");
+                Debug.LogWarning($"[Leaderboard] Submit failed: {err}");
             }
         ));
     }
@@ -772,11 +772,11 @@ public class Player : MonoBehaviour
             onSuccess: resp =>
             {
                 if (resp.success)
-                    Debug.Log($"[Leaderboard] 在线分数已提交: {_leaderboardPlayerName} -> {score} (排名: 第{resp.data.rank}名)");
+                    Debug.Log($"[Leaderboard] Online score submitted: {_leaderboardPlayerName} -> {score} (rank: #{resp.data.rank})");
             },
             onError: err =>
             {
-                Debug.LogWarning($"[Leaderboard] 提交失败: {err}");
+                Debug.LogWarning($"[Leaderboard] Submit failed: {err}");
             }
         ));
     }
@@ -820,16 +820,16 @@ public class Player : MonoBehaviour
     public (bool success, string error) MakeCommandMove(string cmd)
     {
         if (string.IsNullOrWhiteSpace(cmd))
-            return (false, "命令不能为空");
+            return (false, "Command cannot be empty");
 
         if (_gameMode != GameMode.Local && _gameMode != GameMode.Robot)
-            return (false, "命令行模式仅支持本地双人和人机对战");
+            return (false, "Command mode only supports local and robot games");
 
         if (!_gameStarted || _localBoard == null || _localBoard.IsEndGame)
-            return (false, "当前没有进行中的棋局");
+            return (false, "No active game in progress");
 
         if (_aiThinking)
-            return (false, "AI正在思考中，请等待");
+            return (false, "AI is thinking, please wait");
 
         cmd = cmd.Trim();
 
@@ -837,7 +837,7 @@ public class Player : MonoBehaviour
         {
             var move = new Move(fromPos, toPos);
             if (!_localBoard.IsValidMove(move))
-                return (false, $"非法走法: {cmd}");
+                return (false, $"Invalid move: {cmd}");
 
             _localBoard.Move(move);
             SyncBoard(_localBoard.ToFen());
@@ -851,7 +851,7 @@ public class Player : MonoBehaviour
                 resultText.text = _gameMode == GameMode.Robot
                     ? GetRobotEndGameText(_localBoard.EndGame)
                     : GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "游戏结束";
+                playerNameText.text = "Game Over";
                 _gameStarted = false;
                 SubmitGameScore(_localBoard.EndGame);
                 return (true, "");
@@ -861,7 +861,7 @@ public class Player : MonoBehaviour
             {
                 _localWhiteTurn = !_localWhiteTurn;
                 SetPovLocal();
-                playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
             }
             else if (_gameMode == GameMode.Robot)
             {
@@ -874,7 +874,7 @@ public class Player : MonoBehaviour
         if (TryParseSanMove(cmd, out var sanMove))
         {
             if (!_localBoard.IsValidMove(sanMove))
-                return (false, $"非法走法: {cmd}");
+                return (false, $"Invalid move: {cmd}");
 
             _localBoard.Move(sanMove);
             SyncBoard(_localBoard.ToFen());
@@ -888,7 +888,7 @@ public class Player : MonoBehaviour
                 resultText.text = _gameMode == GameMode.Robot
                     ? GetRobotEndGameText(_localBoard.EndGame)
                     : GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "游戏结束";
+                playerNameText.text = "Game Over";
                 _gameStarted = false;
                 SubmitGameScore(_localBoard.EndGame);
                 return (true, "");
@@ -898,7 +898,7 @@ public class Player : MonoBehaviour
             {
                 _localWhiteTurn = !_localWhiteTurn;
                 SetPovLocal();
-                playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
             }
             else if (_gameMode == GameMode.Robot)
             {
@@ -908,7 +908,7 @@ public class Player : MonoBehaviour
             return (true, "");
         }
 
-        return (false, $"无法识别的走法: {cmd}\n支持格式: e2e4 / Nf3 / O-O");
+        return (false, $"Unrecognized move: {cmd}\nSupported formats: e2e4 / Nf3 / O-O");
     }
 
     private bool TryParseCoordinateMove(string cmd, out string fromPos, out string toPos)
@@ -985,25 +985,25 @@ public class Player : MonoBehaviour
         if (_gameMode == GameMode.Local)
         {
             SetPovLocal();
-            playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
         }
         else if (_gameMode == GameMode.Robot)
         {
             cameraPivot.transform.eulerAngles = Vector3.zero;
-            playerNameText.text = "你的回合（白方）";
+            playerNameText.text = "Your Turn (White)";
         }
     }
 
     public (bool success, string error) LoadFromFen(string fen)
     {
         if (string.IsNullOrWhiteSpace(fen))
-            return (false, "FEN不能为空");
+            return (false, "FEN cannot be empty");
 
         try
         {
             var newBoard = ChessBoard.LoadFromFen(fen);
             if (newBoard == null)
-                return (false, "无效的FEN字符串");
+                return (false, "Invalid FEN string");
 
             _localBoard = newBoard;
             _gameMode = GameMode.Local;
@@ -1016,7 +1016,7 @@ public class Player : MonoBehaviour
             uiPanel.SetActive(false);
             resignButton.SetActive(true);
             SetPovLocal();
-            playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
             if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
 
             return (true, "");
@@ -1030,13 +1030,13 @@ public class Player : MonoBehaviour
     public (bool success, string error) LoadFromPgn(string pgn)
     {
         if (string.IsNullOrWhiteSpace(pgn))
-            return (false, "PGN不能为空");
+            return (false, "PGN cannot be empty");
 
         try
         {
             var newBoard = ChessBoard.LoadFromPgn(pgn);
             if (newBoard == null)
-                return (false, "无效的PGN字符串");
+                return (false, "Invalid PGN string");
 
             _localBoard = newBoard;
             _gameMode = GameMode.Local;
@@ -1052,14 +1052,14 @@ public class Player : MonoBehaviour
                 uiPanel.SetActive(true);
                 resignButton.SetActive(false);
                 resultText.text = GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "游戏结束";
+                playerNameText.text = "Game Over";
             }
             else
             {
                 uiPanel.SetActive(false);
                 resignButton.SetActive(true);
                 SetPovLocal();
-                playerNameText.text = _localWhiteTurn ? "白方走棋" : "黑方走棋";
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
             }
 
             if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
@@ -1089,7 +1089,7 @@ public class Player : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"发送聊天消息失败: {e.Message}");
+            Debug.LogWarning($"Failed to send chat message: {e.Message}");
         }
     }
 }

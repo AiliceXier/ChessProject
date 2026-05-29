@@ -73,7 +73,7 @@ namespace Chess.UI
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "聊天";
+            tmp.text = "Chat";
             tmp.fontSize = 14;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -106,7 +106,7 @@ namespace Chess.UI
             var titleImg = titleObj.AddComponent<Image>();
             titleImg.color = headerColor;
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "聊天";
+            titleTxt.text = "Chat";
             titleTxt.fontSize = 16;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
@@ -215,7 +215,7 @@ namespace Chess.UI
             placeholderRt.offsetMax = new Vector2(-6, -4);
             var phTmp = placeholderObj.AddComponent<TextMeshProUGUI>();
             phTmp.fontSize = 14;
-            phTmp.text = "输入消息...";
+            phTmp.text = "Type a message...";
             phTmp.color = new Color(0.4f, 0.4f, 0.4f);
             _inputField.placeholder = phTmp;
 
@@ -231,13 +231,13 @@ namespace Chess.UI
             sendLe.minWidth = 50;
             sendLe.preferredWidth = 50;
             var sendTxt = sendBtnObj.AddComponent<TextMeshProUGUI>();
-            sendTxt.text = "发送";
+            sendTxt.text = "Send";
             sendTxt.fontSize = 13;
             sendTxt.fontStyle = FontStyles.Bold;
             sendTxt.alignment = TextAlignmentOptions.Center;
             sendTxt.color = Color.white;
 
-            AddSystemMessage("聊天功能仅在线对战模式可用");
+            AddSystemMessage("Chat is only available in online mode");
         }
 
         private GameObject CreateUIObj(string name, Transform parent)
@@ -272,7 +272,7 @@ namespace Chess.UI
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
-            AddMessage("我", text, true);
+            AddMessage("Me", text, true);
 
             if (player != null)
                 player.SendChatMessage(text);

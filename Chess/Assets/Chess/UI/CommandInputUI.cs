@@ -67,7 +67,7 @@ namespace Chess.UI
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
-            tmp.text = "命令行";
+            tmp.text = "Cmd";
             tmp.fontSize = 14;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -101,7 +101,7 @@ namespace Chess.UI
             var titleImg = titleObj.AddComponent<Image>();
             titleImg.color = headerColor;
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "命令行输入";
+            titleTxt.text = "Command Input";
             titleTxt.fontSize = 16;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
@@ -207,7 +207,7 @@ namespace Chess.UI
             placeholderRt.offsetMax = new Vector2(-4, -4);
             var placeholderTmp = placeholderObj.AddComponent<TextMeshProUGUI>();
             placeholderTmp.fontSize = 14;
-            placeholderTmp.text = "输入走法 (如 e2e4 或 Nf3)...";
+            placeholderTmp.text = "Enter move (e.g. e2e4 or Nf3)...";
             placeholderTmp.color = new Color(0.4f, 0.4f, 0.4f);
             placeholderTmp.alignment = TextAlignmentOptions.MidlineLeft;
             _inputField.placeholder = placeholderTmp;
@@ -228,13 +228,13 @@ namespace Chess.UI
             sendBtnLe.minWidth = 50;
             sendBtnLe.preferredWidth = 50;
             var sendTxt = sendBtnObj.AddComponent<TextMeshProUGUI>();
-            sendTxt.text = "执行";
+            sendTxt.text = "Go";
             sendTxt.fontSize = 13;
             sendTxt.fontStyle = FontStyles.Bold;
             sendTxt.alignment = TextAlignmentOptions.Center;
             sendTxt.color = Color.white;
 
-            AppendOutput("欢迎使用命令行模式！\n输入走法命令，如: e2e4 / Nf3 / O-O\n输入 'help' 查看帮助\n");
+            AppendOutput("Welcome to command mode!\nEnter moves like: e2e4 / Nf3 / O-O\nType 'help' for commands\n");
         }
 
         private GameObject CreateUIObj(string name, Transform parent)
@@ -326,7 +326,7 @@ namespace Chess.UI
         {
             if (player == null)
             {
-                AppendOutputColored("错误: 未连接到游戏控制器\n", errorColor);
+                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
                 return;
             }
 
@@ -334,31 +334,31 @@ namespace Chess.UI
             if (result.success)
             {
                 AppendOutputColored($"> {cmd}\n", new Color(0.5f, 0.8f, 0.5f));
-                AppendOutputColored($"  走法执行成功\n", successColor);
+                AppendOutputColored($"  Move executed successfully\n", successColor);
                 ShowAsciiBoard();
             }
             else
             {
                 AppendOutputColored($"> {cmd}\n", new Color(0.8f, 0.5f, 0.5f));
-                AppendOutputColored($"  错误: {result.error}\n", errorColor);
+                AppendOutputColored($"  Error: {result.error}\n", errorColor);
             }
         }
 
         private void ShowHelp()
         {
-            AppendOutput("── 帮助 ──\n");
-            AppendOutput("走法格式:\n");
-            AppendOutput("  坐标格式: e2e4 / e7e8q (升变)\n");
-            AppendOutput("  SAN格式: e4 / Nf3 / O-O / O-O-O\n");
-            AppendOutput("命令:\n");
-            AppendOutput("  help       - 显示帮助\n");
-            AppendOutput("  board      - 显示ASCII棋盘\n");
-            AppendOutput("  fen        - 显示当前FEN\n");
-            AppendOutput("  pgn        - 显示PGN棋谱\n");
-            AppendOutput("  undo       - 悔棋\n");
-            AppendOutput("  load fen <FEN> - 从FEN恢复棋局\n");
-            AppendOutput("  load pgn <PGN> - 从PGN恢复棋局\n");
-            AppendOutput("  clear      - 清屏\n");
+            AppendOutput("-- Help --\n");
+            AppendOutput("Move formats:\n");
+            AppendOutput("  Coordinate: e2e4 / e7e8q (promotion)\n");
+            AppendOutput("  SAN: e4 / Nf3 / O-O / O-O-O\n");
+            AppendOutput("Commands:\n");
+            AppendOutput("  help       - Show help\n");
+            AppendOutput("  board      - Show ASCII board\n");
+            AppendOutput("  fen        - Show current FEN\n");
+            AppendOutput("  pgn        - Show PGN record\n");
+            AppendOutput("  undo       - Undo last move\n");
+            AppendOutput("  load fen <FEN> - Restore board from FEN\n");
+            AppendOutput("  load pgn <PGN> - Restore board from PGN\n");
+            AppendOutput("  clear      - Clear screen\n");
         }
 
         private void ShowAsciiBoard()
@@ -366,7 +366,7 @@ namespace Chess.UI
             var board = player?.GetLocalBoard();
             if (board == null)
             {
-                AppendOutputColored("当前无活跃棋局\n", errorColor);
+                AppendOutputColored("No active game\n", errorColor);
                 return;
             }
             AppendOutput(board.ToAscii(true) + "\n");
@@ -377,7 +377,7 @@ namespace Chess.UI
             var board = player?.GetLocalBoard();
             if (board == null)
             {
-                AppendOutputColored("当前无活跃棋局\n", errorColor);
+                AppendOutputColored("No active game\n", errorColor);
                 return;
             }
             AppendOutput($"FEN: {board.ToFen()}\n");
@@ -388,7 +388,7 @@ namespace Chess.UI
             var board = player?.GetLocalBoard();
             if (board == null)
             {
-                AppendOutputColored("当前无活跃棋局\n", errorColor);
+                AppendOutputColored("No active game\n", errorColor);
                 return;
             }
             AppendOutput($"PGN:\n{board.ToPgn()}\n");
@@ -399,12 +399,12 @@ namespace Chess.UI
             var board = player?.GetLocalBoard();
             if (board == null || board.ExecutedMoves.Count == 0)
             {
-                AppendOutputColored("没有可撤销的走法\n", errorColor);
+                AppendOutputColored("No moves to undo\n", errorColor);
                 return;
             }
 
             player.UndoLastLocalMove();
-            AppendOutputColored("悔棋成功\n", successColor);
+            AppendOutputColored("Undo successful\n", successColor);
             ShowAsciiBoard();
         }
 
@@ -412,19 +412,19 @@ namespace Chess.UI
         {
             if (player == null)
             {
-                AppendOutputColored("错误: 未连接到游戏控制器\n", errorColor);
+                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
                 return;
             }
 
             var result = player.LoadFromFen(fen);
             if (result.success)
             {
-                AppendOutputColored($"从FEN恢复棋局成功\n", successColor);
+                AppendOutputColored($"Board restored from FEN\n", successColor);
                 ShowAsciiBoard();
             }
             else
             {
-                AppendOutputColored($"FEN恢复失败: {result.error}\n", errorColor);
+                AppendOutputColored($"FEN restore failed: {result.error}\n", errorColor);
             }
         }
 
@@ -432,19 +432,19 @@ namespace Chess.UI
         {
             if (player == null)
             {
-                AppendOutputColored("错误: 未连接到游戏控制器\n", errorColor);
+                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
                 return;
             }
 
             var result = player.LoadFromPgn(pgn);
             if (result.success)
             {
-                AppendOutputColored($"从PGN恢复棋局成功\n", successColor);
+                AppendOutputColored($"Board restored from PGN\n", successColor);
                 ShowAsciiBoard();
             }
             else
             {
-                AppendOutputColored($"PGN恢复失败: {result.error}\n", errorColor);
+                AppendOutputColored($"PGN restore failed: {result.error}\n", errorColor);
             }
         }
 
