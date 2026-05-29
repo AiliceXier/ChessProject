@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,6 +18,19 @@ namespace Chess.Leaderboard
         public Button refreshButton;
         public Button closeButton;
 
+        [Header("模式筛选")]
+        public Dropdown modeDropdown;
+
+        [Header("玩家名输入")]
+        public InputField playerNameInput;
+
+        [Header("游戏玩家引用")]
+        public Player player;
+
+        [Header("状态显示")]
+        public GameObject loadingIndicator;
+        public Text myRankText;
+
         [Header("默认玩家名")]
         public string currentPlayerName = "Player";
 
@@ -24,6 +38,25 @@ namespace Chess.Leaderboard
         public int maxEntries = 20;
         public string gameMode = "default";
         public bool showOnStart = false;
+
+        private static readonly Dictionary<string, string> ModeDisplayNames = new Dictionary<string, string>
+        {
+            { "robot", "人机对战" },
+            { "local", "本地双人" },
+            { "online", "在线对战" },
+            { "default", "默认" }
+        };
+
+        private static readonly Dictionary<string, string> DisplayNameToMode = new Dictionary<string, string>
+        {
+            { "全部", "all" },
+            { "人机对战", "robot" },
+            { "本地双人", "local" },
+            { "在线对战", "online" }
+        };
+
+        private List<string> _serverModes = new List<string>();
+        private bool _isLoading;
 
         private void Start()
         {
@@ -33,8 +66,25 @@ namespace Chess.Leaderboard
             if (closeButton != null)
                 closeButton.onClick.AddListener(HideLeaderboard);
 
+            if (modeDropdown != null)
+                modeDropdown.onValueChanged.AddListener(OnModeChanged);
+
+            if (playerNameInput != null)
+            {
+                playerNameInput.text = currentPlayerName;
+                playerNameInput.onEndEdit.AddListener(OnPlayerNameChanged);
+            }
+
+            if (player != null)
+            {
+                player.SetLeaderboardPlayerName(currentPlayerName);
+            }
+
             if (panel != null)
                 panel.SetActive(showOnStart);
+
+            SetLoading(false);
+            UpdateMyRankText(null);
 
             if (showOnStart)
                 RefreshData();
@@ -66,12 +116,89 @@ namespace Chess.Leaderboard
 
         public void RefreshData()
         {
-            StartCoroutine(LeaderboardAPI.GetLeaderboard(
+            if (_isLoading) return;
+
+            var selectedMode = GetSelectedGameMode();
+            if (selectedMode == "all")
+            {
+                StartCoroutine(LoadAllModesData());
+            }
+            else
+            {
+                StartCoroutine(LoadSingleModeData(selectedMode));
+            }
+        }
+
+        private IEnumerator LoadSingleModeData(string mode)
+        {
+            SetLoading(true);
+            yield return LeaderboardAPI.GetLeaderboard(
                 limit: maxEntries,
-                gameMode: gameMode,
+                gameMode: mode,
                 onSuccess: OnDataLoaded,
                 onError: OnError
-            ));
+            );
+            SetLoading(false);
+
+            StartCoroutine(LoadMyRank(mode));
+        }
+
+        private IEnumerator LoadAllModesData()
+        {
+            SetLoading(true);
+
+            yield return LeaderboardAPI.GetAllModesLeaderboard(
+                limit: maxEntries,
+                onSuccess: OnAllModesDataLoaded,
+                onError: OnError
+            );
+
+            SetLoading(false);
+        }
+
+        private void OnAllModesDataLoaded(AllModesLeaderboardResponse resp)
+        {
+            ClearEntries();
+
+            if (resp.data == null || resp.data.Count == 0)
+            {
+                Debug.Log("[LeaderboardUI] 全模式排行榜数据为空");
+                return;
+            }
+
+            var allEntries = new List<ScoreEntry>();
+            foreach (var modeData in resp.data)
+            {
+                if (modeData.entries != null)
+                    allEntries.AddRange(modeData.entries);
+            }
+
+            allEntries.Sort((a, b) => b.score.CompareTo(a.score));
+
+            for (int i = 0; i < allEntries.Count && i < maxEntries; i++)
+            {
+                allEntries[i].rank = i + 1;
+                CreateEntry(allEntries[i], showMode: true);
+            }
+        }
+
+        private IEnumerator LoadMyRank(string mode)
+        {
+            var name = GetCurrentPlayerName();
+            if (string.IsNullOrEmpty(name)) yield break;
+
+            yield return LeaderboardAPI.GetPlayerRank(
+                name,
+                mode,
+                onSuccess: resp =>
+                {
+                    if (resp.success && resp.data != null)
+                        UpdateMyRankText(resp.data.rank);
+                    else
+                        UpdateMyRankText(null);
+                },
+                onError: _ => UpdateMyRankText(null)
+            );
         }
 
         private void OnDataLoaded(LeaderboardResponse resp)
@@ -84,25 +211,53 @@ namespace Chess.Leaderboard
                 return;
             }
 
+            var selectedMode = GetSelectedGameMode();
+            var showMode = selectedMode == "all";
+
             foreach (var entry in resp.data)
             {
-                if (entryPrefab != null && contentParent != null)
-                {
-                    var go = Instantiate(entryPrefab, contentParent);
-                    var texts = go.GetComponentsInChildren<Text>();
-                    foreach (var t in texts)
-                    {
-                        if (t.name.Contains("Rank") || t.name.ToLower().Contains("rank"))
-                            t.text = entry.rank.ToString();
-                        else if (t.name.Contains("Name") || t.name.ToLower().Contains("name"))
-                            t.text = entry.player_name;
-                        else if (t.name.Contains("Score") || t.name.ToLower().Contains("score"))
-                            t.text = entry.score.ToString();
-                    }
+                CreateEntry(entry, showMode);
+            }
+        }
 
-                    // 高亮当前玩家
-                    if (entry.player_name == currentPlayerName && go.TryGetComponent<Image>(out var img))
-                        img.color = new Color(1f, 0.9f, 0.5f);
+        private void CreateEntry(ScoreEntry entry, bool showMode)
+        {
+            if (entryPrefab == null || contentParent == null) return;
+
+            var go = Instantiate(entryPrefab, contentParent);
+            var texts = go.GetComponentsInChildren<Text>();
+            foreach (var t in texts)
+            {
+                var nameLower = t.name.ToLower();
+                if (nameLower.Contains("rank"))
+                    t.text = entry.rank.ToString();
+                else if (nameLower.Contains("name"))
+                    t.text = entry.player_name;
+                else if (nameLower.Contains("score"))
+                    t.text = entry.score.ToString();
+                else if (nameLower.Contains("mode") && showMode)
+                    t.text = GetModeDisplayName(entry.game_mode);
+                else if (nameLower.Contains("date"))
+                    t.text = FormatDate(entry.created_at);
+            }
+
+            if (entry.player_name == GetCurrentPlayerName())
+            {
+                if (go.TryGetComponent<Image>(out var img))
+                    img.color = new Color(1f, 0.9f, 0.5f);
+            }
+
+            if (entry.rank <= 3)
+            {
+                if (go.TryGetComponent<Image>(out var img))
+                {
+                    img.color = entry.rank switch
+                    {
+                        1 => new Color(1f, 0.84f, 0f),
+                        2 => new Color(0.75f, 0.75f, 0.75f),
+                        3 => new Color(0.8f, 0.5f, 0.2f),
+                        _ => img.color
+                    };
                 }
             }
         }
@@ -115,6 +270,66 @@ namespace Chess.Leaderboard
             {
                 Destroy(contentParent.GetChild(i).gameObject);
             }
+        }
+
+        private void OnModeChanged(int index)
+        {
+            RefreshData();
+        }
+
+        private void OnPlayerNameChanged(string newName)
+        {
+            if (!string.IsNullOrEmpty(newName))
+            {
+                currentPlayerName = newName.Trim();
+                if (player != null)
+                    player.SetLeaderboardPlayerName(currentPlayerName);
+            }
+        }
+
+        private string GetSelectedGameMode()
+        {
+            if (modeDropdown == null) return gameMode;
+
+            var optionText = modeDropdown.options[modeDropdown.value].text;
+            if (DisplayNameToMode.TryGetValue(optionText, out var mode))
+                return mode;
+
+            return gameMode;
+        }
+
+        private string GetCurrentPlayerName()
+        {
+            if (playerNameInput != null && !string.IsNullOrEmpty(playerNameInput.text))
+                return playerNameInput.text.Trim();
+            return currentPlayerName;
+        }
+
+        private void SetLoading(bool loading)
+        {
+            _isLoading = loading;
+            if (loadingIndicator != null)
+                loadingIndicator.SetActive(loading);
+        }
+
+        private void UpdateMyRankText(int? rank)
+        {
+            if (myRankText != null)
+                myRankText.text = rank.HasValue ? $"我的排名：第 {rank.Value} 名" : "我的排名：--";
+        }
+
+        private static string GetModeDisplayName(string mode)
+        {
+            if (string.IsNullOrEmpty(mode)) return "--";
+            return ModeDisplayNames.TryGetValue(mode, out var display) ? display : mode;
+        }
+
+        private static string FormatDate(string dateStr)
+        {
+            if (string.IsNullOrEmpty(dateStr)) return "--";
+            if (dateStr.Length >= 10)
+                return dateStr.Substring(0, 10);
+            return dateStr;
         }
 
         private void OnError(string error)

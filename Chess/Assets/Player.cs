@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TMPro;
 using Chess;
+using Chess.Leaderboard;
 using Unity.Services.Authentication;
 using Unity.Services.CloudCode;
 using Unity.Services.CloudCode.Subscriptions;
@@ -50,6 +52,15 @@ public class Player : MonoBehaviour
     private bool _localWhiteTurn = true;
     private ChessAI _chessAI;
     private bool _aiThinking;
+
+    private int _moveCount;
+    private string _leaderboardPlayerName = "Player";
+    private static readonly Dictionary<GameMode, string> GameModeToLeaderboardMode = new Dictionary<GameMode, string>
+    {
+        { GameMode.Robot, "robot" },
+        { GameMode.Local, "local" },
+        { GameMode.Online, "online" }
+    };
 
     private async void Start()
     {
@@ -111,6 +122,7 @@ public class Player : MonoBehaviour
             resultText.text = GetRobotEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
+            SubmitGameScore(_localBoard.EndGame);
             return;
         }
 
@@ -124,6 +136,7 @@ public class Player : MonoBehaviour
             resultText.text = GetEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
+            SubmitGameScore(_localBoard.EndGame);
             return;
         }
 
@@ -182,6 +195,7 @@ public class Player : MonoBehaviour
         _localBoard = new ChessBoard();
         _localWhiteTurn = true;
         _gameStarted = true;
+        _moveCount = 0;
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
         resignButton.SetActive(true);
@@ -196,6 +210,7 @@ public class Player : MonoBehaviour
         _localBoard = new ChessBoard();
         _gameStarted = true;
         _aiThinking = false;
+        _moveCount = 0;
         _chessAI = new ChessAI(maxDepth: 3);
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
@@ -228,6 +243,7 @@ public class Player : MonoBehaviour
         _localBoard.Move(move);
         SelectPiece(null);
         SyncBoard(_localBoard.ToFen());
+        _moveCount++;
 
         if (_localBoard.IsEndGame)
         {
@@ -238,6 +254,7 @@ public class Player : MonoBehaviour
                 : GetEndGameText(_localBoard.EndGame);
             playerNameText.text = "Game Over";
             _gameStarted = false;
+            SubmitGameScore(_localBoard.EndGame);
             return true;
         }
 
@@ -271,6 +288,7 @@ public class Player : MonoBehaviour
 
             _localBoard.Move(aiMove);
             SyncBoard(_localBoard.ToFen());
+            _moveCount++;
 
             if (_localBoard.IsEndGame)
             {
@@ -279,6 +297,7 @@ public class Player : MonoBehaviour
                 resultText.text = GetRobotEndGameText(_localBoard.EndGame);
                 playerNameText.text = "Game Over";
                 _gameStarted = false;
+                SubmitGameScore(_localBoard.EndGame);
             }
             else
             {
@@ -388,6 +407,7 @@ public class Player : MonoBehaviour
             resultText.text = boardUpdateResponse.EndgameType;
             playerNameText.text = "Game Over";
             _gameStarted = false;
+            SubmitOnlineScore(boardUpdateResponse.EndgameType);
         }
         else
         {
@@ -594,6 +614,122 @@ public class Player : MonoBehaviour
             EndgameType.Repetition => "Draw - Repetition",
             _ => endGame.EndgameType.ToString()
         };
+    }
+
+    public void SetLeaderboardPlayerName(string name)
+    {
+        if (!string.IsNullOrEmpty(name))
+            _leaderboardPlayerName = name.Trim();
+    }
+
+    private int CalculateScore(EndGameInfo endGame)
+    {
+        if (endGame == null) return 0;
+
+        var isRobot = _gameMode == GameMode.Robot;
+        var isLocal = _gameMode == GameMode.Local;
+
+        if (isRobot)
+        {
+            if (endGame.EndgameType == EndgameType.Checkmate && endGame.WonSide == PieceColor.White)
+            {
+                var baseScore = 100;
+                var moveBonus = Mathf.Max(0, 50 - _moveCount / 2);
+                return baseScore + moveBonus;
+            }
+            if (endGame.EndgameType == EndgameType.Stalemate ||
+                endGame.EndgameType == EndgameType.DrawDeclared ||
+                endGame.EndgameType == EndgameType.InsufficientMaterial ||
+                endGame.EndgameType == EndgameType.FiftyMoveRule ||
+                endGame.EndgameType == EndgameType.Repetition)
+            {
+                return 20;
+            }
+            return 0;
+        }
+
+        if (isLocal)
+        {
+            if (endGame.EndgameType == EndgameType.Checkmate)
+            {
+                return 80;
+            }
+            if (endGame.EndgameType == EndgameType.Resigned)
+            {
+                return 60;
+            }
+            return 15;
+        }
+
+        return 0;
+    }
+
+    private void SubmitGameScore(EndGameInfo endGame)
+    {
+        var score = CalculateScore(endGame);
+        if (score <= 0) return;
+
+        var mode = GameModeToLeaderboardMode.TryGetValue(_gameMode, out var m) ? m : "default";
+        StartCoroutine(LeaderboardAPI.SubmitScore(
+            _leaderboardPlayerName,
+            score,
+            mode,
+            onSuccess: resp =>
+            {
+                if (resp.success)
+                    Debug.Log($"[Leaderboard] 分数已提交: {_leaderboardPlayerName} -> {score} (模式: {mode}, 排名: 第{resp.data.rank}名)");
+            },
+            onError: err =>
+            {
+                Debug.LogWarning($"[Leaderboard] 提交失败: {err}");
+            }
+        ));
+    }
+
+    private void SubmitOnlineScore(string endgameType)
+    {
+        var score = CalculateOnlineScore(endgameType);
+        if (score <= 0) return;
+
+        const string mode = "online";
+        StartCoroutine(LeaderboardAPI.SubmitScore(
+            _leaderboardPlayerName,
+            score,
+            mode,
+            onSuccess: resp =>
+            {
+                if (resp.success)
+                    Debug.Log($"[Leaderboard] 在线分数已提交: {_leaderboardPlayerName} -> {score} (排名: 第{resp.data.rank}名)");
+            },
+            onError: err =>
+            {
+                Debug.LogWarning($"[Leaderboard] 提交失败: {err}");
+            }
+        ));
+    }
+
+    private int CalculateOnlineScore(string endgameType)
+    {
+        if (string.IsNullOrEmpty(endgameType)) return 0;
+
+        var et = endgameType.ToLower();
+        var iWon = (_isWhite && et.Contains("white wins")) || (!_isWhite && et.Contains("black wins"));
+
+        if (iWon)
+        {
+            if (et.Contains("checkmate"))
+                return 120;
+            if (et.Contains("resignation") || et.Contains("time"))
+                return 100;
+            return 80;
+        }
+
+        if (et.Contains("draw") || et.Contains("stalemate") ||
+            et.Contains("insufficient") || et.Contains("fifty") ||
+            et.Contains("repetition"))
+            return 15;
+
+        return 0;
     }
 
     private string PosToFen(Vector3 pos)

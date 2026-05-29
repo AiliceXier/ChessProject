@@ -30,7 +30,29 @@ namespace Chess.Leaderboard
         public int rank;
         public string player_name;
         public int score;
+        public string game_mode;
         public string created_at;
+    }
+
+    [Serializable]
+    public class ModesResponse
+    {
+        public bool success;
+        public List<string> data;
+    }
+
+    [Serializable]
+    public class AllModesLeaderboardResponse
+    {
+        public bool success;
+        public List<ModeLeaderboard> data;
+    }
+
+    [Serializable]
+    public class ModeLeaderboard
+    {
+        public string game_mode;
+        public List<ScoreEntry> entries;
     }
 
     [Serializable]

@@ -100,18 +100,51 @@ app.post('/score', (req, res) => {
 });
 
 // Get leaderboard
+app.get('/modes', (req, res) => {
+  const rows = db.prepare('SELECT DISTINCT game_mode FROM scores ORDER BY game_mode').all();
+  const modes = rows.map(r => r.game_mode);
+  res.json({ success: true, data: modes });
+});
+
+app.get('/leaderboard/all', (req, res) => {
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+
+  const modes = db.prepare('SELECT DISTINCT game_mode FROM scores ORDER BY game_mode').all();
+  const result = [];
+
+  for (const m of modes) {
+    const rows = db.prepare(
+      'SELECT player_name, score, game_mode, created_at FROM scores WHERE game_mode = ? ORDER BY score DESC LIMIT ?'
+    ).all(m.game_mode, limit);
+
+    result.push({
+      game_mode: m.game_mode,
+      entries: rows.map((row, i) => ({
+        rank: i + 1,
+        player_name: row.player_name,
+        score: row.score,
+        game_mode: row.game_mode,
+        created_at: row.created_at
+      }))
+    });
+  }
+
+  res.json({ success: true, data: result });
+});
+
 app.get('/leaderboard', (req, res) => {
   const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
   const game_mode = req.query.game_mode || 'default';
 
   const rows = db.prepare(
-    'SELECT player_name, score, created_at FROM scores WHERE game_mode = ? ORDER BY score DESC LIMIT ?'
+    'SELECT player_name, score, game_mode, created_at FROM scores WHERE game_mode = ? ORDER BY score DESC LIMIT ?'
   ).all(game_mode, limit);
 
   const data = rows.map((row, i) => ({
     rank: i + 1,
     player_name: row.player_name,
     score: row.score,
+    game_mode: row.game_mode,
     created_at: row.created_at
   }));
 

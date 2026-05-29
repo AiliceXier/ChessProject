@@ -7,12 +7,8 @@ namespace Chess.Leaderboard
 {
     public static class LeaderboardAPI
     {
-        // 修改为你的服务器地址
         public static string BASE_URL = "http://121.36.101.82:3000";
 
-        /// <summary>
-        /// 提交玩家分数
-        /// </summary>
         public static IEnumerator SubmitScore(
             string playerName,
             int score,
@@ -47,9 +43,6 @@ namespace Chess.Leaderboard
             }
         }
 
-        /// <summary>
-        /// 获取排行榜
-        /// </summary>
         public static IEnumerator GetLeaderboard(
             int limit = 10,
             string gameMode = "default",
@@ -77,9 +70,55 @@ namespace Chess.Leaderboard
             }
         }
 
-        /// <summary>
-        /// 查询指定玩家排名
-        /// </summary>
+        public static IEnumerator GetModes(
+            Action<ModesResponse> onSuccess = null,
+            Action<string> onError = null)
+        {
+            using (var req = UnityWebRequest.Get(BASE_URL + "/modes"))
+            {
+                yield return req.SendWebRequest();
+
+                if (req.result == UnityWebRequest.Result.Success)
+                {
+                    var resp = JsonUtility.FromJson<ModesResponse>(req.downloadHandler.text);
+                    if (resp.success)
+                        onSuccess?.Invoke(resp);
+                    else
+                        onError?.Invoke("获取模式列表失败");
+                }
+                else
+                {
+                    onError?.Invoke(req.error);
+                }
+            }
+        }
+
+        public static IEnumerator GetAllModesLeaderboard(
+            int limit = 10,
+            Action<AllModesLeaderboardResponse> onSuccess = null,
+            Action<string> onError = null)
+        {
+            var url = $"{BASE_URL}/leaderboard/all?limit={Mathf.Clamp(limit, 1, 100)}";
+
+            using (var req = UnityWebRequest.Get(url))
+            {
+                yield return req.SendWebRequest();
+
+                if (req.result == UnityWebRequest.Result.Success)
+                {
+                    var resp = JsonUtility.FromJson<AllModesLeaderboardResponse>(req.downloadHandler.text);
+                    if (resp != null && resp.success)
+                        onSuccess?.Invoke(resp);
+                    else
+                        onError?.Invoke("获取全模式排行榜失败");
+                }
+                else
+                {
+                    onError?.Invoke(req.error);
+                }
+            }
+        }
+
         public static IEnumerator GetPlayerRank(
             string playerName,
             string gameMode = "default",
@@ -107,9 +146,6 @@ namespace Chess.Leaderboard
             }
         }
 
-        /// <summary>
-        /// 获取服务器连接状态
-        /// </summary>
         public static IEnumerator Ping(
             Action<PingResponse> onSuccess = null,
             Action<string> onError = null)
