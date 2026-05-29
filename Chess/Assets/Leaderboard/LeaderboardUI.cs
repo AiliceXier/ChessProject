@@ -320,7 +320,9 @@ namespace Chess.Leaderboard
             if (modeDropdown == null) return gameMode;
 
             var optionText = modeDropdown.options[modeDropdown.value].text;
-            if (DisplayNameToMode.TryGetValue(optionText, out var mode))
+            // 兼容 "Option X: " 前缀
+            var cleanText = System.Text.RegularExpressions.Regex.Replace(optionText, @"^Option\s*\d+\s*:\s*", "");
+            if (DisplayNameToMode.TryGetValue(cleanText, out var mode))
                 return mode;
 
             return gameMode;
