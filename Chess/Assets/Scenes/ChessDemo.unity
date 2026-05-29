@@ -8231,8 +8231,8 @@ MonoBehaviour:
   entryPrefab: {fileID: 7695448141557768382, guid: feba6a4255c6587428da538559e311bb, type: 3}
   refreshButton: {fileID: 177126006}
   closeButton: {fileID: 337292000}
-  modeDropdown: {fileID: 0}
-  playerNameInput: {fileID: 0}
+  modeDropdown: {fileID: 1572412972}
+  playerNameInput: {fileID: 1284815233}
   player: {fileID: 1881174974}
   loadingIndicator: {fileID: 2001610657}
   myRankText: {fileID: 1387395782}

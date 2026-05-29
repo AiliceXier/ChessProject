@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,10 +20,10 @@ namespace Chess.Leaderboard
         public Button closeButton;
 
         [Header("模式筛选")]
-        public Dropdown modeDropdown;
+        public TMP_Dropdown modeDropdown;
 
         [Header("玩家名输入")]
-        public InputField playerNameInput;
+        public TMP_InputField playerNameInput;
 
         [Header("游戏玩家引用")]
         public Player player;
@@ -225,21 +226,16 @@ namespace Chess.Leaderboard
             if (entryPrefab == null || contentParent == null) return;
 
             var go = Instantiate(entryPrefab, contentParent);
+
+            // 处理旧版 Text
             var texts = go.GetComponentsInChildren<Text>();
             foreach (var t in texts)
-            {
-                var nameLower = t.name.ToLower();
-                if (nameLower.Contains("rank"))
-                    t.text = entry.rank.ToString();
-                else if (nameLower.Contains("name"))
-                    t.text = entry.player_name;
-                else if (nameLower.Contains("score"))
-                    t.text = entry.score.ToString();
-                else if (nameLower.Contains("mode") && showMode)
-                    t.text = GetModeDisplayName(entry.game_mode);
-                else if (nameLower.Contains("date"))
-                    t.text = FormatDate(entry.created_at);
-            }
+                ApplyEntryText(t, t.name, entry, showMode, t);
+
+            // 处理 TMP_Text
+            var tmpTexts = go.GetComponentsInChildren<TMP_Text>();
+            foreach (var t in tmpTexts)
+                ApplyEntryText(t, t.name, entry, showMode, null);
 
             if (entry.player_name == GetCurrentPlayerName())
             {
@@ -259,6 +255,31 @@ namespace Chess.Leaderboard
                         _ => img.color
                     };
                 }
+            }
+        }
+
+        private void ApplyEntryText(Component textComp, string objName, ScoreEntry entry, bool showMode, Text legacyText)
+        {
+            var nameLower = objName.ToLower();
+
+            if (nameLower.Contains("rank"))
+                SetTextValue("rank", entry.rank.ToString());
+            else if (nameLower.Contains("name"))
+                SetTextValue("name", entry.player_name);
+            else if (nameLower.Contains("score"))
+                SetTextValue("score", entry.score.ToString());
+            else if (nameLower.Contains("mode") && showMode)
+                SetTextValue("mode", GetModeDisplayName(entry.game_mode));
+            else if (nameLower.Contains("date"))
+                SetTextValue("date", FormatDate(entry.created_at));
+            return;
+
+            void SetTextValue(string _key, string _val)
+            {
+                if (legacyText != null)
+                    legacyText.text = _val;
+                else if (textComp is TMP_Text tmp)
+                    tmp.text = _val;
             }
         }
 
