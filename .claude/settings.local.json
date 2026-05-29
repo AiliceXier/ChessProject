@@ -33,7 +33,10 @@
       "Bash(sed -i 's/Span<char> span = stackalloc char\\\\[4\\\\]/char[] span = new char[4]/' Builders/FenBoardBuilder.cs)",
       "Bash(sed -i 's/Span<char> span = stackalloc char\\\\[10\\\\]/char[] span = new char[10]/' Builders/SanBuilder.cs)",
       "Bash(sed -i 's/private static ReadOnlySpan<char> HandleAmbiguousMovesNotation/private static string HandleAmbiguousMovesNotation/' Builders/SanBuilder.cs)",
-      "Bash(python fix_linq.py)"
+      "Bash(python fix_linq.py)",
+      "Read(//c/Users/28399/**)",
+      "Read(//c/Users/28399/.claude//**)",
+      "Read(//c/Users/28399/.vscode//**)"
     ]
   }
 }
