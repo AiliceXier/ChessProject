@@ -38,6 +38,7 @@ public class Player : MonoBehaviour
     
     public MoveHistoryUI moveHistoryUI;
     public CommandInputUI commandInputUI;
+    public DifficultySelector difficultySelector;
     private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
@@ -75,6 +76,8 @@ public class Player : MonoBehaviour
             moveHistoryUI = gameObject.AddComponent<MoveHistoryUI>();
         if (commandInputUI == null)
             commandInputUI = gameObject.AddComponent<CommandInputUI>();
+        if (difficultySelector == null)
+            difficultySelector = gameObject.AddComponent<DifficultySelector>();
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
         _initializationTask = InitializeAsync();
@@ -218,13 +221,23 @@ public class Player : MonoBehaviour
 
     public void StartRobotGame()
     {
+        if (difficultySelector != null)
+        {
+            difficultySelector.Show();
+            return;
+        }
+        StartRobotGameWithDifficulty(3);
+    }
+
+    public void StartRobotGameWithDifficulty(int depth)
+    {
         _gameMode = GameMode.Robot;
         _currentSession = null;
         _localBoard = new ChessBoard();
         _gameStarted = true;
         _aiThinking = false;
         _moveCount = 0;
-        _chessAI = new ChessAI(maxDepth: 3);
+        _chessAI = new ChessAI(maxDepth: depth);
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
         resignButton.SetActive(true);
