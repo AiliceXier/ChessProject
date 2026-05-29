@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
     public MoveHistoryUI moveHistoryUI;
     public CommandInputUI commandInputUI;
     public DifficultySelector difficultySelector;
+    public EvaluationBar evaluationBar;
     private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
@@ -78,6 +79,8 @@ public class Player : MonoBehaviour
             commandInputUI = gameObject.AddComponent<CommandInputUI>();
         if (difficultySelector == null)
             difficultySelector = gameObject.AddComponent<DifficultySelector>();
+        if (evaluationBar == null)
+            evaluationBar = gameObject.AddComponent<EvaluationBar>();
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
         _initializationTask = InitializeAsync();
@@ -272,6 +275,7 @@ public class Player : MonoBehaviour
         SyncBoard(_localBoard.ToFen());
         _moveCount++;
         if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+        if (evaluationBar != null) evaluationBar.UpdateEvaluation(_localBoard);
 
         if (_localBoard.IsEndGame)
         {
@@ -318,6 +322,7 @@ public class Player : MonoBehaviour
             SyncBoard(_localBoard.ToFen());
             _moveCount++;
             if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+            if (evaluationBar != null) evaluationBar.UpdateEvaluation(_localBoard);
 
             if (_localBoard.IsEndGame)
             {

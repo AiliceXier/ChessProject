@@ -94,6 +94,11 @@ namespace Chess
             return moves.ToArray();
         }
 
+        public int EvaluatePosition(ChessBoard board)
+        {
+            return Evaluate(board);
+        }
+
         private static int Evaluate(ChessBoard board)
         {
             if (board.IsEndGame)
