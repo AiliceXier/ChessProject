@@ -7,8 +7,8 @@ namespace Chess.UI
     {
         public GameObject board;
         public float labelOffset = 0.4f;
-        public float labelY = 0.01f;
-        public int fontSize = 6;
+        public float labelY = 0.15f;
+        public int fontSize = 10;
         public Color labelColor = new Color(0.85f, 0.85f, 0.85f, 0.9f);
 
         private void Start()
@@ -26,10 +26,10 @@ namespace Chess.UI
             for (int i = 0; i < 8; i++)
             {
                 CreateLabel($"File_{files[i]}", new Vector3(i, labelY, -labelOffset), files[i], parent);
-                CreateLabel($"FileB_{files[i]}", new Vector3(i, labelY, 8 + labelOffset - 1), files[i], parent);
+                CreateLabel($"FileB_{files[i]}", new Vector3(i, labelY, 7 + labelOffset), files[i], parent);
 
                 CreateLabel($"Rank_{ranks[i]}", new Vector3(-labelOffset, labelY, i), ranks[i], parent);
-                CreateLabel($"RankR_{ranks[i]}", new Vector3(8 + labelOffset - 1, labelY, i), ranks[i], parent);
+                CreateLabel($"RankR_{ranks[i]}", new Vector3(7 + labelOffset, labelY, i), ranks[i], parent);
             }
         }
 
@@ -51,6 +51,7 @@ namespace Chess.UI
             tmp.enableAutoSizing = false;
             tmp.fontSizeMin = fontSize;
             tmp.fontSizeMax = fontSize;
+            tmp.sortingOrder = 10;
 
             tmp.renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             tmp.renderer.receiveShadows = false;
