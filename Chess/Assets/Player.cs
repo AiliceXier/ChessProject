@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
     public CommandInputUI commandInputUI;
     public DifficultySelector difficultySelector;
     public EvaluationBar evaluationBar;
+    public HintSystem hintSystem;
     private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
@@ -81,6 +82,8 @@ public class Player : MonoBehaviour
             difficultySelector = gameObject.AddComponent<DifficultySelector>();
         if (evaluationBar == null)
             evaluationBar = gameObject.AddComponent<EvaluationBar>();
+        if (hintSystem == null)
+            hintSystem = gameObject.AddComponent<HintSystem>();
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
         _initializationTask = InitializeAsync();
