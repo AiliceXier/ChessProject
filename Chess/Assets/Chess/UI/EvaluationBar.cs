@@ -1,3 +1,4 @@
+using System;
 using Chess;
 using TMPro;
 using UnityEngine;
@@ -77,7 +78,7 @@ namespace Chess.UI
         {
             if (board == null || _evalAI == null) return;
 
-            var eval = _evalAI.Evaluate(board);
+            var eval = _evalAI.EvaluatePosition(board);
             UpdateDisplay(eval);
         }
 

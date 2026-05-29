@@ -156,7 +156,8 @@ namespace Chess.Animation
                     prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");
 
                 var newObject = Instantiate(prefabs[prefabName], board.transform);
-                var go = newObject.GameObject();
+                var go = newObject as GameObject;
+                if (go == null) continue;
                 go.transform.position = new Vector3(x, 0, z);
                 go.transform.rotation = Quaternion.Euler(0, char.IsLower(c) ? 180 : 0, 0);
                 setupPiece?.Invoke(go, c);

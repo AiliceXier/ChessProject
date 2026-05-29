@@ -224,7 +224,8 @@ namespace Chess.UI
                 var code = inputField.text;
                 if (!string.IsNullOrWhiteSpace(code))
                 {
-                    player?.JoinLobbyByCode(code);
+                    player?.SetLobbyCode(code);
+                    player?.JoinLobbyByCode();
                     Hide();
                 }
             });

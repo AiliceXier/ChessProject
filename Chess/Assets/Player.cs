@@ -182,6 +182,12 @@ public class Player : MonoBehaviour
         }
     }
     
+    public void SetLobbyCode(string code)
+    {
+        if (lobbyInputCodeText != null)
+            lobbyInputCodeText.text = code;
+    }
+
     public async void JoinLobbyByCode()
     {
         await WaitForInitialization();
