@@ -16,6 +16,7 @@ namespace Chess.Leaderboard
         public GameObject entryPrefab;
 
         [Header("按钮")]
+        public Button openButton;
         public Button refreshButton;
         public Button closeButton;
 
@@ -61,6 +62,9 @@ namespace Chess.Leaderboard
 
         private void Start()
         {
+            if (openButton != null)
+                openButton.onClick.AddListener(ToggleLeaderboard);
+
             if (refreshButton != null)
                 refreshButton.onClick.AddListener(RefreshData);
 
@@ -94,12 +98,15 @@ namespace Chess.Leaderboard
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                if (panel != null && panel.activeSelf)
-                    HideLeaderboard();
-                else
-                    ShowLeaderboard();
-            }
+                ToggleLeaderboard();
+        }
+
+        public void ToggleLeaderboard()
+        {
+            if (panel != null && panel.activeSelf)
+                HideLeaderboard();
+            else
+                ShowLeaderboard();
         }
 
         public void ShowLeaderboard()
