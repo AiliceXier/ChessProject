@@ -36,6 +36,7 @@ public class Player : MonoBehaviour
     public GameObject board;
     
     public MoveHistoryUI moveHistoryUI;
+    public CommandInputUI commandInputUI;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
     private const string StartingBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -70,6 +71,8 @@ public class Player : MonoBehaviour
         SyncBoard(StartingBoard);
         if (moveHistoryUI == null)
             moveHistoryUI = gameObject.AddComponent<MoveHistoryUI>();
+        if (commandInputUI == null)
+            commandInputUI = gameObject.AddComponent<CommandInputUI>();
         _initializationTask = InitializeAsync();
     }
 
@@ -744,5 +747,189 @@ public class Player : MonoBehaviour
     private string PosToFen(Vector3 pos)
     {
         return (char)(pos.x + 97) + ((char)pos.z + 1).ToString();
+    }
+
+    public ChessBoard GetLocalBoard()
+    {
+        if (_gameMode == GameMode.Local || _gameMode == GameMode.Robot)
+            return _localBoard;
+        return null;
+    }
+
+    public (bool success, string error) MakeCommandMove(string cmd)
+    {
+        if (string.IsNullOrWhiteSpace(cmd))
+            return (false, "命令不能为空");
+
+        if (_gameMode != GameMode.Local && _gameMode != GameMode.Robot)
+            return (false, "命令行模式仅支持本地双人和人机对战");
+
+        if (!_gameStarted || _localBoard == null || _localBoard.IsEndGame)
+            return (false, "当前没有进行中的棋局");
+
+        if (_aiThinking)
+            return (false, "AI正在思考中，请等待");
+
+        cmd = cmd.Trim();
+
+        if (TryParseCoordinateMove(cmd, out var fromPos, out var toPos))
+        {
+            var move = new Move(fromPos, toPos);
+            if (!_localBoard.IsValidMove(move))
+                return (false, $"非法走法: {cmd}");
+
+            _localBoard.Move(move);
+            SyncBoard(_localBoard.ToFen());
+            _moveCount++;
+            if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+
+            if (_localBoard.IsEndGame)
+            {
+                uiPanel.SetActive(true);
+                resignButton.SetActive(false);
+                resultText.text = _gameMode == GameMode.Robot
+                    ? GetRobotEndGameText(_localBoard.EndGame)
+                    : GetEndGameText(_localBoard.EndGame);
+                playerNameText.text = "Game Over";
+                _gameStarted = false;
+                SubmitGameScore(_localBoard.EndGame);
+                return (true, "");
+            }
+
+            if (_gameMode == GameMode.Local)
+            {
+                _localWhiteTurn = !_localWhiteTurn;
+                SetPovLocal();
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            }
+            else if (_gameMode == GameMode.Robot)
+            {
+                _ = DoRobotMoveAsync();
+            }
+
+            return (true, "");
+        }
+
+        if (TryParseSanMove(cmd, out var sanMove))
+        {
+            if (!_localBoard.IsValidMove(sanMove))
+                return (false, $"非法走法: {cmd}");
+
+            _localBoard.Move(sanMove);
+            SyncBoard(_localBoard.ToFen());
+            _moveCount++;
+            if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+
+            if (_localBoard.IsEndGame)
+            {
+                uiPanel.SetActive(true);
+                resignButton.SetActive(false);
+                resultText.text = _gameMode == GameMode.Robot
+                    ? GetRobotEndGameText(_localBoard.EndGame)
+                    : GetEndGameText(_localBoard.EndGame);
+                playerNameText.text = "Game Over";
+                _gameStarted = false;
+                SubmitGameScore(_localBoard.EndGame);
+                return (true, "");
+            }
+
+            if (_gameMode == GameMode.Local)
+            {
+                _localWhiteTurn = !_localWhiteTurn;
+                SetPovLocal();
+                playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            }
+            else if (_gameMode == GameMode.Robot)
+            {
+                _ = DoRobotMoveAsync();
+            }
+
+            return (true, "");
+        }
+
+        return (false, $"无法识别的走法: {cmd}\n支持格式: e2e4 / Nf3 / O-O");
+    }
+
+    private bool TryParseCoordinateMove(string cmd, out string fromPos, out string toPos)
+    {
+        fromPos = null;
+        toPos = null;
+
+        if (cmd.Length < 4 || cmd.Length > 5) return false;
+
+        var from = cmd.Substring(0, 2).ToLower();
+        var to = cmd.Substring(2, 2).ToLower();
+
+        if (from[0] < 'a' || from[0] > 'h' || from[1] < '1' || from[1] > '8') return false;
+        if (to[0] < 'a' || to[0] > 'h' || to[1] < '1' || to[1] > '8') return false;
+
+        fromPos = from;
+        toPos = to;
+        return true;
+    }
+
+    private bool TryParseSanMove(string san, out Move move)
+    {
+        move = null;
+        if (_localBoard == null) return false;
+
+        try
+        {
+            var moves = _localBoard.Moves();
+            foreach (var m in moves)
+            {
+                if (m.San == san)
+                {
+                    move = m;
+                    return true;
+                }
+            }
+
+            foreach (var m in moves)
+            {
+                if (string.Equals(m.San, san, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    move = m;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void UndoLastLocalMove()
+    {
+        if (_localBoard == null || _localBoard.ExecutedMoves.Count == 0) return;
+
+        if (_gameMode == GameMode.Robot && _localBoard.ExecutedMoves.Count >= 2)
+        {
+            _localBoard.Cancel();
+            _localBoard.Cancel();
+            _localWhiteTurn = true;
+        }
+        else
+        {
+            _localBoard.Cancel();
+            _localWhiteTurn = !_localWhiteTurn;
+        }
+
+        SyncBoard(_localBoard.ToFen());
+        if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+
+        if (_gameMode == GameMode.Local)
+        {
+            SetPovLocal();
+            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+        }
+        else if (_gameMode == GameMode.Robot)
+        {
+            cameraPivot.transform.eulerAngles = Vector3.zero;
+            playerNameText.text = "Your Turn (White)";
+        }
     }
 }

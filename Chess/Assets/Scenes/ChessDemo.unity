@@ -8233,6 +8233,7 @@ GameObject:
   - component: {fileID: 1881174974}
   - component: {fileID: 1881174976}
   - component: {fileID: 1881174977}
+  - component: {fileID: 1881174978}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -8262,6 +8263,7 @@ MonoBehaviour:
   resultText: {fileID: 220347695}
   board: {fileID: 631113151}
   moveHistoryUI: {fileID: 1881174977}
+  commandInputUI: {fileID: 1881174978}
 --- !u!4 &1881174975
 Transform:
   m_ObjectHideFlags: 0
@@ -8391,6 +8393,25 @@ MonoBehaviour:
   moveColor: {r: 0.95, g: 0.95, b: 0.6, a: 1}
   numColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   btnColor: {r: 0.25, g: 0.25, b: 0.3, a: 0.9}
+--- !u!114 &1881174978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881174973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221894a442d65ed4db7027ccd3705a2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1881174974}
+  panelColor: {r: 0.08, g: 0.08, b: 0.08, a: 0.95}
+  headerColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}
+  inputBgColor: {r: 0.18, g: 0.18, b: 0.18, a: 1}
+  btnColor: {r: 0.2, g: 0.35, b: 0.2, a: 1}
+  errorColor: {r: 0.9, g: 0.3, b: 0.3, a: 1}
+  successColor: {r: 0.3, g: 0.9, b: 0.3, a: 1}
 --- !u!1 &1895953542
 GameObject:
   m_ObjectHideFlags: 0
