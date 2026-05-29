@@ -13,33 +13,9 @@ namespace Chess.Animation
         public float arcHeight = 0.5f;
         public GameObject board;
 
-        private readonly Dictionary<string, GameObject> _piecesByPos = new();
         private bool _animating;
 
         public bool IsAnimating => _animating;
-
-        public void ClearAll()
-        {
-            _piecesByPos.Clear();
-        }
-
-        private void RebuildPiecesMap()
-        {
-            _piecesByPos.Clear();
-            if (board == null) return;
-
-            foreach (Transform child in board.transform)
-            {
-                var pos = child.localPosition;
-                int x = Mathf.RoundToInt(pos.x);
-                int z = Mathf.RoundToInt(pos.z);
-                if (x >= 0 && x < 8 && z >= 0 && z < 8)
-                {
-                    var key = PosKey(x, z);
-                    _piecesByPos[key] = child.gameObject;
-                }
-            }
-        }
 
         public IEnumerator AnimateSyncBoard(
             Dictionary<Tuple<int, int>, char> newBoardState,
@@ -48,7 +24,17 @@ namespace Chess.Animation
         {
             _animating = true;
 
-            RebuildPiecesMap();
+            var oldPieces = new Dictionary<string, GameObject>();
+            foreach (Transform child in board.transform)
+            {
+                var pos = child.localPosition;
+                int x = Mathf.RoundToInt(pos.x);
+                int z = Mathf.RoundToInt(pos.z);
+                if (x >= 0 && x < 8 && z >= 0 && z < 8)
+                {
+                    oldPieces[PosKey(x, z)] = child.gameObject;
+                }
+            }
 
             var newPieces = new Dictionary<string, Tuple<int, int, char>>();
             foreach (var kvp in newBoardState)
@@ -57,58 +43,66 @@ namespace Chess.Animation
                 newPieces[key] = Tuple.Create(kvp.Key.Item1, kvp.Key.Item2, kvp.Value);
             }
 
-            var capturedPieces = new List<GameObject>();
+            var toCapture = new List<GameObject>();
             var toRemove = new List<string>();
 
-            foreach (var existingKey in _piecesByPos.Keys)
+            foreach (var oldKvp in oldPieces)
             {
-                if (!newPieces.ContainsKey(existingKey))
-                    toRemove.Add(existingKey);
+                if (!newPieces.ContainsKey(oldKvp.Key))
+                {
+                    toCapture.Add(oldKvp.Value);
+                    toRemove.Add(oldKvp.Key);
+                }
+                else
+                {
+                    var oldPiece = oldKvp.Value;
+                    var oldName = oldPiece.name.Replace("(Clone)", "").Trim();
+                    var newChar = newPieces[oldKvp.Key].Item3;
+                    var newName = GetPieceTypeName(newChar) + (char.IsUpper(newChar) ? "Light" : "Dark");
+
+                    if (oldName != newName)
+                    {
+                        toCapture.Add(oldPiece);
+                        toRemove.Add(oldKvp.Key);
+                    }
+                }
             }
 
-            foreach (var removeKey in toRemove)
-            {
-                var piece = _piecesByPos[removeKey];
-                _piecesByPos.Remove(removeKey);
-                capturedPieces.Add(piece);
-            }
+            foreach (var key in toRemove)
+                oldPieces.Remove(key);
 
-            foreach (var captured in capturedPieces)
+            foreach (var captured in toCapture)
             {
                 if (captured != null)
                     yield return StartCoroutine(AnimateCapture(captured));
             }
 
-            var matchedOld = new HashSet<string>();
+            var toMove = new Dictionary<GameObject, Tuple<int, int>>();
+            var toAdd = new Dictionary<string, Tuple<int, int, char>>();
+
             var remainingNew = new Dictionary<string, Tuple<int, int, char>>(newPieces);
 
-            foreach (var oldKey in _piecesByPos.Keys)
+            foreach (var oldKvp in oldPieces)
             {
-                if (newPieces.ContainsKey(oldKey))
+                if (remainingNew.ContainsKey(oldKvp.Key))
                 {
-                    var oldPiece = _piecesByPos[oldKey];
-                    if (oldPiece == null) continue;
-
-                    var oldName = oldPiece.name.Replace("(Clone)", "").Trim();
-                    var newChar = newPieces[oldKey].Item3;
-                    var newName = GetPieceTypeName(newChar) + (char.IsUpper(newChar) ? "Light" : "Dark");
-
-                    if (oldName == newName)
-                    {
-                        matchedOld.Add(oldKey);
-                        remainingNew.Remove(oldKey);
-                    }
+                    remainingNew.Remove(oldKvp.Key);
+                    continue;
                 }
             }
 
-            var moveAnimations = new List<Coroutine>();
-
-            var oldKeysCopy = new List<string>(_piecesByPos.Keys);
-            foreach (var oldKey in oldKeysCopy)
+            var unmatchedOld = new List<KeyValuePair<string, GameObject>>();
+            foreach (var oldKvp in oldPieces)
             {
-                if (matchedOld.Contains(oldKey)) continue;
-                if (!_piecesByPos.TryGetValue(oldKey, out var oldPiece) || oldPiece == null) continue;
+                if (newPieces.ContainsKey(oldKvp.Key))
+                    continue;
 
+                unmatchedOld.Add(oldKvp);
+            }
+
+            foreach (var oldKvp in unmatchedOld)
+            {
+                var oldPiece = oldKvp.Value;
                 var oldName = oldPiece.name.Replace("(Clone)", "").Trim();
 
                 string bestNewKey = null;
@@ -125,17 +119,23 @@ namespace Chess.Animation
 
                 if (bestNewKey != null)
                 {
-                    var target = newPieces[bestNewKey];
-                    _piecesByPos.Remove(oldKey);
-                    _piecesByPos[bestNewKey] = oldPiece;
+                    var target = remainingNew[bestNewKey];
+                    toMove[oldPiece] = Tuple.Create(target.Item1, target.Item2);
                     remainingNew.Remove(bestNewKey);
-
-                    moveAnimations.Add(StartCoroutine(AnimateMove(oldPiece, target.Item1, target.Item2)));
+                }
+                else
+                {
+                    if (oldPiece != null)
+                        yield return StartCoroutine(AnimateCapture(oldPiece));
                 }
             }
 
-            foreach (var cor in moveAnimations)
-                yield return cor;
+            foreach (var kvp in toMove)
+            {
+                var piece = kvp.Key;
+                var target = kvp.Value;
+                yield return StartCoroutine(AnimateMove(piece, target.Item1, target.Item2));
+            }
 
             foreach (var kvp in remainingNew)
             {
@@ -154,8 +154,6 @@ namespace Chess.Animation
                 go.transform.localPosition = new Vector3(x, 0, z);
                 go.transform.localRotation = Quaternion.Euler(0, char.IsLower(c) ? 180 : 0, 0);
                 setupPiece?.Invoke(go, c);
-
-                _piecesByPos[kvp.Key] = go;
 
                 yield return StartCoroutine(AnimateSpawn(go));
             }
