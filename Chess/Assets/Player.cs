@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
     public EvaluationBar evaluationBar;
     public HintSystem hintSystem;
     public ChatUI chatUI;
+    public MainMenuUI mainMenuUI;
     private MoveAnimator _moveAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
@@ -77,18 +78,30 @@ public class Player : MonoBehaviour
         SyncBoard(StartingBoard);
         if (moveHistoryUI == null)
             moveHistoryUI = gameObject.AddComponent<MoveHistoryUI>();
+        moveHistoryUI.player = this;
         if (commandInputUI == null)
             commandInputUI = gameObject.AddComponent<CommandInputUI>();
+        commandInputUI.player = this;
         if (difficultySelector == null)
             difficultySelector = gameObject.AddComponent<DifficultySelector>();
+        difficultySelector.player = this;
         if (evaluationBar == null)
             evaluationBar = gameObject.AddComponent<EvaluationBar>();
+        evaluationBar.player = this;
         if (hintSystem == null)
             hintSystem = gameObject.AddComponent<HintSystem>();
+        hintSystem.player = this;
         if (chatUI == null)
             chatUI = gameObject.AddComponent<ChatUI>();
+        chatUI.player = this;
+        if (mainMenuUI == null)
+        {
+            mainMenuUI = gameObject.AddComponent<MainMenuUI>();
+            mainMenuUI.player = this;
+        }
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
+        uiPanel.SetActive(false);
         _initializationTask = InitializeAsync();
     }
 
@@ -120,6 +133,8 @@ public class Player : MonoBehaviour
         {
             var hostGameResponse = await CloudCodeService.Instance.CallModuleEndpointAsync<HostGameResponse>("ChessCloudCode", "HostGame");
             lobbyCodeText.text = hostGameResponse.LobbyCode;
+            uiPanel.SetActive(false);
+            if (mainMenuUI != null) mainMenuUI.Hide();
         }
         catch (Exception exception)
         {
@@ -141,11 +156,7 @@ public class Player : MonoBehaviour
         {
             _localBoard.Resign(PieceColor.White);
             SyncBoard(_localBoard.ToFen());
-            uiPanel.SetActive(true);
-            resignButton.SetActive(false);
-            resultText.text = GetRobotEndGameText(_localBoard.EndGame);
-            playerNameText.text = "Game Over";
-            _gameStarted = false;
+            ShowGameOver(GetRobotEndGameText(_localBoard.EndGame));
             SubmitGameScore(_localBoard.EndGame);
             return;
         }
@@ -155,11 +166,7 @@ public class Player : MonoBehaviour
             var resigningColor = _localWhiteTurn ? PieceColor.White : PieceColor.Black;
             _localBoard.Resign(resigningColor);
             SyncBoard(_localBoard.ToFen());
-            uiPanel.SetActive(true);
-            resignButton.SetActive(false);
-            resultText.text = GetEndGameText(_localBoard.EndGame);
-            playerNameText.text = "Game Over";
-            _gameStarted = false;
+            ShowGameOver(GetEndGameText(_localBoard.EndGame));
             SubmitGameScore(_localBoard.EndGame);
             return;
         }
@@ -228,6 +235,7 @@ public class Player : MonoBehaviour
         _moveCount = 0;
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
+        if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
         SetPovLocal();
         playerNameText.text = "White's Turn";
@@ -255,6 +263,7 @@ public class Player : MonoBehaviour
         _chessAI = new ChessAI(maxDepth: depth);
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
+        if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
         playerNameText.text = "Your Turn (White)";
@@ -291,13 +300,9 @@ public class Player : MonoBehaviour
 
         if (_localBoard.IsEndGame)
         {
-            uiPanel.SetActive(true);
-            resignButton.SetActive(false);
-            resultText.text = _gameMode == GameMode.Robot
+            ShowGameOver(_gameMode == GameMode.Robot
                 ? GetRobotEndGameText(_localBoard.EndGame)
-                : GetEndGameText(_localBoard.EndGame);
-            playerNameText.text = "Game Over";
-            _gameStarted = false;
+                : GetEndGameText(_localBoard.EndGame));
             SubmitGameScore(_localBoard.EndGame);
             return true;
         }
@@ -338,11 +343,7 @@ public class Player : MonoBehaviour
 
             if (_localBoard.IsEndGame)
             {
-                uiPanel.SetActive(true);
-                resignButton.SetActive(false);
-                resultText.text = GetRobotEndGameText(_localBoard.EndGame);
-                playerNameText.text = "Game Over";
-                _gameStarted = false;
+                ShowGameOver(GetRobotEndGameText(_localBoard.EndGame));
                 SubmitGameScore(_localBoard.EndGame);
             }
             else
@@ -475,11 +476,7 @@ public class Player : MonoBehaviour
         SyncBoard(boardUpdateResponse.Board);
         if (boardUpdateResponse.GameOver)
         {
-            uiPanel.SetActive(true);
-            resignButton.SetActive(false);
-            resultText.text = boardUpdateResponse.EndgameType;
-            playerNameText.text = "Game Over";
-            _gameStarted = false;
+            ShowGameOver(boardUpdateResponse.EndgameType);
             SubmitOnlineScore(boardUpdateResponse.EndgameType);
         }
         else
@@ -496,6 +493,7 @@ public class Player : MonoBehaviour
         _currentSession = joinGameResponse.Session;
         SyncBoard(joinGameResponse.Board);
         uiPanel.SetActive(false);
+        if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
         _isWhite = joinGameResponse.IsWhite;
         SetPov();
@@ -689,6 +687,16 @@ public class Player : MonoBehaviour
         };
     }
 
+    private void ShowGameOver(string resultMessage)
+    {
+        uiPanel.SetActive(true);
+        resignButton.SetActive(false);
+        resultText.text = resultMessage;
+        playerNameText.text = "Game Over";
+        _gameStarted = false;
+        if (mainMenuUI != null) mainMenuUI.ShowWithResult(resultMessage);
+    }
+
     public void SetLeaderboardPlayerName(string name)
     {
         if (!string.IsNullOrEmpty(name))
@@ -846,13 +854,9 @@ public class Player : MonoBehaviour
 
             if (_localBoard.IsEndGame)
             {
-                uiPanel.SetActive(true);
-                resignButton.SetActive(false);
-                resultText.text = _gameMode == GameMode.Robot
+                ShowGameOver(_gameMode == GameMode.Robot
                     ? GetRobotEndGameText(_localBoard.EndGame)
-                    : GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "Game Over";
-                _gameStarted = false;
+                    : GetEndGameText(_localBoard.EndGame));
                 SubmitGameScore(_localBoard.EndGame);
                 return (true, "");
             }
@@ -883,13 +887,9 @@ public class Player : MonoBehaviour
 
             if (_localBoard.IsEndGame)
             {
-                uiPanel.SetActive(true);
-                resignButton.SetActive(false);
-                resultText.text = _gameMode == GameMode.Robot
+                ShowGameOver(_gameMode == GameMode.Robot
                     ? GetRobotEndGameText(_localBoard.EndGame)
-                    : GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "Game Over";
-                _gameStarted = false;
+                    : GetEndGameText(_localBoard.EndGame));
                 SubmitGameScore(_localBoard.EndGame);
                 return (true, "");
             }
@@ -1049,10 +1049,7 @@ public class Player : MonoBehaviour
 
             if (_localBoard.IsEndGame)
             {
-                uiPanel.SetActive(true);
-                resignButton.SetActive(false);
-                resultText.text = GetEndGameText(_localBoard.EndGame);
-                playerNameText.text = "Game Over";
+                ShowGameOver(GetEndGameText(_localBoard.EndGame));
             }
             else
             {

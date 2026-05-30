@@ -15,6 +15,7 @@ namespace Chess.UI
         public Color goldColor = new Color(0.85f, 0.75f, 0.3f, 1f);
 
         private GameObject _panel;
+        private TextMeshProUGUI _resultText;
 
         private void Awake()
         {
@@ -23,7 +24,7 @@ namespace Chess.UI
 
         private void BuildUI()
         {
-            var canvas = GetComponentInParent<Canvas>();
+            var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
 
             _panel = new GameObject("MainMenuPanel");
@@ -70,6 +71,16 @@ namespace Chess.UI
             subtitleTxt.color = new Color(0.6f, 0.6f, 0.7f);
 
             AddSpacer(_panel.transform, 20);
+
+            var resultObj = CreateUIObj("ResultText", _panel.transform);
+            var resultLe = resultObj.AddComponent<LayoutElement>();
+            resultLe.preferredHeight = 36;
+            _resultText = resultObj.AddComponent<TextMeshProUGUI>();
+            _resultText.fontSize = 22;
+            _resultText.fontStyle = FontStyles.Bold;
+            _resultText.alignment = TextAlignmentOptions.Center;
+            _resultText.color = new Color(0.9f, 0.85f, 0.4f);
+            resultObj.SetActive(false);
 
             CreateModeCard("Local Game", "Play with a friend on the same device", cardColor, () =>
             {
@@ -144,7 +155,7 @@ namespace Chess.UI
         {
             if (_panel != null) Destroy(_panel);
 
-            var canvas = GetComponentInParent<Canvas>();
+            var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
 
             _panel = new GameObject("OnlinePanel");
@@ -260,9 +271,21 @@ namespace Chess.UI
             if (_panel != null) _panel.SetActive(true);
         }
 
+        public void ShowWithResult(string result)
+        {
+            if (_panel == null) BuildUI();
+            if (_panel != null) _panel.SetActive(true);
+            if (_resultText != null && !string.IsNullOrEmpty(result))
+            {
+                _resultText.gameObject.SetActive(true);
+                _resultText.text = result;
+            }
+        }
+
         public void Hide()
         {
             if (_panel != null) _panel.SetActive(false);
+            if (_resultText != null) _resultText.gameObject.SetActive(false);
         }
     }
 }

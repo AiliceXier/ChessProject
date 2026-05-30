@@ -43,7 +43,7 @@ namespace Chess.UI
 
         private void BuildUI()
         {
-            var canvas = GetComponentInParent<Canvas>();
+            var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
 
             BuildToggleButton(canvas.transform);
