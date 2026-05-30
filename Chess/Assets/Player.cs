@@ -102,6 +102,7 @@ public class Player : MonoBehaviour
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
         uiPanel.SetActive(false);
+        HideInGameUI();
         _initializationTask = InitializeAsync();
     }
 
@@ -240,6 +241,7 @@ public class Player : MonoBehaviour
         SetPovLocal();
         playerNameText.text = "White's Turn";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+        ShowInGameUI();
     }
 
     public void StartRobotGame()
@@ -264,10 +266,12 @@ public class Player : MonoBehaviour
         SyncBoard(_localBoard.ToFen());
         uiPanel.SetActive(false);
         if (mainMenuUI != null) mainMenuUI.Hide();
+        if (difficultySelector != null) difficultySelector.Hide();
         resignButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
         playerNameText.text = "Your Turn (White)";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+        ShowInGameUI();
     }
 
     private bool CurrentPlayerIsWhite() =>
@@ -499,6 +503,7 @@ public class Player : MonoBehaviour
         SetPov();
         _gameStarted = true;
         playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
+        ShowInGameUI();
     }
 
     private async Task WaitForInitialization()
@@ -694,7 +699,45 @@ public class Player : MonoBehaviour
         resultText.text = resultMessage;
         playerNameText.text = "Game Over";
         _gameStarted = false;
+        HideInGameUI();
         if (mainMenuUI != null) mainMenuUI.ShowWithResult(resultMessage);
+    }
+
+    private void HideAllUIPanels()
+    {
+        if (moveHistoryUI != null) moveHistoryUI.Hide();
+        if (commandInputUI != null) commandInputUI.Hide();
+        if (chatUI != null) chatUI.Hide();
+        if (difficultySelector != null) difficultySelector.Hide();
+    }
+
+    private void ShowInGameUI()
+    {
+        if (moveHistoryUI != null) moveHistoryUI.SetToggleButtonVisible(true);
+        if (commandInputUI != null) commandInputUI.SetToggleButtonVisible(true);
+        if (chatUI != null) chatUI.SetToggleButtonVisible(_gameMode == GameMode.Online);
+        if (hintSystem != null) hintSystem.ShowButton();
+        if (evaluationBar != null) evaluationBar.Show();
+    }
+
+    private void HideInGameUI()
+    {
+        HideAllUIPanels();
+        if (moveHistoryUI != null) moveHistoryUI.SetToggleButtonVisible(false);
+        if (commandInputUI != null) commandInputUI.SetToggleButtonVisible(false);
+        if (chatUI != null) chatUI.SetToggleButtonVisible(false);
+        if (hintSystem != null) hintSystem.HideButton();
+        if (evaluationBar != null) evaluationBar.Hide();
+    }
+
+    public void ShowLeaderboard()
+    {
+        var lbPanel = GameObject.Find("LeaderboardPanel");
+        if (lbPanel != null)
+        {
+            bool isActive = lbPanel.activeSelf;
+            lbPanel.SetActive(!isActive);
+        }
     }
 
     public void SetLeaderboardPlayerName(string name)
@@ -963,9 +1006,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void UndoLastLocalMove()
+    public (bool success, string error) UndoLastLocalMove()
     {
-        if (_localBoard == null || _localBoard.ExecutedMoves.Count == 0) return;
+        if (_localBoard == null || _localBoard.ExecutedMoves.Count == 0)
+            return (false, "No moves to undo");
 
         if (_gameMode == GameMode.Robot && _localBoard.ExecutedMoves.Count >= 2)
         {
@@ -992,6 +1036,8 @@ public class Player : MonoBehaviour
             cameraPivot.transform.eulerAngles = Vector3.zero;
             playerNameText.text = "Your Turn (White)";
         }
+
+        return (true, "");
     }
 
     public (bool success, string error) LoadFromFen(string fen)

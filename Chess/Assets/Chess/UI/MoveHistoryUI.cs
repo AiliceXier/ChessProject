@@ -19,6 +19,7 @@ namespace Chess.UI
         public Color btnColor = new Color(0.25f, 0.25f, 0.3f, 0.9f);
 
         private GameObject _panel;
+        private GameObject _toggleBtn;
         private Transform _contentParent;
         private ScrollRect _scrollRect;
         private readonly List<GameObject> _entries = new();
@@ -27,53 +28,49 @@ namespace Chess.UI
 
         private void Awake()
         {
-            BuildAllUI();
-        }
-
-        private void Start()
-        {
-            Hide();
-        }
-
-        private void BuildAllUI()
-        {
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
-
             BuildToggleButton(canvas.transform);
-            BuildPanel(canvas.transform);
         }
 
         private void BuildToggleButton(Transform canvasTr)
         {
-            var btnObj = new GameObject("MoveHistoryBtn");
-            btnObj.transform.SetParent(canvasTr, false);
-            btnObj.layer = 5;
+            _toggleBtn = new GameObject("MoveHistoryBtn");
+            _toggleBtn.transform.SetParent(canvasTr, false);
+            _toggleBtn.layer = 5;
 
-            var btnRt = btnObj.AddComponent<RectTransform>();
-            btnRt.anchorMin = new Vector2(1f, 0.5f);
-            btnRt.anchorMax = new Vector2(1f, 0.5f);
-            btnRt.offsetMin = new Vector2(-100, -20);
-            btnRt.offsetMax = new Vector2(-10, 20);
+            var btnRt = _toggleBtn.AddComponent<RectTransform>();
+            btnRt.anchorMin = new Vector2(1f, 0f);
+            btnRt.anchorMax = new Vector2(1f, 0f);
+            btnRt.offsetMin = new Vector2(-100, 10);
+            btnRt.offsetMax = new Vector2(-10, 44);
 
-            btnObj.AddComponent<CanvasRenderer>();
-            var btnImg = btnObj.AddComponent<Image>();
+            _toggleBtn.AddComponent<CanvasRenderer>();
+            var btnImg = _toggleBtn.AddComponent<Image>();
             btnImg.color = btnColor;
             btnImg.raycastTarget = true;
 
-            var btn = btnObj.AddComponent<Button>();
+            var btn = _toggleBtn.AddComponent<Button>();
             btn.onClick.AddListener(Toggle);
 
             var txtObj = new GameObject("Text");
-            txtObj.transform.SetParent(btnObj.transform, false);
+            txtObj.transform.SetParent(_toggleBtn.transform, false);
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
             tmp.text = "Moves";
-            tmp.fontSize = 16;
+            tmp.fontSize = 14;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
+        }
+
+        private void EnsurePanel()
+        {
+            if (_panel != null) return;
+            var canvas = FindObjectOfType<Canvas>();
+            if (canvas == null) return;
+            BuildPanel(canvas.transform);
         }
 
         private void BuildPanel(Transform canvasTr)
@@ -81,17 +78,18 @@ namespace Chess.UI
             _panel = new GameObject("MoveHistoryPanel");
             _panel.transform.SetParent(canvasTr, false);
             _panel.layer = 5;
+            _panel.SetActive(false);
 
             var panelRt = _panel.AddComponent<RectTransform>();
             panelRt.anchorMin = new Vector2(1f, 0f);
             panelRt.anchorMax = new Vector2(1f, 1f);
-            panelRt.offsetMin = new Vector2(-270, 10);
+            panelRt.offsetMin = new Vector2(-270, 50);
             panelRt.offsetMax = new Vector2(-10, -10);
 
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();
             bg.color = panelColor;
-            bg.raycastTarget = true;
+            bg.raycastTarget = false;
 
             var titleObj = CreateUIGameObject("Title", _panel.transform);
             var titleRt = titleObj.GetComponent<RectTransform>();
@@ -102,6 +100,7 @@ namespace Chess.UI
             titleObj.AddComponent<CanvasRenderer>();
             var titleImg = titleObj.AddComponent<Image>();
             titleImg.color = headerColor;
+            titleImg.raycastTarget = false;
             var titleText = titleObj.AddComponent<TextMeshProUGUI>();
             titleText.text = "Move History";
             titleText.fontSize = 18;
@@ -118,6 +117,7 @@ namespace Chess.UI
             closeObj.AddComponent<CanvasRenderer>();
             var closeImg = closeObj.AddComponent<Image>();
             closeImg.color = new Color(0.8f, 0.25f, 0.25f);
+            closeImg.raycastTarget = true;
             var closeBtn = closeObj.AddComponent<Button>();
             closeBtn.onClick.AddListener(Hide);
             var closeTxt = closeObj.AddComponent<TextMeshProUGUI>();
@@ -135,6 +135,7 @@ namespace Chess.UI
             scrollObj.AddComponent<CanvasRenderer>();
             var vpImg = scrollObj.AddComponent<Image>();
             vpImg.color = Color.clear;
+            vpImg.raycastTarget = true;
             scrollObj.AddComponent<Mask>().showMaskGraphic = false;
             _scrollRect = scrollObj.AddComponent<ScrollRect>();
             _scrollRect.horizontal = false;
@@ -213,6 +214,7 @@ namespace Chess.UI
             row.AddComponent<CanvasRenderer>();
             var rowImg = row.AddComponent<Image>();
             rowImg.color = isEven ? evenRowColor : oddRowColor;
+            rowImg.raycastTarget = false;
 
             var hlg = row.AddComponent<HorizontalLayoutGroup>();
             hlg.childAlignment = TextAnchor.MiddleLeft;
@@ -239,6 +241,7 @@ namespace Chess.UI
             tmp.fontStyle = style;
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            tmp.raycastTarget = false;
             var le = cell.AddComponent<LayoutElement>();
             le.minWidth = minWidth;
             le.preferredWidth = minWidth + 20;
@@ -252,6 +255,7 @@ namespace Chess.UI
             tmp.fontSize = 15;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = new Color(0.6f, 0.6f, 0.6f);
+            tmp.raycastTarget = false;
             _entries.Add(obj);
         }
 
@@ -264,6 +268,7 @@ namespace Chess.UI
 
         public void Show()
         {
+            EnsurePanel();
             if (_panel != null) _panel.SetActive(true);
             _visible = true;
             RefreshDisplay();
@@ -279,6 +284,11 @@ namespace Chess.UI
         {
             if (_visible) Hide();
             else Show();
+        }
+
+        public void SetToggleButtonVisible(bool visible)
+        {
+            if (_toggleBtn != null) _toggleBtn.SetActive(visible);
         }
     }
 }

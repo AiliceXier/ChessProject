@@ -1,4 +1,3 @@
-using System;
 using Chess;
 using TMPro;
 using UnityEngine;
@@ -10,55 +9,54 @@ namespace Chess.UI
     {
         public Player player;
 
-        public Color whiteColor = new Color(0.95f, 0.95f, 0.9f);
-        public Color blackColor = new Color(0.15f, 0.15f, 0.15f);
-        public Color neutralColor = new Color(0.5f, 0.5f, 0.5f);
+        private GameObject _barObj;
+        private Image _whiteImg;
+        private TextMeshProUGUI _evalText;
+        private ChessAI _chessAI;
 
-        private Image _barImage;
-        private TMP_Text _evalText;
-        private RectTransform _barFill;
-        private ChessAI _evalAI;
+        private void Awake() { }
 
-        private void Awake()
+        private void EnsureBar()
         {
-            BuildUI();
-            _evalAI = new ChessAI(maxDepth: 2);
-        }
-
-        private void BuildUI()
-        {
+            if (_barObj != null) return;
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
+            BuildBar(canvas.transform);
+        }
 
-            var container = new GameObject("EvalBar");
-            container.transform.SetParent(canvas.transform, false);
-            container.layer = 5;
+        private void BuildBar(Transform canvasTr)
+        {
+            _barObj = new GameObject("EvalBar");
+            _barObj.transform.SetParent(canvasTr, false);
+            _barObj.layer = 5;
+            _barObj.SetActive(false);
 
-            var containerRt = container.AddComponent<RectTransform>();
-            containerRt.anchorMin = new Vector2(0f, 0.3f);
-            containerRt.anchorMax = new Vector2(0f, 0.7f);
-            containerRt.offsetMin = new Vector2(8, 0);
-            containerRt.offsetMax = new Vector2(28, 0);
+            var barRt = _barObj.AddComponent<RectTransform>();
+            barRt.anchorMin = new Vector2(0f, 0.1f);
+            barRt.anchorMax = new Vector2(0f, 0.9f);
+            barRt.offsetMin = new Vector2(4, 0);
+            barRt.offsetMax = new Vector2(24, 0);
 
-            container.AddComponent<CanvasRenderer>();
-            var bgImg = container.AddComponent<Image>();
-            bgImg.color = blackColor;
+            _barObj.AddComponent<CanvasRenderer>();
+            var bgImg = _barObj.AddComponent<Image>();
+            bgImg.color = Color.black;
+            bgImg.raycastTarget = false;
 
-            var fillObj = new GameObject("Fill");
-            fillObj.transform.SetParent(container.transform, false);
-            fillObj.layer = 5;
-            var fillRt = fillObj.AddComponent<RectTransform>();
-            fillRt.anchorMin = new Vector2(0f, 0.5f);
-            fillRt.anchorMax = new Vector2(1f, 0.5f);
-            fillRt.offsetMin = new Vector2(0, -10);
-            fillRt.offsetMax = new Vector2(0, 10);
-            fillObj.AddComponent<CanvasRenderer>();
-            _barFill = fillRt;
-            _barImage = fillObj.AddComponent<Image>();
-            _barImage.color = whiteColor;
+            var whiteObj = new GameObject("WhiteBar");
+            whiteObj.transform.SetParent(_barObj.transform, false);
+            whiteObj.layer = 5;
+            var whiteRt = whiteObj.AddComponent<RectTransform>();
+            whiteRt.anchorMin = new Vector2(0f, 0f);
+            whiteRt.anchorMax = new Vector2(1f, 0.5f);
+            whiteRt.offsetMin = Vector2.zero;
+            whiteRt.offsetMax = Vector2.zero;
+            whiteObj.AddComponent<CanvasRenderer>();
+            _whiteImg = whiteObj.AddComponent<Image>();
+            _whiteImg.color = Color.white;
+            _whiteImg.raycastTarget = false;
 
             var textObj = new GameObject("EvalText");
-            textObj.transform.SetParent(container.transform, false);
+            textObj.transform.SetParent(_barObj.transform, false);
             textObj.layer = 5;
             var textRt = textObj.AddComponent<RectTransform>();
             textRt.anchorMin = Vector2.zero;
@@ -67,57 +65,46 @@ namespace Chess.UI
             textRt.offsetMax = Vector2.zero;
             _evalText = textObj.AddComponent<TextMeshProUGUI>();
             _evalText.fontSize = 10;
-            _evalText.fontStyle = FontStyles.Bold;
             _evalText.alignment = TextAlignmentOptions.Center;
-            _evalText.color = blackColor;
-
-            UpdateDisplay(0);
+            _evalText.color = Color.gray;
+            _evalText.raycastTarget = false;
         }
 
-        public void UpdateEvaluation(ChessBoard board)
+        private void Update()
         {
-            if (board == null || _evalAI == null) return;
+            if (_barObj == null || !_barObj.activeSelf) return;
+            if (player == null) return;
+            var board = player.GetLocalBoard();
+            if (board == null) return;
 
-            var eval = _evalAI.EvaluatePosition(board);
-            UpdateDisplay(eval);
-        }
+            if (_chessAI == null)
+                _chessAI = new ChessAI(maxDepth: 3);
 
-        private void UpdateDisplay(double eval)
-        {
-            var normalized = Mathf.Clamp((float)eval / 2000f, -1f, 1f);
+            float eval = _chessAI.EvaluatePosition(board) / 100f;
+            float ratio = Mathf.Clamp(0.5f + eval * 0.05f, 0.05f, 0.95f);
 
-            var fillMin = 0.5f;
-            var fillMax = 0.5f;
-
-            if (normalized >= 0)
+            if (_whiteImg != null)
             {
-                fillMin = 0.5f;
-                fillMax = 0.5f + normalized * 0.5f;
-            }
-            else
-            {
-                fillMin = 0.5f + normalized * 0.5f;
-                fillMax = 0.5f;
-            }
-
-            if (_barFill != null)
-            {
-                _barFill.anchorMin = new Vector2(0f, fillMin);
-                _barFill.anchorMax = new Vector2(1f, fillMax);
-                _barFill.offsetMin = Vector2.zero;
-                _barFill.offsetMax = Vector2.zero;
+                var rt = _whiteImg.rectTransform;
+                rt.anchorMax = new Vector2(1f, ratio);
             }
 
             if (_evalText != null)
             {
-                var pawns = eval / 100.0;
-                if (Math.Abs(pawns) >= 100)
-                    _evalText.text = pawns > 0 ? "+M" : "-M";
-                else
-                    _evalText.text = pawns >= 0 ? $"+{pawns:F1}" : $"{pawns:F1}";
-
-                _evalText.color = normalized >= 0 ? blackColor : whiteColor;
+                _evalText.text = eval >= 0 ? $"+{eval:F1}" : $"{eval:F1}";
+                _evalText.color = ratio > 0.5f ? Color.black : Color.white;
             }
+        }
+
+        public void Show()
+        {
+            EnsureBar();
+            if (_barObj != null) _barObj.SetActive(true);
+        }
+
+        public void Hide()
+        {
+            if (_barObj != null) _barObj.SetActive(false);
         }
     }
 }

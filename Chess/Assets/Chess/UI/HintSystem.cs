@@ -1,4 +1,3 @@
-using System.Collections;
 using Chess;
 using TMPro;
 using UnityEngine;
@@ -9,46 +8,43 @@ namespace Chess.UI
     public class HintSystem : MonoBehaviour
     {
         public Player player;
-        public GameObject boardPivot;
 
-        public Color hintFromColor = new Color(0.2f, 0.8f, 0.2f, 0.4f);
-        public Color hintToColor = new Color(0.9f, 0.9f, 0.2f, 0.5f);
-        public float highlightDuration = 3f;
+        private GameObject _hintBtn;
+        private GameObject _highlight;
+        private float _clearTime;
 
-        private GameObject _fromHighlight;
-        private GameObject _toHighlight;
-        private Coroutine _hintCoroutine;
-        private ChessAI _hintAI;
+        private void Awake() { }
 
-        private void Awake()
+        private void EnsureButton()
         {
-            _hintAI = new ChessAI(maxDepth: 3);
-            BuildUI();
-        }
-
-        private void BuildUI()
-        {
+            if (_hintBtn != null) return;
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
+            BuildButton(canvas.transform);
+        }
 
-            var btnObj = new GameObject("HintBtn");
-            btnObj.transform.SetParent(canvas.transform, false);
-            btnObj.layer = 5;
+        private void BuildButton(Transform canvasTr)
+        {
+            _hintBtn = new GameObject("HintBtn");
+            _hintBtn.transform.SetParent(canvasTr, false);
+            _hintBtn.layer = 5;
 
-            var btnRt = btnObj.AddComponent<RectTransform>();
+            var btnRt = _hintBtn.AddComponent<RectTransform>();
             btnRt.anchorMin = new Vector2(0f, 0f);
             btnRt.anchorMax = new Vector2(0f, 0f);
             btnRt.offsetMin = new Vector2(10, 10);
             btnRt.offsetMax = new Vector2(110, 44);
 
-            btnObj.AddComponent<CanvasRenderer>();
-            var btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = new Color(0.2f, 0.4f, 0.2f, 0.9f);
-            var btn = btnObj.AddComponent<Button>();
+            _hintBtn.AddComponent<CanvasRenderer>();
+            var btnImg = _hintBtn.AddComponent<Image>();
+            btnImg.color = new Color(0.25f, 0.25f, 0.3f, 0.9f);
+            btnImg.raycastTarget = true;
+
+            var btn = _hintBtn.AddComponent<Button>();
             btn.onClick.AddListener(ShowHint);
 
             var txtObj = new GameObject("Text");
-            txtObj.transform.SetParent(btnObj.transform, false);
+            txtObj.transform.SetParent(_hintBtn.transform, false);
             txtObj.layer = 5;
             txtObj.AddComponent<RectTransform>();
             var tmp = txtObj.AddComponent<TextMeshProUGUI>();
@@ -59,64 +55,60 @@ namespace Chess.UI
             tmp.color = Color.white;
         }
 
-        public void ShowHint()
+        private void Update()
         {
-            var board = player?.GetLocalBoard();
-            if (board == null || board.IsEndGame) return;
+            if (_highlight != null && _highlight.activeSelf && Time.time > _clearTime)
+                _highlight.SetActive(false);
+        }
 
-            var bestMove = _hintAI.GetBestMove(board);
+        private void ShowHint()
+        {
+            if (player == null) return;
+            var board = player.GetLocalBoard();
+            if (board == null) return;
+
+            var ai = new ChessAI(maxDepth: 3);
+            var bestMove = ai.GetBestMove(board);
             if (bestMove == null) return;
 
-            ClearHighlights();
-
-            var pivot = boardPivot != null ? boardPivot.transform : transform;
-
-            _fromHighlight = CreateHighlight("HintFrom", bestMove.OriginalPosition, hintFromColor, pivot);
-            _toHighlight = CreateHighlight("HintTo", bestMove.NewPosition, hintToColor, pivot);
-
-            if (_hintCoroutine != null)
-                StopCoroutine(_hintCoroutine);
-            _hintCoroutine = StartCoroutine(AutoClearHighlights());
+            ShowHighlight(bestMove.OriginalPosition.X, bestMove.OriginalPosition.Y);
+            _clearTime = Time.time + 3f;
         }
 
-        private GameObject CreateHighlight(string name, Position pos, Color color, Transform parent)
+        private void ShowHighlight(int x, int y)
         {
-            var obj = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            obj.name = name;
-            obj.transform.SetParent(parent, false);
-            obj.transform.localPosition = new Vector3(pos.X, 0.02f, pos.Y);
-            obj.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            obj.transform.localScale = new Vector3(0.95f, 0.95f, 1f);
-
-            var renderer = obj.GetComponent<MeshRenderer>();
-            var mat = new Material(Shader.Find("Unlit/Transparent"));
-            mat.color = color;
-            renderer.material = mat;
-
-            obj.GetComponent<Collider>().enabled = false;
-
-            return obj;
-        }
-
-        private IEnumerator AutoClearHighlights()
-        {
-            yield return new WaitForSeconds(highlightDuration);
-            ClearHighlights();
-            _hintCoroutine = null;
-        }
-
-        private void ClearHighlights()
-        {
-            if (_fromHighlight != null)
+            if (_highlight == null)
             {
-                Destroy(_fromHighlight);
-                _fromHighlight = null;
+                _highlight = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                _highlight.name = "HintHighlight";
+                Object.Destroy(_highlight.GetComponent<Collider>());
+                var mr = _highlight.GetComponent<MeshRenderer>();
+                mr.material = new Material(Shader.Find("Unlit/Transparent"));
+                var c = Color.green;
+                c.a = 0.4f;
+                mr.material.color = c;
             }
-            if (_toHighlight != null)
-            {
-                Destroy(_toHighlight);
-                _toHighlight = null;
-            }
+
+            var boardObj = GameObject.Find("Board");
+            if (boardObj == null) return;
+
+            _highlight.transform.SetParent(boardObj.transform, false);
+            _highlight.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            _highlight.transform.localPosition = new Vector3(x, 0.02f, y);
+            _highlight.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+            _highlight.SetActive(true);
+        }
+
+        public void ShowButton()
+        {
+            EnsureButton();
+            if (_hintBtn != null) _hintBtn.SetActive(true);
+        }
+
+        public void HideButton()
+        {
+            if (_hintBtn != null) _hintBtn.SetActive(false);
+            if (_highlight != null) _highlight.SetActive(false);
         }
     }
 }
