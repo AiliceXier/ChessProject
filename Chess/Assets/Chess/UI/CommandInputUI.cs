@@ -196,9 +196,9 @@ namespace Chess.UI
         private void BuildInputArea(Transform parent)
         {
             var inputRow = CreateUIObj("InputRow", parent);
-            var inputLe = inputRow.AddComponent<LayoutElement>();
-            inputLe.preferredHeight = 32;
-            inputLe.flexibleHeight = 0;
+            var rowLe = inputRow.AddComponent<LayoutElement>();
+            rowLe.preferredHeight = 32;
+            rowLe.flexibleHeight = 0;
             var hlg = inputRow.AddComponent<HorizontalLayoutGroup>();
             hlg.childAlignment = TextAnchor.MiddleLeft;
             hlg.childControlWidth = true;

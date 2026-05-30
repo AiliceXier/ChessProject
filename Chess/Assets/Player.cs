@@ -300,7 +300,7 @@ public class Player : MonoBehaviour
         SyncBoard(_localBoard.ToFen());
         _moveCount++;
         if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
-        if (evaluationBar != null) evaluationBar.UpdateEvaluation(_localBoard);
+        if (evaluationBar != null) evaluationBar.Show();
 
         if (_localBoard.IsEndGame)
         {
@@ -343,7 +343,7 @@ public class Player : MonoBehaviour
             SyncBoard(_localBoard.ToFen());
             _moveCount++;
             if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
-            if (evaluationBar != null) evaluationBar.UpdateEvaluation(_localBoard);
+            if (evaluationBar != null) evaluationBar.Show();
 
             if (_localBoard.IsEndGame)
             {
