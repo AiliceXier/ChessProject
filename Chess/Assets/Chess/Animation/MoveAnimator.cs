@@ -20,7 +20,8 @@ namespace Chess.Animation
         public IEnumerator AnimateSyncBoard(
             Dictionary<Tuple<int, int>, char> newBoardState,
             Dictionary<string, UnityEngine.Object> prefabs,
-            System.Action<GameObject, char> setupPiece)
+            System.Action<GameObject, char> setupPiece,
+            System.Action onComplete = null)
         {
             _animating = true;
 
@@ -159,6 +160,7 @@ namespace Chess.Animation
             }
 
             _animating = false;
+            onComplete?.Invoke();
         }
 
         private IEnumerator AnimateMove(GameObject piece, int targetX, int targetZ)

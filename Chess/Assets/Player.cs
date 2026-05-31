@@ -66,6 +66,7 @@ public class Player : MonoBehaviour
     private bool _localWhiteTurn = true;
     private ChessAI _chessAI;
     private bool _aiThinking;
+    private string _pendingFen;
 
     private int _moveCount;
     private string _leaderboardPlayerName = "Player";
@@ -320,6 +321,7 @@ public class Player : MonoBehaviour
             _localWhiteTurn = !_localWhiteTurn;
             SetPovLocal();
             playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            Debug.Log($"[Player] MakeLocalMove: _localWhiteTurn={_localWhiteTurn}, move={fromFen}->{toFen}");
         }
         return true;
     }
@@ -340,9 +342,11 @@ public class Player : MonoBehaviour
 
             if (aiMove == null || !_gameStarted || _gameMode != GameMode.Robot)
             {
+                Debug.Log("[Player] AI move was null or game not active, skipping");
                 return;
             }
 
+            Debug.Log($"[Player] AI move: {aiMove.San ?? aiMove.ToString()}, animating={_moveAnimator?.IsAnimating}");
             _localBoard.Move(aiMove);
             SyncBoard(_localBoard.ToFen());
             _moveCount++;
@@ -359,11 +363,13 @@ public class Player : MonoBehaviour
                 _localWhiteTurn = true;
                 cameraPivot.transform.eulerAngles = Vector3.zero;
                 playerNameText.text = "Your Turn (White)";
+                Debug.Log("[Player] AI turn complete, _localWhiteTurn=true, _aiThinking will be set to false");
             }
         }
         catch (Exception e)
         {
             Debug.LogException(e);
+            _localWhiteTurn = true;
             playerNameText.text = "Your Turn (White)";
         }
         finally
@@ -374,52 +380,73 @@ public class Player : MonoBehaviour
 
     private void SyncBoard(string fen)
     {
-        var boardState = FenToDict(fen);
         try
         {
             if (_moveAnimator != null && _moveAnimator.IsAnimating)
+            {
+                Debug.Log($"[Player] SyncBoard: animation in progress, queuing pending FEN");
+                _pendingFen = fen;
                 return;
+            }
+
+            var boardState = FenToDict(fen);
 
             if (_moveAnimator != null)
             {
                 StartCoroutine(_moveAnimator.AnimateSyncBoard(boardState, _prefabs, (go, c) =>
                 {
                     go.name = GetPieceTypeName(c) + (char.IsUpper(c) ? "Light" : "Dark") + "(Clone)";
-                }));
+                }, OnBoardAnimationComplete));
             }
             else
             {
-                foreach (Transform child in board.transform)
-                {
-                    Destroy(child.gameObject);
-                }
-                foreach (var piece in boardState)
-                {
-                    var pieceType = char.ToLower(piece.Value) switch
-                    {
-                        'p' => "Pawn",
-                        'n' => "Knight",
-                        'b' => "Bishop",
-                        'r' => "Rook",
-                        'q' => "Queen",
-                        'k' => "King",
-                        _ => ""
-                    };
-                    var prefabName = pieceType + (char.IsUpper(piece.Value) ? "Light" : "Dark");
-                    if (!_prefabs.ContainsKey(prefabName))
-                    {
-                        _prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");
-                    }
-
-                    var newObject = Instantiate(_prefabs[prefabName], board.transform);
-                    newObject.GameObject().transform.position = new Vector3(piece.Key.Item1, 0, piece.Key.Item2);
-                    newObject.GameObject().transform.rotation = Quaternion.Euler(0, char.IsLower(piece.Value) ? 180 : 0, 0);
-                }
+                ApplyBoardStateInstant(boardState);
             }
         }
         catch (CloudCodeException exception)
         {
             Debug.LogException(exception);
+        }
+    }
+
+    private void OnBoardAnimationComplete()
+    {
+        if (_pendingFen != null)
+        {
+            Debug.Log("[Player] OnBoardAnimationComplete: applying pending FEN");
+            var fen = _pendingFen;
+            _pendingFen = null;
+            SyncBoard(fen);
+        }
+    }
+
+    private void ApplyBoardStateInstant(Dictionary<Tuple<int, int>, char> boardState)
+    {
+        foreach (Transform child in board.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (var piece in boardState)
+        {
+            var pieceType = char.ToLower(piece.Value) switch
+            {
+                'p' => "Pawn",
+                'n' => "Knight",
+                'b' => "Bishop",
+                'r' => "Rook",
+                'q' => "Queen",
+                'k' => "King",
+                _ => ""
+            };
+            var prefabName = pieceType + (char.IsUpper(piece.Value) ? "Light" : "Dark");
+            if (!_prefabs.ContainsKey(prefabName))
+            {
+                _prefabs[prefabName] = Resources.Load($"{pieceType}/Prefabs/{prefabName}");
+            }
+
+            var newObject = Instantiate(_prefabs[prefabName], board.transform);
+            newObject.GameObject().transform.position = new Vector3(piece.Key.Item1, 0, piece.Key.Item2);
+            newObject.GameObject().transform.rotation = Quaternion.Euler(0, char.IsLower(piece.Value) ? 180 : 0, 0);
         }
     }
 
