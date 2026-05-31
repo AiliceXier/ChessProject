@@ -15,6 +15,7 @@ namespace Chess.UI
         public Color selfMsgColor = new Color(0.29f, 0.48f, 0.71f, 0.6f);
         public Color otherMsgColor = new Color(0.22f, 0.22f, 0.24f, 0.6f);
 
+        [Header("Scene References")]
         public GameObject toggleBtnRef;
         public GameObject panelRef;
         public TMP_InputField inputFieldRef;
@@ -31,6 +32,44 @@ namespace Chess.UI
 
         private void Awake()
         {
+            if (toggleBtnRef == null)
+            {
+                var canvas = FindObjectOfType<Canvas>();
+                if (canvas != null)
+                {
+                    var foundToggle = canvas.transform.Find("ChatToggleBtn");
+                    if (foundToggle != null) toggleBtnRef = foundToggle.gameObject;
+                }
+            }
+
+            if (panelRef == null)
+            {
+                var canvas = FindObjectOfType<Canvas>();
+                if (canvas != null)
+                {
+                    var foundPanel = canvas.transform.Find("ChatPanel");
+                    if (foundPanel != null) panelRef = foundPanel.gameObject;
+                }
+            }
+
+            if (scrollRectRef == null && panelRef != null)
+            {
+                var foundScroll = panelRef.transform.Find("ChatScrollView");
+                if (foundScroll != null) scrollRectRef = foundScroll.GetComponent<ScrollRect>();
+            }
+
+            if (contentParentRef == null && panelRef != null)
+            {
+                var foundContent = panelRef.transform.Find("ChatScrollView/ChatViewport/ChatContent");
+                if (foundContent != null) contentParentRef = foundContent;
+            }
+
+            if (inputFieldRef == null && panelRef != null)
+            {
+                var foundInput = panelRef.transform.Find("ChatInputRow/ChatInputField");
+                if (foundInput != null) inputFieldRef = foundInput.GetComponent<TMP_InputField>();
+            }
+
             if (toggleBtnRef != null)
             {
                 _toggleBtn = toggleBtnRef;
@@ -38,8 +77,9 @@ namespace Chess.UI
                 if (btn == null)
                 {
                     btn = _toggleBtn.AddComponent<Button>();
-                    btn.onClick.AddListener(Toggle);
                 }
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(Toggle);
             }
             else
             {
@@ -85,28 +125,59 @@ namespace Chess.UI
         {
             if (_panel != null) return;
 
-            if (panelRef != null && inputFieldRef != null && scrollRectRef != null && contentParentRef != null)
+            if (panelRef != null)
             {
                 _panel = panelRef;
-                _inputField = inputFieldRef;
-                _scrollRect = scrollRectRef;
-                _contentParent = contentParentRef;
-                _inputField.onSubmit.AddListener(OnSend);
 
-                var closeBtnTr = _panel.transform.Find("Header/CloseBtn");
+                if (inputFieldRef != null)
+                {
+                    _inputField = inputFieldRef;
+                    _inputField.onSubmit.RemoveAllListeners();
+                    _inputField.onSubmit.AddListener(OnSend);
+                }
+
+                if (scrollRectRef != null)
+                {
+                    _scrollRect = scrollRectRef;
+                    if (_scrollRect.content == null && contentParentRef != null)
+                        _scrollRect.content = contentParentRef.GetComponent<RectTransform>();
+                    if (_scrollRect.viewport == null)
+                    {
+                        var viewportTr = _panel.transform.Find("ChatScrollView/ChatViewport");
+                        if (viewportTr != null)
+                            _scrollRect.viewport = viewportTr.GetComponent<RectTransform>();
+                    }
+                }
+
+                if (contentParentRef != null)
+                    _contentParent = contentParentRef;
+                else
+                {
+                    var contentTr = _panel.transform.Find("ChatScrollView/ChatViewport/ChatContent");
+                    if (contentTr != null)
+                        _contentParent = contentTr;
+                }
+
+                var closeBtnTr = _panel.transform.Find("ChatHeader/ChatCloseBtn");
                 if (closeBtnTr != null)
                 {
                     var closeBtn = closeBtnTr.GetComponent<Button>();
                     if (closeBtn != null)
+                    {
+                        closeBtn.onClick.RemoveAllListeners();
                         closeBtn.onClick.AddListener(Hide);
+                    }
                 }
 
-                var sendBtnTr = _panel.transform.Find("InputRow/SendBtn");
+                var sendBtnTr = _panel.transform.Find("ChatInputRow/ChatSendBtn");
                 if (sendBtnTr != null)
                 {
                     var sendBtn = sendBtnTr.GetComponent<Button>();
                     if (sendBtn != null)
+                    {
+                        sendBtn.onClick.RemoveAllListeners();
                         sendBtn.onClick.AddListener(() => OnSend(_inputField.text));
+                    }
                 }
 
                 _panel.SetActive(false);
@@ -235,7 +306,6 @@ namespace Chess.UI
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
             vlg.spacing = 4;
-            vlg.padding = new RectOffset(4, 4, 4, 4);
             _contentParent = contentObj.transform;
 
             _scrollRect.content = contentRt;

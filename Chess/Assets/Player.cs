@@ -124,7 +124,8 @@ public class Player : MonoBehaviour
             await UnityServices.InitializeAsync();
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await SubscribeToPlayerMessages();
-            resignButton.SetActive(false);
+            if (resignButton != null)
+                resignButton.SetActive(false);
             _isInitialized = true;
             Debug.Log("Unity Services initialized and player signed in successfully.");
         }
@@ -1162,7 +1163,7 @@ public class Player : MonoBehaviour
         try
         {
             await CloudCodeService.Instance.CallModuleEndpointAsync(
-                "chess",
+                "ChessCloudCode",
                 "SendMessage",
                 new Dictionary<string, object>
                 {
