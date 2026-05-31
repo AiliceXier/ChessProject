@@ -103,11 +103,17 @@ namespace Chess.UI
 
         public void ConnectToRoom(string roomId, string playerName)
         {
+            Debug.Log($"[ChatUI] ConnectToRoom: roomId={roomId}, playerName={playerName}, url={ChatServerUrl}");
             _localPlayerName = playerName;
             _wsClient?.Dispose();
             _wsClient = new ChatWebSocketClient(ChatServerUrl);
             _wsClient.OnMessageReceived += OnWebSocketMessage;
             _wsClient.OnError += OnWebSocketError;
+            _wsClient.OnConnected += () =>
+            {
+                Debug.Log("[ChatUI] WebSocket connected successfully");
+                AddMessage("System", "Connected to chat", false);
+            };
             _wsClient.Connect(roomId, playerName);
         }
 
@@ -119,6 +125,7 @@ namespace Chess.UI
 
         private void OnWebSocketMessage(string sender, string message)
         {
+            Debug.Log($"[ChatUI] OnWebSocketMessage: sender={sender}, message={message}");
             if (sender == "System")
             {
                 AddMessage("System", message, false);
@@ -126,7 +133,8 @@ namespace Chess.UI
             else
             {
                 bool isSelf = sender == _localPlayerName;
-                AddMessage(sender, message, isSelf);
+                if (!isSelf)
+                    AddMessage(sender, message, false);
             }
         }
 
@@ -472,14 +480,18 @@ namespace Chess.UI
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
+            Debug.Log($"[ChatUI] OnSend: wsClient={_wsClient != null}, isConnected={_wsClient?.IsConnected}, text={text}");
+
             if (_wsClient != null && _wsClient.IsConnected)
             {
                 _wsClient.SendChatMessage(text);
+                AddMessage(_localPlayerName ?? "You", text, true);
             }
             else
             {
+                Debug.LogWarning("[ChatUI] WebSocket not connected, message not sent");
                 AddMessage("You", text, true);
-                player?.SendChatMessage(text);
+                AddMessage("System", "Not connected to chat server", false);
             }
 
             if (_inputField != null)

@@ -1166,20 +1166,6 @@ public class Player : MonoBehaviour
     {
         if (_gameMode != GameMode.Online || _currentSession == null) return;
 
-        try
-        {
-            await CloudCodeService.Instance.CallModuleEndpointAsync(
-                "ChessCloudCode",
-                "SendMessage",
-                new Dictionary<string, object>
-                {
-                    { "lobbyId", _currentSession },
-                    { "message", message }
-                });
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"Failed to send chat message: {e.Message}");
-        }
+        Debug.LogWarning($"[Player] SendChatMessage called but WebSocket should be used instead. Message: {message}");
     }
 }
