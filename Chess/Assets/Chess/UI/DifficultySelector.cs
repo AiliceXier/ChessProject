@@ -19,10 +19,10 @@ namespace Chess.UI
             ("Master", 5)
         };
 
-        private Color panelColor = new Color(0.12f, 0.12f, 0.12f, 0.98f);
+        private Color panelColor = new Color(0.10f, 0.10f, 0.12f, 0.98f);
         private Color cardColor = new Color(0.22f, 0.22f, 0.28f, 1f);
-        private Color selectedColor = new Color(0.3f, 0.55f, 0.8f, 1f);
-        private Color btnColor = new Color(0.2f, 0.2f, 0.25f, 1f);
+        private Color selectedColor = new Color(0.29f, 0.48f, 0.71f, 1f);
+        private Color btnColor = new Color(0.22f, 0.22f, 0.28f, 1f);
 
         private void Awake() { }
 
@@ -39,17 +39,17 @@ namespace Chess.UI
             _panel = new GameObject("DifficultyPanel");
             _panel.transform.SetParent(canvasTr, false);
             _panel.layer = 5;
-            _panel.SetActive(false);
 
             var panelRt = _panel.AddComponent<RectTransform>();
             panelRt.anchorMin = new Vector2(0.5f, 0.5f);
             panelRt.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRt.sizeDelta = new Vector2(300, 280);
+            panelRt.pivot = new Vector2(0.5f, 0.5f);
+            panelRt.sizeDelta = new Vector2(280, 280);
 
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();
             bg.color = panelColor;
-            bg.raycastTarget = false;
+            bg.raycastTarget = true;
 
             var vlg = _panel.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.MiddleCenter;
@@ -65,7 +65,7 @@ namespace Chess.UI
             titleLe.preferredHeight = 36;
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
             titleTxt.text = "Select Difficulty";
-            titleTxt.fontSize = 22;
+            titleTxt.fontSize = 20;
             titleTxt.fontStyle = FontStyles.Bold;
             titleTxt.alignment = TextAlignmentOptions.Center;
             titleTxt.color = Color.white;
@@ -82,9 +82,15 @@ namespace Chess.UI
                 var btn = btnObj.AddComponent<Button>();
                 btn.onClick.AddListener(() => OnDifficultySelected(idx));
                 var btnLe = btnObj.AddComponent<LayoutElement>();
-                btnLe.preferredHeight = 40;
+                btnLe.preferredHeight = 44;
 
-                var btnTxt = btnObj.AddComponent<TextMeshProUGUI>();
+                var btnTxtObj = CreateUIObj("Text", btnObj.transform);
+                var btnTxtRt = btnTxtObj.GetComponent<RectTransform>();
+                btnTxtRt.anchorMin = Vector2.zero;
+                btnTxtRt.anchorMax = Vector2.one;
+                btnTxtRt.offsetMin = Vector2.zero;
+                btnTxtRt.offsetMax = Vector2.zero;
+                var btnTxt = btnTxtObj.AddComponent<TextMeshProUGUI>();
                 btnTxt.text = $"{Difficulties[i].name} (Depth {Difficulties[i].depth})";
                 btnTxt.fontSize = 16;
                 btnTxt.alignment = TextAlignmentOptions.Center;
@@ -101,12 +107,20 @@ namespace Chess.UI
             backBtn.onClick.AddListener(Hide);
             var backLe = backObj.AddComponent<LayoutElement>();
             backLe.preferredHeight = 36;
-            var backTxt = backObj.AddComponent<TextMeshProUGUI>();
+            var backTxtObj = CreateUIObj("Text", backObj.transform);
+            var backTxtRt = backTxtObj.GetComponent<RectTransform>();
+            backTxtRt.anchorMin = Vector2.zero;
+            backTxtRt.anchorMax = Vector2.one;
+            backTxtRt.offsetMin = Vector2.zero;
+            backTxtRt.offsetMax = Vector2.zero;
+            var backTxt = backTxtObj.AddComponent<TextMeshProUGUI>();
             backTxt.text = "Back";
             backTxt.fontSize = 15;
             backTxt.alignment = TextAlignmentOptions.Center;
             backTxt.color = Color.white;
             backTxt.raycastTarget = false;
+
+            _panel.SetActive(false);
         }
 
         private GameObject CreateUIObj(string name, Transform parent)

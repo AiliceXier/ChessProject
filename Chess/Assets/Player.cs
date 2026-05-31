@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     public GameObject cameraPivot;
     public TextMeshProUGUI lobbyInputCodeText;
     public TextMeshProUGUI lobbyCodeText;
+    public TextMeshProUGUI opponentNameText;
     
     public TextMeshProUGUI playerNameText;
 
@@ -35,6 +36,8 @@ public class Player : MonoBehaviour
     public GameObject uiPanel;
     public TextMeshProUGUI resultText;
     public GameObject board;
+    
+    private TMP_InputField _lobbyInputField;
     
     public MoveHistoryUI moveHistoryUI;
     public CommandInputUI commandInputUI;
@@ -101,8 +104,15 @@ public class Player : MonoBehaviour
         }
         _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
-        uiPanel.SetActive(false);
+        if (mainMenuUI != null) mainMenuUI.Initialize(uiPanel);
+        if (uiPanel != null)
+        {
+            var lobbyCodeInputTr = uiPanel.transform.Find("Lobby Code Input");
+            if (lobbyCodeInputTr != null)
+                _lobbyInputField = lobbyCodeInputTr.GetComponent<TMP_InputField>();
+        }
         HideInGameUI();
+        if (mainMenuUI != null) mainMenuUI.Show();
         _initializationTask = InitializeAsync();
     }
 
@@ -120,8 +130,7 @@ public class Player : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Failed to initialize Unity Services: {e.Message}");
-            resultText.text = "Failed to initialize. Please restart the game.";
-            uiPanel.SetActive(true);
+            if (mainMenuUI != null) mainMenuUI.ShowWithResult("Failed to initialize. Please restart the game.");
         }
     }
 
@@ -134,14 +143,12 @@ public class Player : MonoBehaviour
         {
             var hostGameResponse = await CloudCodeService.Instance.CallModuleEndpointAsync<HostGameResponse>("ChessCloudCode", "HostGame");
             lobbyCodeText.text = hostGameResponse.LobbyCode;
-            uiPanel.SetActive(false);
-            if (mainMenuUI != null) mainMenuUI.Hide();
+            if (mainMenuUI != null) mainMenuUI.ShowWaitingForOpponent(hostGameResponse.LobbyCode);
         }
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            resultText.text = "Create game failed. Please try again.";
-            uiPanel.SetActive(true);
+            if (mainMenuUI != null) mainMenuUI.ShowWithResult("Create game failed. Please try again.");
         }
     }
 
@@ -192,8 +199,8 @@ public class Player : MonoBehaviour
     
     public void SetLobbyCode(string code)
     {
-        if (lobbyInputCodeText != null)
-            lobbyInputCodeText.text = code;
+        if (_lobbyInputField != null) _lobbyInputField.text = code;
+        else if (lobbyInputCodeText != null) lobbyInputCodeText.text = code;
     }
 
     public async void JoinLobbyByCode()
@@ -203,12 +210,12 @@ public class Player : MonoBehaviour
 
         try
         {
-            var sanitizedLobbyCode = Regex.Replace(lobbyInputCodeText.text, @"\s", "").Replace("\u200B", "");
+            var rawCode = _lobbyInputField != null ? _lobbyInputField.text : (lobbyInputCodeText != null ? lobbyInputCodeText.text : "");
+            var sanitizedLobbyCode = Regex.Replace(rawCode, @"\s", "").Replace("\u200B", "");
 
             if (string.IsNullOrWhiteSpace(sanitizedLobbyCode))
             {
-                resultText.text = "Please enter a valid lobby code.";
-            uiPanel.SetActive(true);
+                if (mainMenuUI != null) mainMenuUI.ShowWithResult("Please enter a valid lobby code.");
                 return;
             }
             
@@ -221,8 +228,7 @@ public class Player : MonoBehaviour
         catch (Exception exception)
         {
             Debug.LogException(exception);
-            resultText.text = "Join game failed. Check lobby code or wait for opponent.";
-            uiPanel.SetActive(true);
+            if (mainMenuUI != null) mainMenuUI.ShowWithResult("Join game failed. Check lobby code or wait for opponent.");
         }
     }
 
@@ -235,7 +241,6 @@ public class Player : MonoBehaviour
         _gameStarted = true;
         _moveCount = 0;
         SyncBoard(_localBoard.ToFen());
-        uiPanel.SetActive(false);
         if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
         SetPovLocal();
@@ -264,7 +269,6 @@ public class Player : MonoBehaviour
         _moveCount = 0;
         _chessAI = new ChessAI(maxDepth: depth);
         SyncBoard(_localBoard.ToFen());
-        uiPanel.SetActive(false);
         if (mainMenuUI != null) mainMenuUI.Hide();
         if (difficultySelector != null) difficultySelector.Hide();
         resignButton.SetActive(true);
@@ -496,7 +500,6 @@ public class Player : MonoBehaviour
         Debug.Log($"Opponent joined: {joinGameResponse.OpponentId}");
         _currentSession = joinGameResponse.Session;
         SyncBoard(joinGameResponse.Board);
-        uiPanel.SetActive(false);
         if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
         _isWhite = joinGameResponse.IsWhite;
@@ -526,6 +529,11 @@ public class Player : MonoBehaviour
                     OnBoardUpdate(message);
                     break;
                 case "opponentJoined":
+                    if (mainMenuUI == null || !mainMenuUI.IsWaitingForOpponent)
+                    {
+                        Debug.Log("Ignoring opponentJoined event - not in waiting state");
+                        break;
+                    }
                     var opponentJoinedMessage = JsonConvert.DeserializeObject<JoinGameResponse>(@event.Message);
                     OnGameStart(opponentJoinedMessage);
                     break;
@@ -694,9 +702,7 @@ public class Player : MonoBehaviour
 
     private void ShowGameOver(string resultMessage)
     {
-        uiPanel.SetActive(true);
         resignButton.SetActive(false);
-        resultText.text = resultMessage;
         playerNameText.text = "Game Over";
         _gameStarted = false;
         HideInGameUI();
@@ -718,6 +724,10 @@ public class Player : MonoBehaviour
         if (chatUI != null) chatUI.SetToggleButtonVisible(_gameMode == GameMode.Online);
         if (hintSystem != null) hintSystem.ShowButton();
         if (evaluationBar != null) evaluationBar.Show();
+        
+        bool isOnline = _gameMode == GameMode.Online;
+        if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(isOnline);
+        if (opponentNameText != null) opponentNameText.gameObject.SetActive(isOnline);
     }
 
     private void HideInGameUI()
@@ -728,6 +738,9 @@ public class Player : MonoBehaviour
         if (chatUI != null) chatUI.SetToggleButtonVisible(false);
         if (hintSystem != null) hintSystem.HideButton();
         if (evaluationBar != null) evaluationBar.Hide();
+        
+        if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(false);
+        if (opponentNameText != null) opponentNameText.gameObject.SetActive(false);
     }
 
     public void ShowLeaderboard()
@@ -1059,7 +1072,7 @@ public class Player : MonoBehaviour
             _localWhiteTurn = _localBoard.Turn == PieceColor.White;
 
             SyncBoard(_localBoard.ToFen());
-            uiPanel.SetActive(false);
+            if (mainMenuUI != null) mainMenuUI.Hide();
             resignButton.SetActive(true);
             SetPovLocal();
             playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
@@ -1099,7 +1112,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                uiPanel.SetActive(false);
+                if (mainMenuUI != null) mainMenuUI.Hide();
                 resignButton.SetActive(true);
                 SetPovLocal();
                 playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";

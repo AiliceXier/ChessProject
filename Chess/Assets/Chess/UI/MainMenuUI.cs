@@ -9,286 +9,324 @@ namespace Chess.UI
         public Player player;
 
         private GameObject _panel;
-        private GameObject _onlineSubPanel;
+        private GameObject _localGameBtn;
+        private GameObject _robotGameBtn;
+        private GameObject _createBtn;
+        private GameObject _joinBtn;
+        private GameObject _lobbyCodeInput;
+        private GameObject _resultTextObj;
+        private GameObject _leaderboardBtn;
+
+        private GameObject _onlineGameBtn;
+        private GameObject _backBtn;
+        private GameObject _titleObj;
+        private GameObject _onlineTitleObj;
         private TextMeshProUGUI _resultText;
+
+        private enum MenuState { MainMenu, OnlineOptions, WaitingForOpponent, Hidden }
+        private MenuState _state = MenuState.Hidden;
         private string _pendingResult;
 
-        private Color panelColor = new Color(0.1f, 0.1f, 0.12f, 0.98f);
-        private Color cardColor = new Color(0.2f, 0.2f, 0.26f, 1f);
-        private Color onlineCardColor = new Color(0.15f, 0.25f, 0.35f, 1f);
-        private Color leaderboardCardColor = new Color(0.2f, 0.3f, 0.2f, 1f);
+        public bool IsWaitingForOpponent => _state == MenuState.WaitingForOpponent;
 
-        private void Awake()
+        private GameObject _waitingObj;
+        private TextMeshProUGUI _waitingCodeText;
+
+        private static readonly Color LocalGameColor = new Color(0.18f, 0.32f, 0.52f);
+        private static readonly Color RobotGameColor = new Color(0.18f, 0.48f, 0.28f);
+        private static readonly Color OnlineGameColor = new Color(0.38f, 0.22f, 0.52f);
+        private static readonly Color LeaderboardColor = new Color(0.48f, 0.38f, 0.18f);
+        private static readonly Color CreateColor = new Color(0.18f, 0.55f, 0.30f);
+        private static readonly Color JoinColor = new Color(0.20f, 0.38f, 0.65f);
+        private static readonly Color BackColor = new Color(0.45f, 0.18f, 0.18f);
+
+        private void Awake() { }
+
+        public void Initialize(GameObject panel)
         {
-            var canvas = FindObjectOfType<Canvas>();
-            if (canvas == null) return;
-            BuildUI(canvas.transform);
+            _panel = panel;
+
+            foreach (Transform child in _panel.transform)
+            {
+                var name = child.name;
+                if (name == "Local Game Button") _localGameBtn = child.gameObject;
+                else if (name == "Robot Game Button") _robotGameBtn = child.gameObject;
+                else if (name == "Create Button") _createBtn = child.gameObject;
+                else if (name == "Join Button") _joinBtn = child.gameObject;
+                else if (name == "Lobby Code Input") _lobbyCodeInput = child.gameObject;
+                else if (name == "Result Text") { _resultTextObj = child.gameObject; _resultText = child.GetComponent<TextMeshProUGUI>(); }
+                else if (name == "LeaderboardButton") _leaderboardBtn = child.gameObject;
+            }
+
+            var robotTxt = _robotGameBtn?.GetComponentInChildren<TextMeshProUGUI>();
+            if (robotTxt != null) robotTxt.text = "vs AI";
+
+            SetupLayout();
+
+            _titleObj = CreateLabel("Title", _panel.transform, "Chess", 32, FontStyles.Bold, Color.white, 44);
+            _onlineTitleObj = CreateLabel("OnlineTitle", _panel.transform, "Online Game", 24, FontStyles.Bold, Color.white, 36);
+            _onlineTitleObj.SetActive(false);
+
+            _onlineGameBtn = CreateMenuButton("Online Game", _panel.transform, OnlineGameColor, () =>
+            {
+                SetState(MenuState.OnlineOptions);
+            });
+
+            _backBtn = CreateMenuButton("Back", _panel.transform, BackColor, () =>
+            {
+                SetState(MenuState.MainMenu);
+            });
+            _backBtn.SetActive(false);
+
+            _waitingObj = new GameObject("WaitingPanel");
+            _waitingObj.transform.SetParent(_panel.transform, false);
+            _waitingObj.layer = 5;
+            _waitingObj.AddComponent<RectTransform>();
+            var wLe = _waitingObj.AddComponent<LayoutElement>();
+            wLe.preferredHeight = 120;
+            var wVlg = _waitingObj.AddComponent<VerticalLayoutGroup>();
+            wVlg.childAlignment = TextAnchor.MiddleCenter;
+            wVlg.childControlWidth = true;
+            wVlg.childControlHeight = false;
+            wVlg.childForceExpandWidth = true;
+            wVlg.childForceExpandHeight = false;
+            wVlg.spacing = 8;
+
+            var waitTitle = CreateLabel("WaitTitle", _waitingObj.transform, "Waiting for Opponent...", 20, FontStyles.Bold, new Color(1f, 0.85f, 0.3f), 28);
+            var codeLabel = CreateLabel("CodeLabel", _waitingObj.transform, "Room Code:", 16, FontStyles.Normal, new Color(0.6f, 0.6f, 0.6f), 24);
+            _waitingCodeText = CreateLabel("CodeValue", _waitingObj.transform, "---", 32, FontStyles.Bold, Color.white, 40).GetComponent<TextMeshProUGUI>();
+            _waitingObj.SetActive(false);
+
+            ReorderChildren();
+
+            if (_resultTextObj != null) _resultTextObj.SetActive(false);
+
+            _panel.SetActive(false);
         }
 
-        private void BuildUI(Transform canvasTr)
+        private void SetupLayout()
         {
-            _panel = new GameObject("MainMenuPanel");
-            _panel.transform.SetParent(canvasTr, false);
-            _panel.layer = 5;
+            var img = _panel.GetComponent<Image>();
+            if (img == null)
+            {
+                _panel.AddComponent<CanvasRenderer>();
+                img = _panel.AddComponent<Image>();
+            }
+            img.color = new Color(0.08f, 0.08f, 0.10f, 0.98f);
+            img.raycastTarget = true;
 
-            var panelRt = _panel.AddComponent<RectTransform>();
-            panelRt.anchorMin = Vector2.zero;
-            panelRt.anchorMax = Vector2.one;
-            panelRt.offsetMin = Vector2.zero;
-            panelRt.offsetMax = Vector2.zero;
-
-            _panel.AddComponent<CanvasRenderer>();
-            var bg = _panel.AddComponent<Image>();
-            bg.color = panelColor;
-            bg.raycastTarget = false;
-
-            var vlg = _panel.AddComponent<VerticalLayoutGroup>();
+            var vlg = _panel.GetComponent<VerticalLayoutGroup>();
+            if (vlg == null) vlg = _panel.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.MiddleCenter;
             vlg.childControlWidth = true;
             vlg.childControlHeight = false;
             vlg.childForceExpandWidth = true;
             vlg.childForceExpandHeight = false;
-            vlg.spacing = 16;
-            vlg.padding = new RectOffset(60, 60, 40, 40);
+            vlg.spacing = 12;
+            vlg.padding = new RectOffset(50, 50, 50, 50);
 
-            AddSpacer(_panel.transform, 40);
+            var rt = _panel.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
 
-            var titleObj = CreateUIObj("Title", _panel.transform);
-            var titleLe = titleObj.AddComponent<LayoutElement>();
-            titleLe.preferredHeight = 50;
-            var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "Chess";
-            titleTxt.fontSize = 42;
-            titleTxt.fontStyle = FontStyles.Bold;
-            titleTxt.alignment = TextAlignmentOptions.Center;
-            titleTxt.color = Color.white;
-            titleTxt.raycastTarget = false;
+            SetupButtonLayout(_localGameBtn, LocalGameColor);
+            SetupButtonLayout(_robotGameBtn, RobotGameColor);
+            SetupButtonLayout(_createBtn, CreateColor);
+            SetupButtonLayout(_joinBtn, JoinColor);
+            SetupButtonLayout(_leaderboardBtn, LeaderboardColor);
 
-            AddSpacer(_panel.transform, 10);
-
-            var resultObj = CreateUIObj("ResultText", _panel.transform);
-            var resultLe = resultObj.AddComponent<LayoutElement>();
-            resultLe.preferredHeight = 36;
-            _resultText = resultObj.AddComponent<TextMeshProUGUI>();
-            _resultText.fontSize = 22;
-            _resultText.fontStyle = FontStyles.Bold;
-            _resultText.alignment = TextAlignmentOptions.Center;
-            _resultText.color = new Color(0.9f, 0.85f, 0.4f);
-            _resultText.raycastTarget = false;
-            resultObj.SetActive(false);
-
-            AddSpacer(_panel.transform, 20);
-
-            CreateModeCard("Local Game", "Play with a friend on the same device", cardColor, () =>
+            if (_lobbyCodeInput != null)
             {
-                player?.StartLocalGame();
-                Hide();
-            });
+                var le = _lobbyCodeInput.GetComponent<LayoutElement>();
+                if (le == null) le = _lobbyCodeInput.AddComponent<LayoutElement>();
+                le.preferredHeight = 44;
+            }
 
-            CreateModeCard("vs AI", "Challenge the AI, choose difficulty", cardColor, () =>
+            if (_resultTextObj != null)
             {
-                player?.StartRobotGame();
-            });
-
-            CreateModeCard("Online Game", "Play with a friend over the internet", onlineCardColor, () =>
-            {
-                ShowOnlineOptions();
-            });
-
-            CreateModeCard("Leaderboard", "View global rankings", leaderboardCardColor, () =>
-            {
-                player?.ShowLeaderboard();
-            });
+                var le = _resultTextObj.GetComponent<LayoutElement>();
+                if (le == null) le = _resultTextObj.AddComponent<LayoutElement>();
+                le.preferredHeight = 36;
+            }
         }
 
-        private void ShowOnlineOptions()
+        private void SetupButtonLayout(GameObject btn, Color color)
         {
-            if (_onlineSubPanel != null) Destroy(_onlineSubPanel);
+            if (btn == null) return;
+            var img = btn.GetComponent<Image>();
+            if (img != null) img.color = color;
 
-            _onlineSubPanel = new GameObject("OnlineSubPanel");
-            _onlineSubPanel.transform.SetParent(_panel.transform, false);
-            _onlineSubPanel.layer = 5;
-
-            var subRt = _onlineSubPanel.AddComponent<RectTransform>();
-            subRt.anchorMin = new Vector2(0.2f, 0.1f);
-            subRt.anchorMax = new Vector2(0.8f, 0.6f);
-            subRt.offsetMin = Vector2.zero;
-            subRt.offsetMax = Vector2.zero;
-
-            _onlineSubPanel.AddComponent<CanvasRenderer>();
-            var subBg = _onlineSubPanel.AddComponent<Image>();
-            subBg.color = new Color(0.08f, 0.08f, 0.1f, 0.98f);
-            subBg.raycastTarget = false;
-
-            var subVlg = _onlineSubPanel.AddComponent<VerticalLayoutGroup>();
-            subVlg.childAlignment = TextAnchor.MiddleCenter;
-            subVlg.childControlWidth = true;
-            subVlg.childControlHeight = false;
-            subVlg.childForceExpandWidth = true;
-            subVlg.childForceExpandHeight = false;
-            subVlg.spacing = 12;
-            subVlg.padding = new RectOffset(20, 20, 20, 20);
-
-            var subTitle = CreateUIObj("SubTitle", _onlineSubPanel.transform);
-            var subTitleLe = subTitle.AddComponent<LayoutElement>();
-            subTitleLe.preferredHeight = 36;
-            var subTitleTxt = subTitle.AddComponent<TextMeshProUGUI>();
-            subTitleTxt.text = "Online Game";
-            subTitleTxt.fontSize = 24;
-            subTitleTxt.fontStyle = FontStyles.Bold;
-            subTitleTxt.alignment = TextAlignmentOptions.Center;
-            subTitleTxt.color = Color.white;
-            subTitleTxt.raycastTarget = false;
-
-            CreateSubButton("Create Room", new Color(0.2f, 0.5f, 0.3f), _onlineSubPanel.transform, () =>
-            {
-                player?.CreateGame();
-                Hide();
-            });
-
-            var codeRow = CreateUIObj("CodeRow", _onlineSubPanel.transform);
-            var codeLe = codeRow.AddComponent<LayoutElement>();
-            codeLe.preferredHeight = 36;
-            var codeHlg = codeRow.AddComponent<HorizontalLayoutGroup>();
-            codeHlg.childAlignment = TextAnchor.MiddleCenter;
-            codeHlg.childControlWidth = true;
-            codeHlg.childControlHeight = false;
-            codeHlg.childForceExpandWidth = true;
-            codeHlg.childForceExpandHeight = false;
-            codeHlg.spacing = 8;
-
-            var codeInputObj = CreateUIObj("CodeInput", codeRow.transform);
-            var codeInputLe = codeInputObj.AddComponent<LayoutElement>();
-            codeInputLe.flexibleWidth = 1;
-            codeInputLe.minWidth = 100;
-            codeInputObj.AddComponent<CanvasRenderer>();
-            var codeInputBg = codeInputObj.AddComponent<Image>();
-            codeInputBg.color = new Color(0.15f, 0.15f, 0.15f);
-            codeInputBg.raycastTarget = true;
-            var codeInput = codeInputObj.AddComponent<TMP_InputField>();
-
-            var codeTextArea = CreateUIObj("TextArea", codeInputObj.transform);
-            var codeTaRt = codeTextArea.GetComponent<RectTransform>();
-            codeTaRt.anchorMin = Vector2.zero;
-            codeTaRt.anchorMax = Vector2.one;
-            codeTaRt.offsetMin = new Vector2(6, 2);
-            codeTaRt.offsetMax = new Vector2(-6, -2);
-            codeTextArea.AddComponent<RectMask2D>();
-            var codeInputTxt = codeTextArea.AddComponent<TextMeshProUGUI>();
-            codeInputTxt.fontSize = 16;
-            codeInputTxt.color = Color.white;
-            codeInputTxt.raycastTarget = false;
-            var codePlaceholder = codeTextArea.AddComponent<TextMeshProUGUI>();
-            codePlaceholder.fontSize = 16;
-            codePlaceholder.color = new Color(0.4f, 0.4f, 0.4f);
-            codePlaceholder.text = "Room code...";
-            codePlaceholder.raycastTarget = false;
-
-            codeInput.textComponent = codeInputTxt;
-            codeInput.placeholder = codePlaceholder;
-
-            CreateSubButton("Join", new Color(0.2f, 0.3f, 0.6f), codeRow.transform, () =>
-            {
-                player?.SetLobbyCode(codeInput.text);
-                player?.JoinLobbyByCode();
-                Hide();
-            });
-
-            CreateSubButton("Back", new Color(0.4f, 0.2f, 0.2f), _onlineSubPanel.transform, () =>
-            {
-                if (_onlineSubPanel != null) Destroy(_onlineSubPanel);
-            });
+            var le = btn.GetComponent<LayoutElement>();
+            if (le == null) le = btn.AddComponent<LayoutElement>();
+            le.preferredHeight = 56;
+            le.minHeight = 56;
+            le.flexibleHeight = 0;
         }
 
-        private void CreateModeCard(string title, string desc, Color color, UnityEngine.Events.UnityAction onClick)
+        private void ReorderChildren()
         {
-            var card = CreateUIObj($"Card_{title}", _panel.transform);
-            card.AddComponent<CanvasRenderer>();
-            var cardImg = card.AddComponent<Image>();
-            cardImg.color = color;
-            cardImg.raycastTarget = true;
-            var cardBtn = card.AddComponent<Button>();
-            cardBtn.onClick.AddListener(onClick);
-            var cardLe = card.AddComponent<LayoutElement>();
-            cardLe.preferredHeight = 64;
-
-            var cardVlg = card.AddComponent<VerticalLayoutGroup>();
-            cardVlg.childAlignment = TextAnchor.MiddleCenter;
-            cardVlg.childControlWidth = true;
-            cardVlg.childControlHeight = false;
-            cardVlg.childForceExpandWidth = true;
-            cardVlg.childForceExpandHeight = false;
-            cardVlg.spacing = 2;
-            cardVlg.padding = new RectOffset(16, 16, 8, 8);
-
-            var titleObj = CreateUIObj("Title", card.transform);
-            var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = title;
-            titleTxt.fontSize = 20;
-            titleTxt.fontStyle = FontStyles.Bold;
-            titleTxt.alignment = TextAlignmentOptions.Center;
-            titleTxt.color = Color.white;
-            titleTxt.raycastTarget = false;
-
-            var descObj = CreateUIObj("Desc", card.transform);
-            var descTxt = descObj.AddComponent<TextMeshProUGUI>();
-            descTxt.text = desc;
-            descTxt.fontSize = 13;
-            descTxt.alignment = TextAlignmentOptions.Center;
-            descTxt.color = new Color(0.7f, 0.7f, 0.7f);
-            descTxt.raycastTarget = false;
+            var t = _panel.transform;
+            var order = new GameObject[]
+            {
+                _titleObj, _onlineTitleObj, _resultTextObj,
+                _localGameBtn, _robotGameBtn, _onlineGameBtn, _leaderboardBtn,
+                _createBtn, _lobbyCodeInput, _joinBtn, _backBtn
+            };
+            foreach (var obj in order)
+            {
+                if (obj != null) obj.transform.SetAsLastSibling();
+            }
         }
 
-        private void CreateSubButton(string text, Color color, Transform parent, UnityEngine.Events.UnityAction onClick)
+        private GameObject CreateMenuButton(string text, Transform parent, Color color, UnityEngine.Events.UnityAction onClick)
         {
-            var btnObj = CreateUIObj($"Btn_{text}", parent);
+            var btnObj = new GameObject($"Btn_{text}");
+            btnObj.transform.SetParent(parent, false);
+            btnObj.layer = 5;
+            btnObj.AddComponent<RectTransform>();
             btnObj.AddComponent<CanvasRenderer>();
-            var btnImg = btnObj.AddComponent<Image>();
-            btnImg.color = color;
-            btnImg.raycastTarget = true;
+            var img = btnObj.AddComponent<Image>();
+            img.color = color;
+            img.raycastTarget = true;
             var btn = btnObj.AddComponent<Button>();
             btn.onClick.AddListener(onClick);
-            var btnLe = btnObj.AddComponent<LayoutElement>();
-            btnLe.preferredHeight = 40;
-            var btnTxt = btnObj.AddComponent<TextMeshProUGUI>();
-            btnTxt.text = text;
-            btnTxt.fontSize = 16;
-            btnTxt.alignment = TextAlignmentOptions.Center;
-            btnTxt.color = Color.white;
-            btnTxt.raycastTarget = false;
+            var le = btnObj.AddComponent<LayoutElement>();
+            le.preferredHeight = 56;
+            le.minHeight = 56;
+            le.flexibleHeight = 0;
+
+            var txtObj = new GameObject("Text");
+            txtObj.transform.SetParent(btnObj.transform, false);
+            txtObj.layer = 5;
+            var txtRt = txtObj.AddComponent<RectTransform>();
+            txtRt.anchorMin = Vector2.zero;
+            txtRt.anchorMax = Vector2.one;
+            txtRt.offsetMin = Vector2.zero;
+            txtRt.offsetMax = Vector2.zero;
+            var tmp = txtObj.AddComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = 17;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = Color.white;
+            tmp.raycastTarget = false;
+
+            return btnObj;
         }
 
-        private GameObject CreateUIObj(string name, Transform parent)
+        private GameObject CreateLabel(string name, Transform parent, string text, float fontSize, FontStyles style, Color color, float height)
         {
             var obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
             obj.layer = 5;
             obj.AddComponent<RectTransform>();
+            var le = obj.AddComponent<LayoutElement>();
+            le.preferredHeight = height;
+            var tmp = obj.AddComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.fontStyle = style;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = color;
+            tmp.raycastTarget = false;
             return obj;
         }
 
-        private void AddSpacer(Transform parent, float height)
+        private void SetState(MenuState state)
         {
-            var spacer = CreateUIObj("Spacer", parent);
-            var le = spacer.AddComponent<LayoutElement>();
-            le.preferredHeight = height;
-            le.flexibleHeight = 0;
+            _state = state;
+            switch (state)
+            {
+                case MenuState.MainMenu:
+                    ShowMainMenu();
+                    break;
+                case MenuState.OnlineOptions:
+                    ShowOnlineMenu();
+                    break;
+                case MenuState.WaitingForOpponent:
+                    break;
+                case MenuState.Hidden:
+                    Hide();
+                    break;
+            }
+        }
+
+        private void ShowMainMenu()
+        {
+            if (_titleObj != null) _titleObj.SetActive(true);
+            if (_onlineTitleObj != null) _onlineTitleObj.SetActive(false);
+            if (_resultTextObj != null && string.IsNullOrEmpty(_pendingResult) && (_resultText == null || string.IsNullOrEmpty(_resultText.text)))
+                _resultTextObj.SetActive(false);
+
+            if (_localGameBtn != null) _localGameBtn.SetActive(true);
+            if (_robotGameBtn != null) _robotGameBtn.SetActive(true);
+            if (_onlineGameBtn != null) _onlineGameBtn.SetActive(true);
+            if (_leaderboardBtn != null) _leaderboardBtn.SetActive(true);
+
+            if (_createBtn != null) _createBtn.SetActive(false);
+            if (_joinBtn != null) _joinBtn.SetActive(false);
+            if (_lobbyCodeInput != null) _lobbyCodeInput.SetActive(false);
+            if (_backBtn != null) _backBtn.SetActive(false);
+
+            if (_panel != null) _panel.SetActive(true);
+        }
+
+        private void ShowOnlineMenu()
+        {
+            if (_titleObj != null) _titleObj.SetActive(false);
+            if (_onlineTitleObj != null) _onlineTitleObj.SetActive(true);
+            if (_resultTextObj != null) _resultTextObj.SetActive(false);
+
+            if (_localGameBtn != null) _localGameBtn.SetActive(false);
+            if (_robotGameBtn != null) _robotGameBtn.SetActive(false);
+            if (_onlineGameBtn != null) _onlineGameBtn.SetActive(false);
+            if (_leaderboardBtn != null) _leaderboardBtn.SetActive(false);
+
+            if (_createBtn != null) _createBtn.SetActive(true);
+            if (_joinBtn != null) _joinBtn.SetActive(true);
+            if (_lobbyCodeInput != null) _lobbyCodeInput.SetActive(true);
+            if (_backBtn != null) _backBtn.SetActive(true);
+            if (_waitingObj != null) _waitingObj.SetActive(false);
+
+            if (_panel != null) _panel.SetActive(true);
+        }
+
+        public void ShowWaitingForOpponent(string lobbyCode)
+        {
+            if (_waitingCodeText != null) _waitingCodeText.text = lobbyCode;
+
+            if (_titleObj != null) _titleObj.SetActive(false);
+            if (_onlineTitleObj != null) _onlineTitleObj.SetActive(true);
+            if (_resultTextObj != null) _resultTextObj.SetActive(false);
+
+            if (_localGameBtn != null) _localGameBtn.SetActive(false);
+            if (_robotGameBtn != null) _robotGameBtn.SetActive(false);
+            if (_onlineGameBtn != null) _onlineGameBtn.SetActive(false);
+            if (_leaderboardBtn != null) _leaderboardBtn.SetActive(false);
+            if (_createBtn != null) _createBtn.SetActive(false);
+            if (_joinBtn != null) _joinBtn.SetActive(false);
+            if (_lobbyCodeInput != null) _lobbyCodeInput.SetActive(false);
+            if (_backBtn != null) _backBtn.SetActive(true);
+            if (_waitingObj != null) _waitingObj.SetActive(true);
+
+            _state = MenuState.WaitingForOpponent;
+            if (_panel != null) _panel.SetActive(true);
         }
 
         public void Show()
         {
-            if (_panel == null)
-            {
-                var canvas = FindObjectOfType<Canvas>();
-                if (canvas != null) BuildUI(canvas.transform);
-            }
-            if (_panel != null) _panel.SetActive(true);
+            if (_panel == null) return;
+
             if (!string.IsNullOrEmpty(_pendingResult) && _resultText != null)
             {
-                _resultText.gameObject.SetActive(true);
                 _resultText.text = _pendingResult;
                 _pendingResult = null;
+                if (_resultTextObj != null) _resultTextObj.SetActive(true);
             }
+
+            SetState(MenuState.MainMenu);
         }
 
         public void ShowWithResult(string result)
@@ -299,9 +337,8 @@ namespace Chess.UI
 
         public void Hide()
         {
+            _state = MenuState.Hidden;
             if (_panel != null) _panel.SetActive(false);
-            if (_resultText != null) _resultText.gameObject.SetActive(false);
-            if (_onlineSubPanel != null) Destroy(_onlineSubPanel);
         }
     }
 }
