@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { WebSocketServer } = require('ws');
 const Database = require('better-sqlite3');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -7,6 +9,7 @@ const Joi = require('joi');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const CHAT_PORT = process.env.CHAT_PORT || 3001;
 const ADMIN_KEY = 'leaderboard2024';
 const DB_PATH = './data/leaderboard.db';
 
@@ -193,7 +196,136 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: '服务器内部错误' });
 });
 
-// ── Start ────────────────────────────────────────────────────
+// ── Start HTTP server ────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Leaderboard API running on http://0.0.0.0:${PORT}`);
+});
+
+// ══════════════════════════════════════════════════════════════
+// ── WebSocket Chat Server ────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+const chatServer = http.createServer();
+const wss = new WebSocketServer({ server: chatServer });
+
+const rooms = new Map();
+
+wss.on('connection', (ws) => {
+  let currentRoom = null;
+  let playerName = null;
+
+  ws.on('message', (raw) => {
+    let msg;
+    try {
+      msg = JSON.parse(raw);
+    } catch {
+      ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON' }));
+      return;
+    }
+
+    switch (msg.type) {
+      case 'join': {
+        const room = msg.room;
+        playerName = String(msg.player || 'Anonymous').slice(0, 20);
+
+        if (!room || room.length < 1) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Room ID required' }));
+          return;
+        }
+
+        if (currentRoom) {
+          const oldRoom = rooms.get(currentRoom);
+          if (oldRoom) {
+            oldRoom.clients.delete(ws);
+            if (oldRoom.clients.size === 0) rooms.delete(currentRoom);
+          }
+        }
+
+        currentRoom = room;
+        if (!rooms.has(room)) {
+          rooms.set(room, { clients: new Map() });
+        }
+        rooms.get(room).clients.set(ws, { name: playerName });
+
+        ws.send(JSON.stringify({ type: 'joined', room, player: playerName }));
+
+        const roomData = rooms.get(room);
+        const members = [];
+        for (const [, info] of roomData.clients) {
+          members.push(info.name);
+        }
+        const joinMsg = JSON.stringify({
+          type: 'chat',
+          sender: 'System',
+          message: `${playerName} joined`,
+          members
+        });
+        for (const [client] of roomData.clients) {
+          if (client !== ws && client.readyState === 1) {
+            client.send(joinMsg);
+          }
+        }
+        break;
+      }
+
+      case 'chat': {
+        if (!currentRoom) {
+          ws.send(JSON.stringify({ type: 'error', message: 'Not in a room' }));
+          return;
+        }
+        const text = String(msg.message || '').slice(0, 500);
+        if (!text) return;
+
+        const roomData = rooms.get(currentRoom);
+        if (!roomData) return;
+
+        const chatMsg = JSON.stringify({
+          type: 'chat',
+          sender: playerName || 'Anonymous',
+          message: text,
+          timestamp: Date.now()
+        });
+        for (const [client] of roomData.clients) {
+          if (client.readyState === 1) {
+            client.send(chatMsg);
+          }
+        }
+        break;
+      }
+
+      default:
+        ws.send(JSON.stringify({ type: 'error', message: `Unknown type: ${msg.type}` }));
+    }
+  });
+
+  ws.on('close', () => {
+    if (currentRoom) {
+      const roomData = rooms.get(currentRoom);
+      if (roomData) {
+        roomData.clients.delete(ws);
+        if (roomData.clients.size > 0 && playerName) {
+          const leaveMsg = JSON.stringify({
+            type: 'chat',
+            sender: 'System',
+            message: `${playerName} left`
+          });
+          const members = [];
+          for (const [, info] of roomData.clients) {
+            members.push(info.name);
+          }
+          for (const [client] of roomData.clients) {
+            if (client.readyState === 1) {
+              client.send(leaveMsg);
+            }
+          }
+        } else {
+          rooms.delete(currentRoom);
+        }
+      }
+    }
+  });
+});
+
+chatServer.listen(CHAT_PORT, '0.0.0.0', () => {
+  console.log(`Chat WebSocket server running on ws://0.0.0.0:${CHAT_PORT}`);
 });

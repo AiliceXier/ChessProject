@@ -15,6 +15,8 @@ namespace Chess.UI
         public Color selfMsgColor = new Color(0.29f, 0.48f, 0.71f, 0.6f);
         public Color otherMsgColor = new Color(0.22f, 0.22f, 0.24f, 0.6f);
 
+        public static readonly string ChatServerUrl = "ws://121.36.101.82:3001";
+
         [Header("Scene References")]
         public GameObject toggleBtnRef;
         public GameObject panelRef;
@@ -28,6 +30,8 @@ namespace Chess.UI
         private TMP_InputField _inputField;
         private ScrollRect _scrollRect;
 
+        private ChatWebSocketClient _wsClient;
+        private string _localPlayerName;
         private bool _visible;
 
         private void Awake()
@@ -87,6 +91,48 @@ namespace Chess.UI
                 if (canvas == null) return;
                 BuildToggleButton(canvas.transform);
             }
+
+            if (panelRef != null)
+                panelRef.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            _wsClient?.Dispose();
+        }
+
+        public void ConnectToRoom(string roomId, string playerName)
+        {
+            _localPlayerName = playerName;
+            _wsClient?.Dispose();
+            _wsClient = new ChatWebSocketClient(ChatServerUrl);
+            _wsClient.OnMessageReceived += OnWebSocketMessage;
+            _wsClient.OnError += OnWebSocketError;
+            _wsClient.Connect(roomId, playerName);
+        }
+
+        public void Disconnect()
+        {
+            _wsClient?.Dispose();
+            _wsClient = null;
+        }
+
+        private void OnWebSocketMessage(string sender, string message)
+        {
+            if (sender == "System")
+            {
+                AddMessage("System", message, false);
+            }
+            else
+            {
+                bool isSelf = sender == _localPlayerName;
+                AddMessage(sender, message, isSelf);
+            }
+        }
+
+        private void OnWebSocketError(string error)
+        {
+            AddMessage("System", $"Connection error", false);
         }
 
         private void BuildToggleButton(Transform canvasTr)
@@ -132,6 +178,21 @@ namespace Chess.UI
                 if (inputFieldRef != null)
                 {
                     _inputField = inputFieldRef;
+
+                    var textAreaTr = _inputField.transform.Find("ChatTextArea");
+                    if (textAreaTr != null)
+                    {
+                        _inputField.textViewport = textAreaTr.GetComponent<RectTransform>();
+
+                        var textTr = textAreaTr.Find("ChatInputText");
+                        if (textTr != null)
+                            _inputField.textComponent = textTr.GetComponent<TMPro.TextMeshProUGUI>();
+
+                        var placeholderTr = textAreaTr.Find("ChatPlaceholder");
+                        if (placeholderTr != null)
+                            _inputField.placeholder = placeholderTr.GetComponent<TMPro.TextMeshProUGUI>();
+                    }
+
                     _inputField.onSubmit.RemoveAllListeners();
                     _inputField.onSubmit.AddListener(OnSend);
                 }
@@ -370,6 +431,7 @@ namespace Chess.UI
 
             _inputField.textComponent = inputTxt;
             _inputField.placeholder = placeholder;
+            _inputField.textViewport = textAreaRt;
             _inputField.onSubmit.AddListener(OnSend);
 
             var sendObj = CreateUIObj("SendBtn", inputRow.transform);
@@ -409,10 +471,22 @@ namespace Chess.UI
         private void OnSend(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
-            AddMessage("You", text, true);
-            player?.SendChatMessage(text);
-            _inputField.text = "";
-            _inputField.ActivateInputField();
+
+            if (_wsClient != null && _wsClient.IsConnected)
+            {
+                _wsClient.SendChatMessage(text);
+            }
+            else
+            {
+                AddMessage("You", text, true);
+                player?.SendChatMessage(text);
+            }
+
+            if (_inputField != null)
+            {
+                _inputField.text = "";
+                _inputField.ActivateInputField();
+            }
         }
 
         public void ReceiveMessage(string sender, string message)

@@ -529,12 +529,17 @@ public class Player : MonoBehaviour
         _currentSession = joinGameResponse.Session;
         SyncBoard(joinGameResponse.Board);
         if (mainMenuUI != null) mainMenuUI.Hide();
-        resignButton.SetActive(true);
+        if (resignButton != null) resignButton.SetActive(true);
         _isWhite = joinGameResponse.IsWhite;
         SetPov();
         _gameStarted = true;
         playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
         ShowInGameUI();
+
+        if (chatUI != null && !string.IsNullOrEmpty(_currentSession))
+        {
+            chatUI.ConnectToRoom(_currentSession, _leaderboardPlayerName);
+        }
     }
 
     private async Task WaitForInitialization()
@@ -730,10 +735,11 @@ public class Player : MonoBehaviour
 
     private void ShowGameOver(string resultMessage)
     {
-        resignButton.SetActive(false);
+        if (resignButton != null) resignButton.SetActive(false);
         playerNameText.text = "Game Over";
         _gameStarted = false;
         HideInGameUI();
+        if (chatUI != null) chatUI.Disconnect();
         if (mainMenuUI != null) mainMenuUI.ShowWithResult(resultMessage);
     }
 
