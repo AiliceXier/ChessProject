@@ -16,6 +16,10 @@ namespace Chess.UI
         public Color errorColor = new Color(0.80f, 0.20f, 0.20f);
         public Color infoColor = new Color(0.5f, 0.7f, 0.9f);
 
+        public GameObject toggleBtnRef;
+        public GameObject panelRef;
+        public TMP_InputField inputFieldRef;
+
         private GameObject _panel;
         private GameObject _toggleBtn;
         private TMP_InputField _inputField;
@@ -26,9 +30,22 @@ namespace Chess.UI
 
         private void Awake()
         {
-            var canvas = FindObjectOfType<Canvas>();
-            if (canvas == null) return;
-            BuildToggleButton(canvas.transform);
+            if (toggleBtnRef != null)
+            {
+                _toggleBtn = toggleBtnRef;
+                var btn = _toggleBtn.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = _toggleBtn.AddComponent<Button>();
+                    btn.onClick.AddListener(Toggle);
+                }
+            }
+            else
+            {
+                var canvas = FindObjectOfType<Canvas>();
+                if (canvas == null) return;
+                BuildToggleButton(canvas.transform);
+            }
         }
 
         private void BuildToggleButton(Transform canvasTr)
@@ -66,6 +83,25 @@ namespace Chess.UI
         private void EnsurePanel()
         {
             if (_panel != null) return;
+
+            if (panelRef != null && inputFieldRef != null)
+            {
+                _panel = panelRef;
+                _inputField = inputFieldRef;
+                _inputField.onSubmit.AddListener(OnSubmit);
+
+                var sendBtnTr = _panel.transform.Find("InputRow/SendBtn");
+                if (sendBtnTr != null)
+                {
+                    var sendBtn = sendBtnTr.GetComponent<Button>();
+                    if (sendBtn != null)
+                        sendBtn.onClick.AddListener(() => OnSubmit(_inputField.text));
+                }
+
+                _panel.SetActive(false);
+                return;
+            }
+
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
             BuildPanel(canvas.transform);

@@ -20,6 +20,11 @@ namespace Chess.UI
         public Color highlightColor = new Color(1f, 1f, 0.4f, 0.3f);
         public Color btnColor = new Color(0.22f, 0.22f, 0.28f, 0.9f);
 
+        public GameObject toggleBtnRef;
+        public GameObject panelRef;
+        public ScrollRect scrollRectRef;
+        public RectTransform contentRtRef;
+
         private const float RowHeight = 30f;
         private const float RowSpacing = 1f;
         private const float ContentPadding = 4f;
@@ -35,15 +40,22 @@ namespace Chess.UI
 
         private void Awake()
         {
-            Debug.Log("[MoveHistoryUI] Awake called");
-            var canvas = FindObjectOfType<Canvas>();
-            if (canvas == null)
+            if (toggleBtnRef != null)
             {
-                Debug.LogWarning("[MoveHistoryUI] No Canvas found in Awake!");
-                return;
+                _toggleBtn = toggleBtnRef;
+                var btn = _toggleBtn.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = _toggleBtn.AddComponent<Button>();
+                    btn.onClick.AddListener(Toggle);
+                }
             }
-            BuildToggleButton(canvas.transform);
-            Debug.Log("[MoveHistoryUI] Toggle button built");
+            else
+            {
+                var canvas = FindObjectOfType<Canvas>();
+                if (canvas == null) return;
+                BuildToggleButton(canvas.transform);
+            }
         }
 
         private void BuildToggleButton(Transform canvasTr)
@@ -86,15 +98,29 @@ namespace Chess.UI
         private void EnsurePanel()
         {
             if (_panel != null) return;
-            Debug.Log("[MoveHistoryUI] EnsurePanel - building panel for first time");
-            var canvas = FindObjectOfType<Canvas>();
-            if (canvas == null)
+
+            if (panelRef != null && scrollRectRef != null && contentRtRef != null)
             {
-                Debug.LogWarning("[MoveHistoryUI] No Canvas found in EnsurePanel!");
+                _panel = panelRef;
+                _scrollRect = scrollRectRef;
+                _contentRt = contentRtRef;
+                _scrollViewportRt = _scrollRect.viewport;
+
+                var closeBtnTr = _panel.transform.Find("Header/CloseBtn");
+                if (closeBtnTr != null)
+                {
+                    var closeBtn = closeBtnTr.GetComponent<Button>();
+                    if (closeBtn != null)
+                        closeBtn.onClick.AddListener(Hide);
+                }
+
+                _panel.SetActive(false);
                 return;
             }
+
+            var canvas = FindObjectOfType<Canvas>();
+            if (canvas == null) return;
             BuildTestPanel(canvas.transform);
-            Debug.Log("[MoveHistoryUI] Panel built successfully, _contentRt=" + (_contentRt != null));
         }
 
         private void BuildTestPanel(Transform canvasTr)
@@ -207,9 +233,6 @@ namespace Chess.UI
             _scrollRect.viewport = _scrollViewportRt;
 
             _panel.SetActive(false);
-
-            Debug.Log($"[MoveHistoryUI] BuildTestPanel complete. Panel rect={panelRt.rect}");
-            Debug.Log($"[MoveHistoryUI] SV rect={svRt.rect}, offsetMin={svRt.offsetMin}, offsetMax={svRt.offsetMax}");
         }
 
         private void UpdateContentSize()
@@ -220,8 +243,6 @@ namespace Chess.UI
             if (_entries.Count > 1)
                 totalHeight += (_entries.Count - 1) * RowSpacing;
             _contentRt.sizeDelta = new Vector2(0f, totalHeight);
-
-            Debug.Log($"[MoveHistoryUI] UpdateContentSize: entries={_entries.Count}, totalHeight={totalHeight}, content.sizeDelta={_contentRt.sizeDelta}");
         }
 
         private GameObject CreateUIGameObject(string name, Transform parent)
@@ -235,20 +256,13 @@ namespace Chess.UI
 
         public void SetBoard(ChessBoard board)
         {
-            Debug.Log("[MoveHistoryUI] SetBoard called, board=" + (board != null) + ", current _board=" + (_board != null));
             _board = board;
             RefreshDisplay();
         }
 
         public void RefreshDisplay()
         {
-            Debug.Log($"[MoveHistoryUI] RefreshDisplay called, _contentRt={_contentRt != null}, _board={_board != null}, _panel.activeSelf={_panel != null && _panel.activeSelf}");
-
-            if (_contentRt == null)
-            {
-                Debug.LogWarning("[MoveHistoryUI] RefreshDisplay SKIPPED - _contentRt is null");
-                return;
-            }
+            if (_contentRt == null) return;
 
             ClearEntries();
 
@@ -260,7 +274,6 @@ namespace Chess.UI
             }
 
             var moves = _board.ExecutedMoves;
-            Debug.Log("[MoveHistoryUI] ExecutedMoves: count=" + (moves != null ? moves.Count : -1));
 
             if (moves == null || moves.Count == 0)
             {
@@ -270,7 +283,6 @@ namespace Chess.UI
             }
 
             int totalRows = (moves.Count + 1) / 2;
-            Debug.Log("[MoveHistoryUI] Rendering " + moves.Count + " moves in " + totalRows + " rows");
 
             for (int i = 0; i < moves.Count; i += 2)
             {
@@ -285,44 +297,6 @@ namespace Chess.UI
 
             if (_scrollRect != null)
                 _scrollRect.verticalNormalizedPosition = 0f;
-
-            Debug.Log($"[MoveHistoryUI] RefreshDisplay complete, _entries.Count={_entries.Count}");
-
-            StartCoroutine(LogDelayedLayoutState());
-        }
-
-        private IEnumerator LogDelayedLayoutState()
-        {
-            yield return null;
-            yield return null;
-
-            Debug.Log($"[MoveHistoryUI] DELAYED CHECK after 2 frames:");
-            Debug.Log($"  Content.rect={_contentRt.rect}, sizeDelta={_contentRt.sizeDelta}, anchoredPos={_contentRt.anchoredPosition}");
-            Debug.Log($"  Viewport.rect={_scrollViewportRt?.rect}");
-
-            for (int i = 0; i < _contentRt.childCount && i < 10; i++)
-            {
-                var child = _contentRt.GetChild(i);
-                var childRt = child as RectTransform;
-                if (childRt != null)
-                {
-                    Debug.Log($"  Child[{i}] name={child.name}, rect={childRt.rect}, anchoredPos={childRt.anchoredPosition}, sizeDelta={childRt.sizeDelta}");
-                    var img = child.GetComponent<Image>();
-                    if (img != null)
-                        Debug.Log($"    Image color={img.color}, enabled={img.enabled}, alpha={img.canvasRenderer.GetAlpha()}");
-                    for (int j = 0; j < childRt.childCount && j < 5; j++)
-                    {
-                        var gc = childRt.GetChild(j);
-                        var gcRt = gc as RectTransform;
-                        var gcTmp = gc.GetComponent<TextMeshProUGUI>();
-                        if (gcTmp != null)
-                            Debug.Log($"    GC[{j}] name={gc.name}, text='{gcTmp.text}', rect={gcRt?.rect}, anchoredPos={gcRt?.anchoredPosition}, active={gc.gameObject.activeSelf}");
-                    }
-                }
-            }
-
-            if (_scrollRect != null)
-                Debug.Log($"  ScrollRect: verticalNormPos={_scrollRect.verticalNormalizedPosition}, content={_scrollRect.content != null}, viewport={_scrollRect.viewport != null}");
         }
 
         private void AddMoveRow(int num, string white, string black, bool isEven, bool isLast)
@@ -352,8 +326,6 @@ namespace Chess.UI
             AddTextCell(row.transform, black, moveColor, FontStyles.Bold, x, 90, 14);
 
             _entries.Add(row);
-
-            Debug.Log($"[MoveHistoryUI] AddMoveRow: Row_{num} idx={idx}, anchoredPos={rowRt.anchoredPosition}, sizeDelta={rowRt.sizeDelta}");
         }
 
         private void AddTextCell(Transform parent, string text, Color color, FontStyles style, float xPos, float width, float fontSize)
@@ -397,17 +369,13 @@ namespace Chess.UI
 
         private void ClearEntries()
         {
-            int count = _entries.Count;
             foreach (var obj in _entries)
                 if (obj != null) DestroyImmediate(obj);
             _entries.Clear();
-            if (count > 0)
-                Debug.Log("[MoveHistoryUI] ClearEntries removed " + count + " entries");
         }
 
         public void Show()
         {
-            Debug.Log("[MoveHistoryUI] Show called, _panel exists=" + (_panel != null));
             EnsurePanel();
             if (_panel != null) _panel.SetActive(true);
             _visible = true;
@@ -418,12 +386,10 @@ namespace Chess.UI
         {
             if (_panel != null) _panel.SetActive(false);
             _visible = false;
-            Debug.Log("[MoveHistoryUI] Hide called");
         }
 
         public void Toggle()
         {
-            Debug.Log("[MoveHistoryUI] Toggle called, _visible=" + _visible);
             if (_visible) Hide();
             else Show();
         }
@@ -431,7 +397,6 @@ namespace Chess.UI
         public void SetToggleButtonVisible(bool visible)
         {
             if (_toggleBtn != null) _toggleBtn.SetActive(visible);
-            Debug.Log("[MoveHistoryUI] SetToggleButtonVisible=" + visible + ", _toggleBtn exists=" + (_toggleBtn != null));
         }
     }
 }

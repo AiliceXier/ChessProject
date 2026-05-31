@@ -8,6 +8,10 @@ namespace Chess.UI
     {
         public Player player;
 
+        public GameObject panelRef;
+        public GameObject[] difficultyBtnRefs;
+        public GameObject backBtnRef;
+
         private GameObject _panel;
         private int _selectedDifficulty = 1;
 
@@ -29,6 +33,36 @@ namespace Chess.UI
         private void EnsurePanel()
         {
             if (_panel != null) return;
+
+            if (panelRef != null)
+            {
+                _panel = panelRef;
+
+                if (difficultyBtnRefs != null)
+                {
+                    for (int i = 0; i < difficultyBtnRefs.Length && i < Difficulties.Length; i++)
+                    {
+                        if (difficultyBtnRefs[i] == null) continue;
+                        var idx = i;
+                        var btn = difficultyBtnRefs[i].GetComponent<Button>();
+                        if (btn == null)
+                            btn = difficultyBtnRefs[i].AddComponent<Button>();
+                        btn.onClick.AddListener(() => OnDifficultySelected(idx));
+                    }
+                }
+
+                if (backBtnRef != null)
+                {
+                    var backBtn = backBtnRef.GetComponent<Button>();
+                    if (backBtn == null)
+                        backBtn = backBtnRef.AddComponent<Button>();
+                    backBtn.onClick.AddListener(Hide);
+                }
+
+                _panel.SetActive(false);
+                return;
+            }
+
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
             BuildUI(canvas.transform);

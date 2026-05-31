@@ -9,6 +9,8 @@ namespace Chess.UI
     {
         public Player player;
 
+        public GameObject evalBarRef;
+
         private GameObject _barObj;
         private Image _whiteImg;
         private Image _blackImg;
@@ -25,6 +27,19 @@ namespace Chess.UI
         private void EnsureBar()
         {
             if (_barObj != null) return;
+
+            if (evalBarRef != null)
+            {
+                _barObj = evalBarRef;
+                _blackImg = _barObj.GetComponent<Image>();
+                var whiteTr = _barObj.transform.Find("WhiteBar");
+                if (whiteTr != null) _whiteImg = whiteTr.GetComponent<Image>();
+                var evalTextTr = _barObj.transform.Find("EvalText");
+                if (evalTextTr != null) _evalText = evalTextTr.GetComponent<TextMeshProUGUI>();
+                _barObj.SetActive(false);
+                return;
+            }
+
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
             BuildBar(canvas.transform);

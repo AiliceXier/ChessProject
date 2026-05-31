@@ -9,6 +9,8 @@ namespace Chess.UI
     {
         public Player player;
 
+        public GameObject hintBtnRef;
+
         private GameObject _hintBtn;
         private GameObject _highlight;
         private float _clearTime;
@@ -18,6 +20,19 @@ namespace Chess.UI
         private void EnsureButton()
         {
             if (_hintBtn != null) return;
+
+            if (hintBtnRef != null)
+            {
+                _hintBtn = hintBtnRef;
+                var btn = _hintBtn.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = _hintBtn.AddComponent<Button>();
+                    btn.onClick.AddListener(ShowHint);
+                }
+                return;
+            }
+
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
             BuildButton(canvas.transform);

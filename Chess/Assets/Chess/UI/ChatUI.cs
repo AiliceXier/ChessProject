@@ -15,6 +15,12 @@ namespace Chess.UI
         public Color selfMsgColor = new Color(0.29f, 0.48f, 0.71f, 0.6f);
         public Color otherMsgColor = new Color(0.22f, 0.22f, 0.24f, 0.6f);
 
+        public GameObject toggleBtnRef;
+        public GameObject panelRef;
+        public TMP_InputField inputFieldRef;
+        public ScrollRect scrollRectRef;
+        public Transform contentParentRef;
+
         private GameObject _panel;
         private GameObject _toggleBtn;
         private Transform _contentParent;
@@ -25,9 +31,22 @@ namespace Chess.UI
 
         private void Awake()
         {
-            var canvas = FindObjectOfType<Canvas>();
-            if (canvas == null) return;
-            BuildToggleButton(canvas.transform);
+            if (toggleBtnRef != null)
+            {
+                _toggleBtn = toggleBtnRef;
+                var btn = _toggleBtn.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = _toggleBtn.AddComponent<Button>();
+                    btn.onClick.AddListener(Toggle);
+                }
+            }
+            else
+            {
+                var canvas = FindObjectOfType<Canvas>();
+                if (canvas == null) return;
+                BuildToggleButton(canvas.transform);
+            }
         }
 
         private void BuildToggleButton(Transform canvasTr)
@@ -65,6 +84,35 @@ namespace Chess.UI
         private void EnsurePanel()
         {
             if (_panel != null) return;
+
+            if (panelRef != null && inputFieldRef != null && scrollRectRef != null && contentParentRef != null)
+            {
+                _panel = panelRef;
+                _inputField = inputFieldRef;
+                _scrollRect = scrollRectRef;
+                _contentParent = contentParentRef;
+                _inputField.onSubmit.AddListener(OnSend);
+
+                var closeBtnTr = _panel.transform.Find("Header/CloseBtn");
+                if (closeBtnTr != null)
+                {
+                    var closeBtn = closeBtnTr.GetComponent<Button>();
+                    if (closeBtn != null)
+                        closeBtn.onClick.AddListener(Hide);
+                }
+
+                var sendBtnTr = _panel.transform.Find("InputRow/SendBtn");
+                if (sendBtnTr != null)
+                {
+                    var sendBtn = sendBtnTr.GetComponent<Button>();
+                    if (sendBtn != null)
+                        sendBtn.onClick.AddListener(() => OnSend(_inputField.text));
+                }
+
+                _panel.SetActive(false);
+                return;
+            }
+
             var canvas = FindObjectOfType<Canvas>();
             if (canvas == null) return;
             BuildPanel(canvas.transform);
