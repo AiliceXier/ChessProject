@@ -32,8 +32,8 @@ namespace Chess.UI
             var btnRt = _hintBtn.AddComponent<RectTransform>();
             btnRt.anchorMin = new Vector2(0f, 0f);
             btnRt.anchorMax = new Vector2(0f, 0f);
-            btnRt.offsetMin = new Vector2(10, 10);
-            btnRt.offsetMax = new Vector2(110, 44);
+            btnRt.offsetMin = new Vector2(10, 52);
+            btnRt.offsetMax = new Vector2(110, 86);
 
             _hintBtn.AddComponent<CanvasRenderer>();
             var btnImg = _hintBtn.AddComponent<Image>();

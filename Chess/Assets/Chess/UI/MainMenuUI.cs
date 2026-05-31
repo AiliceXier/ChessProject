@@ -87,7 +87,7 @@ namespace Chess.UI
             var wVlg = _waitingObj.AddComponent<VerticalLayoutGroup>();
             wVlg.childAlignment = TextAnchor.MiddleCenter;
             wVlg.childControlWidth = true;
-            wVlg.childControlHeight = false;
+            wVlg.childControlHeight = true;
             wVlg.childForceExpandWidth = true;
             wVlg.childForceExpandHeight = false;
             wVlg.spacing = 8;
@@ -227,9 +227,15 @@ namespace Chess.UI
             var obj = new GameObject(name);
             obj.transform.SetParent(parent, false);
             obj.layer = 5;
-            obj.AddComponent<RectTransform>();
+            var rt = obj.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 0f);
+            rt.anchorMax = new Vector2(1f, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.sizeDelta = new Vector2(0f, height);
             var le = obj.AddComponent<LayoutElement>();
             le.preferredHeight = height;
+            le.minHeight = height;
+            le.flexibleHeight = 0;
             var tmp = obj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
             tmp.fontSize = fontSize;

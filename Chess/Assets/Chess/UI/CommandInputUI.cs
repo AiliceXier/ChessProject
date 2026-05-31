@@ -9,9 +9,8 @@ namespace Chess.UI
     {
         public Player player;
 
-        public Color panelColor = new Color(0.08f, 0.08f, 0.10f, 0.95f);
-        public Color headerColor = new Color(0.14f, 0.14f, 0.16f, 1f);
-        public Color inputBgColor = new Color(0.06f, 0.06f, 0.08f, 1f);
+        public Color panelColor = new Color(0.08f, 0.08f, 0.10f, 0.30f);
+        public Color inputBgColor = new Color(0.06f, 0.06f, 0.08f, 0.60f);
         public Color btnColor = new Color(0.22f, 0.22f, 0.28f, 0.9f);
         public Color successColor = new Color(0.38f, 0.60f, 0.14f);
         public Color errorColor = new Color(0.80f, 0.20f, 0.20f);
@@ -79,149 +78,30 @@ namespace Chess.UI
             _panel.layer = 5;
 
             var panelRt = _panel.AddComponent<RectTransform>();
-            panelRt.anchorMin = new Vector2(0f, 0f);
-            panelRt.anchorMax = new Vector2(0f, 0f);
-            panelRt.pivot = new Vector2(0f, 0f);
-            panelRt.offsetMin = new Vector2(10, 10);
-            panelRt.offsetMax = new Vector2(360, 260);
-            Debug.Log($"[CommandInputUI] Panel offsetMin={panelRt.offsetMin}, offsetMax={panelRt.offsetMax}, size={panelRt.sizeDelta}");
+            panelRt.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRt.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRt.pivot = new Vector2(0.5f, 0.5f);
+            panelRt.offsetMin = new Vector2(-160, -20);
+            panelRt.offsetMax = new Vector2(160, 20);
 
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();
             bg.color = panelColor;
             bg.raycastTarget = true;
 
-            var vlg = _panel.AddComponent<VerticalLayoutGroup>();
-            vlg.childAlignment = TextAnchor.UpperCenter;
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = true;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            vlg.spacing = 2;
-            vlg.padding = new RectOffset(6, 6, 6, 6);
-
-            BuildHeader(_panel.transform);
-            BuildOutputArea(_panel.transform);
-            BuildInputArea(_panel.transform);
-
-            _panel.SetActive(false);
-        }
-
-        private void BuildHeader(Transform parent)
-        {
-            var headerObj = CreateUIObj("Header", parent);
-            var headerLe = headerObj.AddComponent<LayoutElement>();
-            headerLe.preferredHeight = 32;
-            headerLe.flexibleHeight = 0;
-            headerObj.AddComponent<CanvasRenderer>();
-            var headerImg = headerObj.AddComponent<Image>();
-            headerImg.color = headerColor;
-            headerImg.raycastTarget = false;
-
-            var hlg = headerObj.AddComponent<HorizontalLayoutGroup>();
-            hlg.childAlignment = TextAnchor.MiddleLeft;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = false;
-            hlg.childForceExpandWidth = true;
-            hlg.childForceExpandHeight = false;
-            hlg.spacing = 8;
-            hlg.padding = new RectOffset(8, 4, 4, 4);
-
-            var titleObj = CreateUIObj("Title", headerObj.transform);
-            var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "Command Input";
-            titleTxt.fontSize = 16;
-            titleTxt.fontStyle = FontStyles.Bold;
-            titleTxt.color = Color.white;
-            titleTxt.raycastTarget = false;
-            var titleLe = titleObj.AddComponent<LayoutElement>();
-            titleLe.flexibleWidth = 1;
-
-            var closeObj = CreateUIObj("CloseBtn", headerObj.transform);
-            closeObj.AddComponent<CanvasRenderer>();
-            var closeImg = closeObj.AddComponent<Image>();
-            closeImg.color = new Color(0.8f, 0.25f, 0.25f);
-            closeImg.raycastTarget = true;
-            var closeBtn = closeObj.AddComponent<Button>();
-            closeBtn.onClick.AddListener(Hide);
-            var closeTxtObj = CreateUIObj("Text", closeObj.transform);
-            var closeTxtRt = closeTxtObj.GetComponent<RectTransform>();
-            closeTxtRt.anchorMin = Vector2.zero;
-            closeTxtRt.anchorMax = Vector2.one;
-            closeTxtRt.offsetMin = Vector2.zero;
-            closeTxtRt.offsetMax = Vector2.zero;
-            var closeTxt = closeTxtObj.AddComponent<TextMeshProUGUI>();
-            closeTxt.text = "X";
-            closeTxt.fontSize = 14;
-            closeTxt.alignment = TextAlignmentOptions.Center;
-            closeTxt.color = Color.white;
-            closeTxt.raycastTarget = false;
-            var closeLe = closeObj.AddComponent<LayoutElement>();
-            closeLe.minWidth = 24;
-            closeLe.preferredWidth = 24;
-        }
-
-        private void BuildOutputArea(Transform parent)
-        {
-            var scrollObj = CreateUIObj("OutputScroll", parent);
-            var scrollLe = scrollObj.AddComponent<LayoutElement>();
-            scrollLe.flexibleHeight = 1;
-            scrollLe.minHeight = 80;
-            scrollObj.AddComponent<CanvasRenderer>();
-            var vpImg = scrollObj.AddComponent<Image>();
-            vpImg.color = Color.clear;
-            vpImg.raycastTarget = true;
-            scrollObj.AddComponent<Mask>().showMaskGraphic = false;
-            _scrollRect = scrollObj.AddComponent<ScrollRect>();
-            _scrollRect.horizontal = false;
-            _scrollRect.vertical = true;
-            _scrollRect.movementType = ScrollRect.MovementType.Elastic;
-
-            var contentObj = CreateUIObj("Content", scrollObj.transform);
-            var contentRt = contentObj.GetComponent<RectTransform>();
-            contentRt.anchorMin = new Vector2(0f, 1f);
-            contentRt.anchorMax = new Vector2(1f, 1f);
-            contentRt.pivot = new Vector2(0.5f, 1f);
-            var csf = contentObj.AddComponent<ContentSizeFitter>();
-            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var vlg = contentObj.AddComponent<VerticalLayoutGroup>();
-            vlg.childAlignment = TextAnchor.UpperLeft;
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            vlg.spacing = 0;
-            vlg.padding = new RectOffset(4, 4, 4, 4);
-
-            _outputText = contentObj.AddComponent<TextMeshProUGUI>();
-            _outputText.fontSize = 13;
-            _outputText.color = new Color(0.75f, 0.75f, 0.75f);
-            _outputText.alignment = TextAlignmentOptions.TopLeft;
-            _outputText.raycastTarget = false;
-            _outputText.text = "Type 'help' for commands.\n";
-
-            _scrollRect.content = contentRt;
-            _scrollRect.viewport = scrollObj.GetComponent<RectTransform>();
-        }
-
-        private void BuildInputArea(Transform parent)
-        {
-            var inputRow = CreateUIObj("InputRow", parent);
-            var rowLe = inputRow.AddComponent<LayoutElement>();
-            rowLe.preferredHeight = 32;
-            rowLe.flexibleHeight = 0;
-            var hlg = inputRow.AddComponent<HorizontalLayoutGroup>();
-            hlg.childAlignment = TextAnchor.MiddleLeft;
-            hlg.childControlWidth = true;
-            hlg.childControlHeight = false;
-            hlg.childForceExpandWidth = true;
-            hlg.childForceExpandHeight = false;
-            hlg.spacing = 4;
+            var inputRow = CreateUIObj("InputRow", _panel.transform);
+            var rowRt = inputRow.GetComponent<RectTransform>();
+            rowRt.anchorMin = Vector2.zero;
+            rowRt.anchorMax = Vector2.one;
+            rowRt.offsetMin = new Vector2(6, 2);
+            rowRt.offsetMax = new Vector2(-6, -2);
 
             var inputObj = CreateUIObj("InputField", inputRow.transform);
-            var inputLe = inputObj.AddComponent<LayoutElement>();
-            inputLe.flexibleWidth = 1;
-            inputLe.minWidth = 100;
+            var inputRt = inputObj.GetComponent<RectTransform>();
+            inputRt.anchorMin = new Vector2(0f, 0f);
+            inputRt.anchorMax = new Vector2(1f, 1f);
+            inputRt.offsetMin = new Vector2(0, 0);
+            inputRt.offsetMax = new Vector2(-56, 0);
             inputObj.AddComponent<CanvasRenderer>();
             var inputBg = inputObj.AddComponent<Image>();
             inputBg.color = inputBgColor;
@@ -233,8 +113,8 @@ namespace Chess.UI
             var textAreaRt = textArea.GetComponent<RectTransform>();
             textAreaRt.anchorMin = Vector2.zero;
             textAreaRt.anchorMax = Vector2.one;
-            textAreaRt.offsetMin = new Vector2(6, 2);
-            textAreaRt.offsetMax = new Vector2(-6, -2);
+            textAreaRt.offsetMin = new Vector2(8, 2);
+            textAreaRt.offsetMax = new Vector2(-8, -2);
             textArea.AddComponent<RectMask2D>();
 
             var inputTxtObj = CreateUIObj("Text", textArea.transform);
@@ -244,7 +124,7 @@ namespace Chess.UI
             inputTxtRt.offsetMin = Vector2.zero;
             inputTxtRt.offsetMax = Vector2.zero;
             var inputTxt = inputTxtObj.AddComponent<TextMeshProUGUI>();
-            inputTxt.fontSize = 14;
+            inputTxt.fontSize = 16;
             inputTxt.color = Color.white;
             inputTxt.raycastTarget = false;
 
@@ -255,8 +135,8 @@ namespace Chess.UI
             placeholderRt.offsetMin = Vector2.zero;
             placeholderRt.offsetMax = Vector2.zero;
             var placeholder = placeholderObj.AddComponent<TextMeshProUGUI>();
-            placeholder.fontSize = 14;
-            placeholder.color = new Color(0.4f, 0.4f, 0.4f);
+            placeholder.fontSize = 16;
+            placeholder.color = new Color(0.6f, 0.6f, 0.6f);
             placeholder.text = "Enter move or command...";
             placeholder.raycastTarget = false;
 
@@ -265,15 +145,17 @@ namespace Chess.UI
             _inputField.onSubmit.AddListener(OnSubmit);
 
             var sendObj = CreateUIObj("SendBtn", inputRow.transform);
+            var sendRt = sendObj.GetComponent<RectTransform>();
+            sendRt.anchorMin = new Vector2(1f, 0f);
+            sendRt.anchorMax = new Vector2(1f, 1f);
+            sendRt.offsetMin = new Vector2(-50, 0);
+            sendRt.offsetMax = new Vector2(0, 0);
             sendObj.AddComponent<CanvasRenderer>();
             var sendImg = sendObj.AddComponent<Image>();
-            sendImg.color = new Color(0.2f, 0.5f, 0.8f);
+            sendImg.color = new Color(0.2f, 0.5f, 0.8f, 0.80f);
             sendImg.raycastTarget = true;
             var sendBtn = sendObj.AddComponent<Button>();
             sendBtn.onClick.AddListener(() => OnSubmit(_inputField.text));
-            var sendLe = sendObj.AddComponent<LayoutElement>();
-            sendLe.minWidth = 50;
-            sendLe.preferredWidth = 50;
             var sendTxtObj = CreateUIObj("Text", sendObj.transform);
             var sendTxtRt = sendTxtObj.GetComponent<RectTransform>();
             sendTxtRt.anchorMin = Vector2.zero;
@@ -282,11 +164,13 @@ namespace Chess.UI
             sendTxtRt.offsetMax = Vector2.zero;
             var sendTxt = sendTxtObj.AddComponent<TextMeshProUGUI>();
             sendTxt.text = "Run";
-            sendTxt.fontSize = 13;
+            sendTxt.fontSize = 14;
             sendTxt.fontStyle = FontStyles.Bold;
             sendTxt.alignment = TextAlignmentOptions.Center;
             sendTxt.color = Color.white;
             sendTxt.raycastTarget = false;
+
+            _panel.SetActive(false);
         }
 
         private GameObject CreateUIObj(string name, Transform parent)
@@ -301,7 +185,6 @@ namespace Chess.UI
         private void OnSubmit(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
-            AppendOutput($"> {text}\n");
             ProcessCommand(text.Trim());
             _inputField.text = "";
             _inputField.ActivateInputField();
@@ -309,194 +192,12 @@ namespace Chess.UI
 
         private void ProcessCommand(string cmd)
         {
-            if (cmd.Equals("help", System.StringComparison.OrdinalIgnoreCase))
-            {
-                ShowHelp();
-                return;
-            }
-            if (cmd.Equals("board", System.StringComparison.OrdinalIgnoreCase))
-            {
-                ShowAsciiBoard();
-                return;
-            }
-            if (cmd.Equals("fen", System.StringComparison.OrdinalIgnoreCase))
-            {
-                ShowFen();
-                return;
-            }
-            if (cmd.Equals("pgn", System.StringComparison.OrdinalIgnoreCase))
-            {
-                ShowPgn();
-                return;
-            }
-            if (cmd.Equals("undo", System.StringComparison.OrdinalIgnoreCase))
-            {
-                UndoMove();
-                return;
-            }
-            if (cmd.Equals("clear", System.StringComparison.OrdinalIgnoreCase))
-            {
-                _outputText.text = "";
-                return;
-            }
-            if (cmd.StartsWith("load fen ", System.StringComparison.OrdinalIgnoreCase))
-            {
-                LoadFen(cmd.Substring(9));
-                return;
-            }
-            if (cmd.StartsWith("load pgn ", System.StringComparison.OrdinalIgnoreCase))
-            {
-                LoadPgn(cmd.Substring(9));
-                return;
-            }
-
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
+            if (player == null) return;
             var result = player.MakeCommandMove(cmd);
             if (!result.success)
             {
-                AppendOutputColored($"  Error: {result.error}\n", errorColor);
+                Debug.Log($"[Command] Error: {result.error}");
             }
-        }
-
-        private void ShowHelp()
-        {
-            AppendOutput("-- Help --\n");
-            AppendOutput("Move formats:\n");
-            AppendOutput("  Coordinate: e2e4 / e7e8q (promotion)\n");
-            AppendOutput("  SAN: e4 / Nf3 / O-O / O-O-O\n");
-            AppendOutput("Commands:\n");
-            AppendOutput("  help       - Show help\n");
-            AppendOutput("  board      - Show ASCII board\n");
-            AppendOutput("  fen        - Show current FEN\n");
-            AppendOutput("  pgn        - Show PGN record\n");
-            AppendOutput("  undo       - Undo last move\n");
-            AppendOutput("  load fen <FEN> - Restore board from FEN\n");
-            AppendOutput("  load pgn <PGN> - Restore board from PGN\n");
-            AppendOutput("  clear      - Clear screen\n");
-        }
-
-        private void ShowAsciiBoard()
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var board = player.GetLocalBoard();
-            if (board == null)
-            {
-                AppendOutputColored("No active game\n", errorColor);
-                return;
-            }
-            AppendOutput(board.ToString() + "\n");
-        }
-
-        private void ShowFen()
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var board = player.GetLocalBoard();
-            if (board == null)
-            {
-                AppendOutputColored("No active game\n", errorColor);
-                return;
-            }
-            AppendOutput($"FEN: {board.ToFen()}\n");
-        }
-
-        private void ShowPgn()
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var board = player.GetLocalBoard();
-            if (board == null)
-            {
-                AppendOutputColored("No active game\n", errorColor);
-                return;
-            }
-            AppendOutput($"PGN:\n{board.ToPgn()}\n");
-        }
-
-        private void UndoMove()
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var result = player.UndoLastLocalMove();
-            if (!result.success)
-            {
-                AppendOutputColored("No moves to undo\n", errorColor);
-                return;
-            }
-            AppendOutputColored("Undo successful\n", successColor);
-        }
-
-        private void LoadFen(string fen)
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var result = player.LoadFromFen(fen);
-            if (result.success)
-            {
-                AppendOutputColored("Board restored from FEN\n", successColor);
-            }
-            else
-            {
-                AppendOutputColored($"FEN restore failed: {result.error}\n", errorColor);
-            }
-        }
-
-        private void LoadPgn(string pgn)
-        {
-            if (player == null)
-            {
-                AppendOutputColored("Error: Not connected to game controller\n", errorColor);
-                return;
-            }
-            var result = player.LoadFromPgn(pgn);
-            if (result.success)
-            {
-                AppendOutputColored("Board restored from PGN\n", successColor);
-            }
-            else
-            {
-                AppendOutputColored($"PGN restore failed: {result.error}\n", errorColor);
-            }
-        }
-
-        private void AppendOutput(string text)
-        {
-            if (_outputText != null)
-                _outputText.text += text;
-            ScrollToBottom();
-        }
-
-        private void AppendOutputColored(string text, Color color)
-        {
-            AppendOutput($"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{text}</color>");
-        }
-
-        private void ScrollToBottom()
-        {
-            if (_scrollRect != null)
-                Canvas.ForceUpdateCanvases();
-            if (_scrollRect != null)
-                _scrollRect.verticalNormalizedPosition = 0f;
         }
 
         public void Show()

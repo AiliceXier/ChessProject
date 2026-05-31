@@ -93,11 +93,11 @@ namespace Chess.UI
                 Debug.LogWarning("[MoveHistoryUI] No Canvas found in EnsurePanel!");
                 return;
             }
-            BuildPanel(canvas.transform);
+            BuildTestPanel(canvas.transform);
             Debug.Log("[MoveHistoryUI] Panel built successfully, _contentRt=" + (_contentRt != null));
         }
 
-        private void BuildPanel(Transform canvasTr)
+        private void BuildTestPanel(Transform canvasTr)
         {
             _panel = new GameObject("MoveHistoryPanel");
             _panel.transform.SetParent(canvasTr, false);
@@ -114,63 +114,53 @@ namespace Chess.UI
             bg.color = panelColor;
             bg.raycastTarget = true;
 
-            var vlg = _panel.AddComponent<VerticalLayoutGroup>();
-            vlg.childAlignment = TextAnchor.UpperCenter;
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            vlg.spacing = 0;
-            vlg.padding = new RectOffset(0, 0, 0, 0);
-
-            BuildHeader(_panel.transform);
-            BuildScrollView(_panel.transform);
-
-            _panel.SetActive(false);
-
-            Debug.Log($"[MoveHistoryUI] BuildPanel complete. Panel rect: {panelRt.rect}, anchorMin={panelRt.anchorMin}, anchorMax={panelRt.anchorMax}, offsetMin={panelRt.offsetMin}, offsetMax={panelRt.offsetMax}");
-        }
-
-        private void BuildHeader(Transform parent)
-        {
-            var headerObj = CreateUIGameObject("Header", parent);
-            var headerLe = headerObj.AddComponent<LayoutElement>();
-            headerLe.preferredHeight = 36;
-            headerLe.flexibleHeight = 0;
+            var headerObj = new GameObject("Header");
+            headerObj.transform.SetParent(_panel.transform, false);
+            headerObj.layer = 5;
+            var headerRt = headerObj.AddComponent<RectTransform>();
+            headerRt.anchorMin = new Vector2(0f, 1f);
+            headerRt.anchorMax = new Vector2(1f, 1f);
+            headerRt.pivot = new Vector2(0.5f, 1f);
+            headerRt.sizeDelta = new Vector2(0f, 36f);
+            headerRt.anchoredPosition = new Vector2(0f, 0f);
             headerObj.AddComponent<CanvasRenderer>();
             var headerImg = headerObj.AddComponent<Image>();
             headerImg.color = headerColor;
-            headerImg.raycastTarget = false;
 
-            var headerHlg = headerObj.AddComponent<HorizontalLayoutGroup>();
-            headerHlg.childAlignment = TextAnchor.MiddleLeft;
-            headerHlg.childControlWidth = true;
-            headerHlg.childControlHeight = false;
-            headerHlg.childForceExpandWidth = true;
-            headerHlg.childForceExpandHeight = false;
-            headerHlg.spacing = 4;
-            headerHlg.padding = new RectOffset(8, 4, 0, 0);
+            var titleObj = new GameObject("Title");
+            titleObj.transform.SetParent(headerObj.transform, false);
+            titleObj.layer = 5;
+            var titleRt = titleObj.AddComponent<RectTransform>();
+            titleRt.anchorMin = Vector2.zero;
+            titleRt.anchorMax = Vector2.one;
+            titleRt.offsetMin = new Vector2(8, 0);
+            titleRt.offsetMax = new Vector2(-30, 0);
+            var titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
+            titleTmp.text = "Move History";
+            titleTmp.fontSize = 16;
+            titleTmp.fontStyle = FontStyles.Bold;
+            titleTmp.alignment = TextAlignmentOptions.MidlineLeft;
+            titleTmp.color = Color.white;
+            titleTmp.raycastTarget = false;
 
-            var titleObj = CreateUIGameObject("Title", headerObj.transform);
-            var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "Move History";
-            titleTxt.fontSize = 16;
-            titleTxt.fontStyle = FontStyles.Bold;
-            titleTxt.alignment = TextAlignmentOptions.Center;
-            titleTxt.color = Color.white;
-            titleTxt.raycastTarget = false;
-            var titleLe = titleObj.AddComponent<LayoutElement>();
-            titleLe.flexibleWidth = 1;
-
-            var closeObj = CreateUIGameObject("CloseBtn", headerObj.transform);
+            var closeObj = new GameObject("CloseBtn");
+            closeObj.transform.SetParent(headerObj.transform, false);
+            closeObj.layer = 5;
+            var closeRt = closeObj.AddComponent<RectTransform>();
+            closeRt.anchorMin = new Vector2(1f, 0f);
+            closeRt.anchorMax = new Vector2(1f, 1f);
+            closeRt.pivot = new Vector2(1f, 0.5f);
+            closeRt.sizeDelta = new Vector2(28f, 0f);
+            closeRt.anchoredPosition = new Vector2(-4f, 0f);
             closeObj.AddComponent<CanvasRenderer>();
             var closeImg = closeObj.AddComponent<Image>();
             closeImg.color = new Color(0.8f, 0.25f, 0.25f);
-            closeImg.raycastTarget = true;
             var closeBtn = closeObj.AddComponent<Button>();
             closeBtn.onClick.AddListener(Hide);
-            var closeTxtObj = CreateUIGameObject("Text", closeObj.transform);
-            var closeTxtRt = closeTxtObj.GetComponent<RectTransform>();
+            var closeTxtObj = new GameObject("X");
+            closeTxtObj.transform.SetParent(closeObj.transform, false);
+            closeTxtObj.layer = 5;
+            var closeTxtRt = closeTxtObj.AddComponent<RectTransform>();
             closeTxtRt.anchorMin = Vector2.zero;
             closeTxtRt.anchorMax = Vector2.one;
             closeTxtRt.offsetMin = Vector2.zero;
@@ -181,74 +171,57 @@ namespace Chess.UI
             closeTxt.alignment = TextAlignmentOptions.Center;
             closeTxt.color = Color.white;
             closeTxt.raycastTarget = false;
-            var closeLe = closeObj.AddComponent<LayoutElement>();
-            closeLe.minWidth = 28;
-            closeLe.preferredWidth = 28;
-        }
 
-        private void BuildScrollView(Transform parent)
-        {
-            var scrollObj = CreateUIGameObject("ScrollView", parent);
-            var scrollLe = scrollObj.AddComponent<LayoutElement>();
-            scrollLe.flexibleHeight = 1;
-            scrollLe.minHeight = 60;
-            _scrollViewportRt = scrollObj.GetComponent<RectTransform>();
-            scrollObj.AddComponent<CanvasRenderer>();
-            var vpImg = scrollObj.AddComponent<Image>();
-            vpImg.color = Color.clear;
-            vpImg.raycastTarget = true;
-            scrollObj.AddComponent<Mask>().showMaskGraphic = false;
-            _scrollRect = scrollObj.AddComponent<ScrollRect>();
+            var scrollView = new GameObject("ScrollView");
+            scrollView.transform.SetParent(_panel.transform, false);
+            scrollView.layer = 5;
+            var svRt = scrollView.AddComponent<RectTransform>();
+            svRt.anchorMin = new Vector2(0f, 0f);
+            svRt.anchorMax = new Vector2(1f, 1f);
+            svRt.pivot = new Vector2(0.5f, 0.5f);
+            svRt.offsetMin = new Vector2(0f, 0f);
+            svRt.offsetMax = new Vector2(0f, -36f);
+            _scrollViewportRt = svRt;
+            scrollView.AddComponent<CanvasRenderer>();
+            var svImg = scrollView.AddComponent<Image>();
+            svImg.color = new Color(0.05f, 0.05f, 0.08f, 1f);
+            svImg.raycastTarget = true;
+            var mask = scrollView.AddComponent<Mask>();
+            mask.showMaskGraphic = false;
+            _scrollRect = scrollView.AddComponent<ScrollRect>();
             _scrollRect.horizontal = false;
             _scrollRect.vertical = true;
             _scrollRect.movementType = ScrollRect.MovementType.Elastic;
 
-            var contentObj = CreateUIGameObject("Content", scrollObj.transform);
-            _contentRt = contentObj.GetComponent<RectTransform>();
+            var content = new GameObject("Content");
+            content.transform.SetParent(scrollView.transform, false);
+            content.layer = 5;
+            _contentRt = content.AddComponent<RectTransform>();
             _contentRt.anchorMin = new Vector2(0f, 1f);
             _contentRt.anchorMax = new Vector2(1f, 1f);
             _contentRt.pivot = new Vector2(0.5f, 1f);
             _contentRt.offsetMin = new Vector2(0f, 0f);
             _contentRt.offsetMax = new Vector2(0f, 0f);
 
-            var csf = contentObj.AddComponent<ContentSizeFitter>();
-            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-
-            var vlg = contentObj.AddComponent<VerticalLayoutGroup>();
-            vlg.childAlignment = TextAnchor.UpperCenter;
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            vlg.spacing = (int)RowSpacing;
-            vlg.padding = new RectOffset((int)ContentPadding, (int)ContentPadding, (int)ContentPadding, (int)ContentPadding);
-
             _scrollRect.content = _contentRt;
             _scrollRect.viewport = _scrollViewportRt;
 
-            Debug.Log($"[MoveHistoryUI] BuildScrollView: content anchorMin={_contentRt.anchorMin}, anchorMax={_contentRt.anchorMax}, pivot={_contentRt.pivot}, offsetMin={_contentRt.offsetMin}, offsetMax={_contentRt.offsetMax}");
-            Debug.Log($"[MoveHistoryUI] BuildScrollView: CSF verticalFit={csf.verticalFit}, horizontalFit={csf.horizontalFit}");
-            Debug.Log($"[MoveHistoryUI] BuildScrollView: VLG spacing={vlg.spacing}, padding={vlg.padding}, childControlWidth={vlg.childControlWidth}, childForceExpandWidth={vlg.childForceExpandWidth}");
-            Debug.Log($"[MoveHistoryUI] BuildScrollView: ScrollRect content={_scrollRect.content != null}, viewport={_scrollRect.viewport != null}");
+            _panel.SetActive(false);
+
+            Debug.Log($"[MoveHistoryUI] BuildTestPanel complete. Panel rect={panelRt.rect}");
+            Debug.Log($"[MoveHistoryUI] SV rect={svRt.rect}, offsetMin={svRt.offsetMin}, offsetMax={svRt.offsetMax}");
         }
 
         private void UpdateContentSize()
         {
             if (_contentRt == null) return;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_contentRt);
 
-            Debug.Log($"[MoveHistoryUI] UpdateContentSize: entries={_entries.Count}, content.rect={_contentRt.rect}, content.sizeDelta={_contentRt.sizeDelta}, content.anchoredPosition={_contentRt.anchoredPosition}");
+            float totalHeight = ContentPadding * 2 + _entries.Count * RowHeight;
+            if (_entries.Count > 1)
+                totalHeight += (_entries.Count - 1) * RowSpacing;
+            _contentRt.sizeDelta = new Vector2(0f, totalHeight);
 
-            if (_scrollViewportRt != null)
-            {
-                Debug.Log($"[MoveHistoryUI] Viewport.rect={_scrollViewportRt.rect}, Viewport.sizeDelta={_scrollViewportRt.sizeDelta}");
-            }
-
-            if (_scrollRect != null)
-            {
-                Debug.Log($"[MoveHistoryUI] ScrollRect: content.rect.height={_contentRt.rect.height}, viewport.rect.height={_scrollViewportRt?.rect.height}, verticalNormalizedPos={_scrollRect.verticalNormalizedPosition}");
-            }
+            Debug.Log($"[MoveHistoryUI] UpdateContentSize: entries={_entries.Count}, totalHeight={totalHeight}, content.sizeDelta={_contentRt.sizeDelta}");
         }
 
         private GameObject CreateUIGameObject(string name, Transform parent)
@@ -273,7 +246,7 @@ namespace Chess.UI
 
             if (_contentRt == null)
             {
-                Debug.LogWarning("[MoveHistoryUI] RefreshDisplay SKIPPED - _contentRt is null (panel not built yet)");
+                Debug.LogWarning("[MoveHistoryUI] RefreshDisplay SKIPPED - _contentRt is null");
                 return;
             }
 
@@ -281,7 +254,6 @@ namespace Chess.UI
 
             if (_board == null)
             {
-                Debug.LogWarning("[MoveHistoryUI] RefreshDisplay - _board is null, showing 'No board' label");
                 AddLabelEntry("No board set");
                 UpdateContentSize();
                 return;
@@ -292,7 +264,6 @@ namespace Chess.UI
 
             if (moves == null || moves.Count == 0)
             {
-                Debug.Log("[MoveHistoryUI] No moves yet, showing label");
                 AddLabelEntry("No moves yet");
                 UpdateContentSize();
                 return;
@@ -315,7 +286,7 @@ namespace Chess.UI
             if (_scrollRect != null)
                 _scrollRect.verticalNormalizedPosition = 0f;
 
-            Debug.Log($"[MoveHistoryUI] RefreshDisplay complete, _entries.Count={_entries.Count}, contentHeight={_contentRt.rect.height}");
+            Debug.Log($"[MoveHistoryUI] RefreshDisplay complete, _entries.Count={_entries.Count}");
 
             StartCoroutine(LogDelayedLayoutState());
         }
@@ -327,7 +298,6 @@ namespace Chess.UI
 
             Debug.Log($"[MoveHistoryUI] DELAYED CHECK after 2 frames:");
             Debug.Log($"  Content.rect={_contentRt.rect}, sizeDelta={_contentRt.sizeDelta}, anchoredPos={_contentRt.anchoredPosition}");
-            Debug.Log($"  Content.childCount={_contentRt.childCount}");
             Debug.Log($"  Viewport.rect={_scrollViewportRt?.rect}");
 
             for (int i = 0; i < _contentRt.childCount && i < 10; i++)
@@ -336,44 +306,35 @@ namespace Chess.UI
                 var childRt = child as RectTransform;
                 if (childRt != null)
                 {
-                    Debug.Log($"  Child[{i}] name={child.name}, rect={childRt.rect}, anchoredPos={childRt.anchoredPosition}, sizeDelta={childRt.sizeDelta}, active={child.gameObject.activeSelf}");
-                    var tmp = child.GetComponent<TextMeshProUGUI>();
-                    if (tmp != null)
-                    {
-                        Debug.Log($"    TMP text='{tmp.text}', fontSize={tmp.fontSize}, color={tmp.color}, enabled={tmp.enabled}, gameObject.active={tmp.gameObject.activeSelf}");
-                    }
+                    Debug.Log($"  Child[{i}] name={child.name}, rect={childRt.rect}, anchoredPos={childRt.anchoredPosition}, sizeDelta={childRt.sizeDelta}");
                     var img = child.GetComponent<Image>();
                     if (img != null)
-                    {
-                        Debug.Log($"    Image color={img.color}, enabled={img.enabled}, canvasRenderer.GetAlpha={img.canvasRenderer.GetAlpha()}");
-                    }
+                        Debug.Log($"    Image color={img.color}, enabled={img.enabled}, alpha={img.canvasRenderer.GetAlpha()}");
                     for (int j = 0; j < childRt.childCount && j < 5; j++)
                     {
-                        var grandchild = childRt.GetChild(j);
-                        var gcRt = grandchild as RectTransform;
-                        var gcTmp = grandchild.GetComponent<TextMeshProUGUI>();
+                        var gc = childRt.GetChild(j);
+                        var gcRt = gc as RectTransform;
+                        var gcTmp = gc.GetComponent<TextMeshProUGUI>();
                         if (gcTmp != null)
-                        {
-                            Debug.Log($"    Grandchild[{j}] name={grandchild.name}, text='{gcTmp.text}', fontSize={gcTmp.fontSize}, color={gcTmp.color}, rect={gcRt?.rect}, active={grandchild.gameObject.activeSelf}, enabled={gcTmp.enabled}");
-                        }
+                            Debug.Log($"    GC[{j}] name={gc.name}, text='{gcTmp.text}', rect={gcRt?.rect}, anchoredPos={gcRt?.anchoredPosition}, active={gc.gameObject.activeSelf}");
                     }
                 }
             }
 
             if (_scrollRect != null)
-            {
-                Debug.Log($"  ScrollRect: verticalNormalizedPosition={_scrollRect.verticalNormalizedPosition}, horizontal={_scrollRect.horizontal}, vertical={_scrollRect.vertical}");
-                Debug.Log($"  ScrollRect.content={_scrollRect.content != null}, viewport={_scrollRect.viewport != null}");
-            }
+                Debug.Log($"  ScrollRect: verticalNormPos={_scrollRect.verticalNormalizedPosition}, content={_scrollRect.content != null}, viewport={_scrollRect.viewport != null}");
         }
 
         private void AddMoveRow(int num, string white, string black, bool isEven, bool isLast)
         {
             var row = CreateUIGameObject($"Row_{num}", _contentRt);
-            var rowLe = row.AddComponent<LayoutElement>();
-            rowLe.preferredHeight = RowHeight;
-            rowLe.minHeight = RowHeight;
-            rowLe.flexibleHeight = 0;
+            var rowRt = row.GetComponent<RectTransform>();
+            rowRt.anchorMin = new Vector2(0f, 1f);
+            rowRt.anchorMax = new Vector2(1f, 1f);
+            rowRt.pivot = new Vector2(0.5f, 1f);
+            rowRt.sizeDelta = new Vector2(-ContentPadding * 2, RowHeight);
+            int idx = _entries.Count;
+            rowRt.anchoredPosition = new Vector2(0f, -(ContentPadding + idx * (RowHeight + RowSpacing)));
 
             row.AddComponent<CanvasRenderer>();
             var rowImg = row.AddComponent<Image>();
@@ -383,34 +344,27 @@ namespace Chess.UI
                 rowImg.color = isEven ? evenRowColor : oddRowColor;
             rowImg.raycastTarget = false;
 
-            var hlg = row.AddComponent<HorizontalLayoutGroup>();
-            hlg.childAlignment = TextAnchor.MiddleLeft;
-            hlg.childControlWidth = false;
-            hlg.childControlHeight = false;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = false;
-            hlg.spacing = 4;
-            hlg.padding = new RectOffset(6, 6, 0, 0);
-
-            AddTextCell(row.transform, $"{num}.", numColor, FontStyles.Normal, 30, 12);
-            AddTextCell(row.transform, white, moveColor, FontStyles.Bold, 90, 14);
-            AddTextCell(row.transform, black, moveColor, FontStyles.Bold, 90, 14);
+            float x = 6f;
+            AddTextCell(row.transform, $"{num}.", numColor, FontStyles.Normal, x, 30, 12);
+            x += 30 + 4;
+            AddTextCell(row.transform, white, moveColor, FontStyles.Bold, x, 90, 14);
+            x += 90 + 4;
+            AddTextCell(row.transform, black, moveColor, FontStyles.Bold, x, 90, 14);
 
             _entries.Add(row);
 
-            Debug.Log($"[MoveHistoryUI] AddMoveRow: Row_{num} created, childCount={row.transform.childCount}, rowImg.color={rowImg.color}, rowLe.preferredHeight={rowLe.preferredHeight}");
+            Debug.Log($"[MoveHistoryUI] AddMoveRow: Row_{num} idx={idx}, anchoredPos={rowRt.anchoredPosition}, sizeDelta={rowRt.sizeDelta}");
         }
 
-        private void AddTextCell(Transform parent, string text, Color color, FontStyles style, float width, float fontSize)
+        private void AddTextCell(Transform parent, string text, Color color, FontStyles style, float xPos, float width, float fontSize)
         {
             var cell = CreateUIGameObject("Cell", parent);
-            var cellLe = cell.AddComponent<LayoutElement>();
-            cellLe.preferredWidth = width;
-            cellLe.minWidth = width;
-            cellLe.flexibleWidth = 0;
-
             var cellRt = cell.GetComponent<RectTransform>();
+            cellRt.anchorMin = new Vector2(0f, 0.5f);
+            cellRt.anchorMax = new Vector2(0f, 0.5f);
+            cellRt.pivot = new Vector2(0f, 0.5f);
             cellRt.sizeDelta = new Vector2(width, RowHeight);
+            cellRt.anchoredPosition = new Vector2(xPos, 0f);
 
             var tmp = cell.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
@@ -419,17 +373,18 @@ namespace Chess.UI
             tmp.color = color;
             tmp.alignment = TextAlignmentOptions.MidlineLeft;
             tmp.raycastTarget = false;
-
-            Debug.Log($"[MoveHistoryUI] AddTextCell: text='{text}', fontSize={fontSize}, color={color}, width={width}, cellRt.sizeDelta={cellRt.sizeDelta}");
         }
 
         private void AddLabelEntry(string text)
         {
             var obj = CreateUIGameObject("Label", _contentRt);
-            var objLe = obj.AddComponent<LayoutElement>();
-            objLe.preferredHeight = RowHeight;
-            objLe.minHeight = RowHeight;
-            objLe.flexibleHeight = 0;
+            var objRt = obj.GetComponent<RectTransform>();
+            objRt.anchorMin = new Vector2(0f, 1f);
+            objRt.anchorMax = new Vector2(1f, 1f);
+            objRt.pivot = new Vector2(0.5f, 1f);
+            objRt.sizeDelta = new Vector2(-ContentPadding * 2, RowHeight);
+            int idx = _entries.Count;
+            objRt.anchoredPosition = new Vector2(0f, -(ContentPadding + idx * (RowHeight + RowSpacing)));
 
             var tmp = obj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
