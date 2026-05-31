@@ -38,24 +38,24 @@ namespace Chess.UI
             {
                 _panel = panelRef;
 
-                if (difficultyBtnRefs != null)
+                string[] btnNames = { "Btn_Easy", "Btn_Medium", "Btn_Hard", "Btn_Master" };
+                for (int i = 0; i < btnNames.Length && i < Difficulties.Length; i++)
                 {
-                    for (int i = 0; i < difficultyBtnRefs.Length && i < Difficulties.Length; i++)
-                    {
-                        if (difficultyBtnRefs[i] == null) continue;
-                        var idx = i;
-                        var btn = difficultyBtnRefs[i].GetComponent<Button>();
-                        if (btn == null)
-                            btn = difficultyBtnRefs[i].AddComponent<Button>();
-                        btn.onClick.AddListener(() => OnDifficultySelected(idx));
-                    }
+                    var btnTr = _panel.transform.Find(btnNames[i]);
+                    if (btnTr == null) continue;
+                    var idx = i;
+                    var btn = btnTr.GetComponent<Button>();
+                    if (btn == null)
+                        btn = btnTr.gameObject.AddComponent<Button>();
+                    btn.onClick.AddListener(() => OnDifficultySelected(idx));
                 }
 
-                if (backBtnRef != null)
+                var backTr = _panel.transform.Find("BackBtn");
+                if (backTr != null)
                 {
-                    var backBtn = backBtnRef.GetComponent<Button>();
+                    var backBtn = backTr.GetComponent<Button>();
                     if (backBtn == null)
-                        backBtn = backBtnRef.AddComponent<Button>();
+                        backBtn = backTr.gameObject.AddComponent<Button>();
                     backBtn.onClick.AddListener(Hide);
                 }
 
