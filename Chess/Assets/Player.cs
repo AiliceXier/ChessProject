@@ -282,7 +282,7 @@ public class Player : MonoBehaviour
         _gameMode switch
         {
             GameMode.Local => _localWhiteTurn,
-            GameMode.Robot => true,
+            GameMode.Robot => _localWhiteTurn,
             _ => _isWhite
         };
 
@@ -452,7 +452,7 @@ public class Player : MonoBehaviour
 
         if (_gameMode == GameMode.Robot)
         {
-            if (MakeLocalMove(fromFen, toFen, updateUI: false) && !_localBoard.IsEndGame)
+            if (MakeLocalMove(fromFen, toFen, updateUI: true) && !_localBoard.IsEndGame)
             {
                 _ = DoRobotMoveAsync();
             }

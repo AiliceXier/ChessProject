@@ -202,11 +202,11 @@ namespace Chess.UI
 
             var contentObj = CreateUIGameObject("Content", scrollObj.transform);
             _contentRt = contentObj.GetComponent<RectTransform>();
-            _contentRt.anchorMin = new Vector2(0f, 0f);
+            _contentRt.anchorMin = new Vector2(0f, 1f);
             _contentRt.anchorMax = new Vector2(1f, 1f);
-            _contentRt.pivot = new Vector2(0.5f, 0.5f);
-            _contentRt.offsetMin = Vector2.zero;
-            _contentRt.offsetMax = Vector2.zero;
+            _contentRt.pivot = new Vector2(0.5f, 1f);
+            _contentRt.offsetMin = new Vector2(0f, 0f);
+            _contentRt.offsetMax = new Vector2(0f, 0f);
 
             var csf = contentObj.AddComponent<ContentSizeFitter>();
             csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
