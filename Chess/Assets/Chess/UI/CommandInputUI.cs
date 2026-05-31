@@ -84,6 +84,7 @@ namespace Chess.UI
             panelRt.pivot = new Vector2(0f, 0f);
             panelRt.offsetMin = new Vector2(10, 10);
             panelRt.offsetMax = new Vector2(360, 260);
+            Debug.Log($"[CommandInputUI] Panel offsetMin={panelRt.offsetMin}, offsetMax={panelRt.offsetMax}, size={panelRt.sizeDelta}");
 
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();

@@ -8,12 +8,12 @@ namespace Chess.UI
     {
         public Player player;
 
-        public Color panelColor = new Color(0.12f, 0.12f, 0.12f, 0.95f);
-        public Color headerColor = new Color(0.18f, 0.18f, 0.18f, 1f);
-        public Color inputBgColor = new Color(0.08f, 0.08f, 0.08f, 1f);
-        public Color btnColor = new Color(0.25f, 0.25f, 0.3f, 0.9f);
-        public Color selfMsgColor = new Color(0.2f, 0.4f, 0.7f, 0.5f);
-        public Color otherMsgColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        public Color panelColor = new Color(0.08f, 0.08f, 0.10f, 0.95f);
+        public Color headerColor = new Color(0.14f, 0.14f, 0.16f, 1f);
+        public Color inputBgColor = new Color(0.06f, 0.06f, 0.08f, 1f);
+        public Color btnColor = new Color(0.22f, 0.22f, 0.28f, 0.9f);
+        public Color selfMsgColor = new Color(0.29f, 0.48f, 0.71f, 0.6f);
+        public Color otherMsgColor = new Color(0.22f, 0.22f, 0.24f, 0.6f);
 
         private GameObject _panel;
         private GameObject _toggleBtn;
@@ -75,7 +75,6 @@ namespace Chess.UI
             _panel = new GameObject("ChatPanel");
             _panel.transform.SetParent(canvasTr, false);
             _panel.layer = 5;
-            _panel.SetActive(false);
 
             var panelRt = _panel.AddComponent<RectTransform>();
             panelRt.anchorMin = new Vector2(0f, 0f);
@@ -86,7 +85,7 @@ namespace Chess.UI
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();
             bg.color = panelColor;
-            bg.raycastTarget = false;
+            bg.raycastTarget = true;
 
             var vlg = _panel.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = TextAnchor.UpperCenter;
@@ -100,6 +99,8 @@ namespace Chess.UI
             BuildHeader(_panel.transform);
             BuildMessageArea(_panel.transform);
             BuildInputArea(_panel.transform);
+
+            _panel.SetActive(false);
         }
 
         private void BuildHeader(Transform parent)
@@ -139,11 +140,18 @@ namespace Chess.UI
             closeImg.raycastTarget = true;
             var closeBtn = closeObj.AddComponent<Button>();
             closeBtn.onClick.AddListener(Hide);
-            var closeTxt = closeObj.AddComponent<TextMeshProUGUI>();
+            var closeTxtObj = CreateUIObj("Text", closeObj.transform);
+            var closeTxtRt = closeTxtObj.GetComponent<RectTransform>();
+            closeTxtRt.anchorMin = Vector2.zero;
+            closeTxtRt.anchorMax = Vector2.one;
+            closeTxtRt.offsetMin = Vector2.zero;
+            closeTxtRt.offsetMax = Vector2.zero;
+            var closeTxt = closeTxtObj.AddComponent<TextMeshProUGUI>();
             closeTxt.text = "X";
             closeTxt.fontSize = 14;
             closeTxt.alignment = TextAlignmentOptions.Center;
             closeTxt.color = Color.white;
+            closeTxt.raycastTarget = false;
             var closeLe = closeObj.AddComponent<LayoutElement>();
             closeLe.minWidth = 24;
             closeLe.preferredWidth = 24;
@@ -183,6 +191,7 @@ namespace Chess.UI
             _contentParent = contentObj.transform;
 
             _scrollRect.content = contentRt;
+            _scrollRect.viewport = scrollObj.GetComponent<RectTransform>();
         }
 
         private void BuildInputArea(Transform parent)
@@ -217,11 +226,25 @@ namespace Chess.UI
             textAreaRt.offsetMin = new Vector2(6, 2);
             textAreaRt.offsetMax = new Vector2(-6, -2);
             textArea.AddComponent<RectMask2D>();
-            var inputTxt = textArea.AddComponent<TextMeshProUGUI>();
+
+            var inputTxtObj = CreateUIObj("Text", textArea.transform);
+            var inputTxtRt = inputTxtObj.GetComponent<RectTransform>();
+            inputTxtRt.anchorMin = Vector2.zero;
+            inputTxtRt.anchorMax = Vector2.one;
+            inputTxtRt.offsetMin = Vector2.zero;
+            inputTxtRt.offsetMax = Vector2.zero;
+            var inputTxt = inputTxtObj.AddComponent<TextMeshProUGUI>();
             inputTxt.fontSize = 14;
             inputTxt.color = Color.white;
             inputTxt.raycastTarget = false;
-            var placeholder = textArea.AddComponent<TextMeshProUGUI>();
+
+            var placeholderObj = CreateUIObj("Placeholder", textArea.transform);
+            var placeholderRt = placeholderObj.GetComponent<RectTransform>();
+            placeholderRt.anchorMin = Vector2.zero;
+            placeholderRt.anchorMax = Vector2.one;
+            placeholderRt.offsetMin = Vector2.zero;
+            placeholderRt.offsetMax = Vector2.zero;
+            var placeholder = placeholderObj.AddComponent<TextMeshProUGUI>();
             placeholder.fontSize = 14;
             placeholder.color = new Color(0.4f, 0.4f, 0.4f);
             placeholder.text = "Type a message...";
@@ -241,12 +264,19 @@ namespace Chess.UI
             var sendLe = sendObj.AddComponent<LayoutElement>();
             sendLe.minWidth = 50;
             sendLe.preferredWidth = 50;
-            var sendTxt = sendObj.AddComponent<TextMeshProUGUI>();
+            var sendTxtObj = CreateUIObj("Text", sendObj.transform);
+            var sendTxtRt = sendTxtObj.GetComponent<RectTransform>();
+            sendTxtRt.anchorMin = Vector2.zero;
+            sendTxtRt.anchorMax = Vector2.one;
+            sendTxtRt.offsetMin = Vector2.zero;
+            sendTxtRt.offsetMax = Vector2.zero;
+            var sendTxt = sendTxtObj.AddComponent<TextMeshProUGUI>();
             sendTxt.text = "Send";
             sendTxt.fontSize = 13;
             sendTxt.fontStyle = FontStyles.Bold;
             sendTxt.alignment = TextAlignmentOptions.Center;
             sendTxt.color = Color.white;
+            sendTxt.raycastTarget = false;
         }
 
         private GameObject CreateUIObj(string name, Transform parent)
@@ -285,7 +315,13 @@ namespace Chess.UI
             msgBg.color = isSelf ? selfMsgColor : otherMsgColor;
             msgBg.raycastTarget = false;
 
-            var msgTxt = msgObj.AddComponent<TextMeshProUGUI>();
+            var msgTxtObj = CreateUIObj("Text", msgObj.transform);
+            var msgTxtRt = msgTxtObj.GetComponent<RectTransform>();
+            msgTxtRt.anchorMin = Vector2.zero;
+            msgTxtRt.anchorMax = Vector2.one;
+            msgTxtRt.offsetMin = Vector2.zero;
+            msgTxtRt.offsetMax = Vector2.zero;
+            var msgTxt = msgTxtObj.AddComponent<TextMeshProUGUI>();
             msgTxt.text = $"<b>{sender}:</b> {message}";
             msgTxt.fontSize = 13;
             msgTxt.color = Color.white;

@@ -37,7 +37,7 @@ namespace Chess.UI
 
             _hintBtn.AddComponent<CanvasRenderer>();
             var btnImg = _hintBtn.AddComponent<Image>();
-            btnImg.color = new Color(0.25f, 0.25f, 0.3f, 0.9f);
+            btnImg.color = new Color(0.29f, 0.48f, 0.71f, 0.9f);
             btnImg.raycastTarget = true;
 
             var btn = _hintBtn.AddComponent<Button>();
@@ -84,8 +84,7 @@ namespace Chess.UI
                 Object.Destroy(_highlight.GetComponent<Collider>());
                 var mr = _highlight.GetComponent<MeshRenderer>();
                 mr.material = new Material(Shader.Find("Unlit/Transparent"));
-                var c = Color.green;
-                c.a = 0.4f;
+                var c = new Color(0.38f, 0.60f, 0.14f, 0.5f);
                 mr.material.color = c;
             }
 

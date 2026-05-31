@@ -45,6 +45,7 @@ namespace Chess.UI
             panelRt.anchorMax = new Vector2(0.5f, 0.5f);
             panelRt.pivot = new Vector2(0.5f, 0.5f);
             panelRt.sizeDelta = new Vector2(280, 280);
+            Debug.Log($"[DifficultySelector] Panel sizeDelta={panelRt.sizeDelta}, anchoredPosition={panelRt.anchoredPosition}");
 
             _panel.AddComponent<CanvasRenderer>();
             var bg = _panel.AddComponent<Image>();

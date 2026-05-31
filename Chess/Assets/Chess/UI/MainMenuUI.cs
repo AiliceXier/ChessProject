@@ -163,6 +163,12 @@ namespace Chess.UI
             le.preferredHeight = 56;
             le.minHeight = 56;
             le.flexibleHeight = 0;
+
+            var rt = btn.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.sizeDelta = new Vector2(rt.sizeDelta.x, 56);
+            }
         }
 
         private void ReorderChildren()

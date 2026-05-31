@@ -1,27 +1,783 @@
-NullReferenceException: Object reference not set to an instance of an object
-Chess.UI.MoveHistoryUI.BuildPanel (UnityEngine.Transform canvasTr) (at Assets/Chess/UI/MoveHistoryUI.cs:106)
-Chess.UI.MoveHistoryUI.BuildAllUI () (at Assets/Chess/UI/MoveHistoryUI.cs:44)
-Chess.UI.MoveHistoryUI.Awake () (at Assets/Chess/UI/MoveHistoryUI.cs:30)
+[MoveHistoryUI] Awake called
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Awake () (at Assets/Chess/UI/MoveHistoryUI.cs:36)
 
-NullReferenceException: Object reference not set to an instance of an object
-Chess.UI.CommandInputUI.BuildPanel (UnityEngine.Transform canvasTr) (at Assets/Chess/UI/CommandInputUI.cs:104)
-Chess.UI.CommandInputUI.BuildAllUI () (at Assets/Chess/UI/CommandInputUI.cs:42)
-Chess.UI.CommandInputUI.Awake () (at Assets/Chess/UI/CommandInputUI.cs:28)
+[MoveHistoryUI] Toggle button built
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Awake () (at Assets/Chess/UI/MoveHistoryUI.cs:44)
 
-NullReferenceException: Object reference not set to an instance of an object
-Chess.UI.DifficultySelector.BuildUI () (at Assets/Chess/UI/DifficultySelector.cs:91)
-Chess.UI.DifficultySelector.Awake () (at Assets/Chess/UI/DifficultySelector.cs:32)
-UnityEngine.GameObject:AddComponent()
-<Start>d__37:MoveNext() (at Assets/Player.cs:86)
-System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(<Start>d__37&)
-Player:Start()
+[MoveHistoryUI] Hide called
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Hide () (at Assets/Chess/UI/MoveHistoryUI.cs:390)
+Player:HideAllUIPanels () (at Assets/Player.cs:714)
+Player:HideInGameUI () (at Assets/Player.cs:735)
+Player/<Start>d__39:MoveNext () (at Assets/Player.cs:114)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<Start>d__39> (Player/<Start>d__39&)
+Player:Start ()
 
-NullReferenceException: Object reference not set to an instance of an object
-Chess.UI.ChatUI.BuildPanel (UnityEngine.Transform canvasTr) (at Assets/Chess/UI/ChatUI.cs:109)
-Chess.UI.ChatUI.BuildUI () (at Assets/Chess/UI/ChatUI.cs:50)
-Chess.UI.ChatUI.Awake () (at Assets/Chess/UI/ChatUI.cs:36)
-UnityEngine.GameObject:AddComponent()
-<Start>d__37:MoveNext() (at Assets/Player.cs:95)
-System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(<Start>d__37&)
-Player:Start()
+[MoveHistoryUI] SetToggleButtonVisible=False, _toggleBtn exists=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:SetToggleButtonVisible (bool) (at Assets/Chess/UI/MoveHistoryUI.cs:403)
+Player:HideInGameUI () (at Assets/Player.cs:736)
+Player/<Start>d__39:MoveNext () (at Assets/Player.cs:114)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<Start>d__39> (Player/<Start>d__39&)
+Player:Start ()
+
+[MoveHistoryUI] SetBoard called, board=True, current _board=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:SetBoard (Chess.ChessBoard) (at Assets/Chess/UI/MoveHistoryUI.cs:234)
+Player:StartRobotGameWithDifficulty (int) (at Assets/Player.cs:277)
+Chess.UI.DifficultySelector:OnDifficultySelected (int) (at Assets/Chess/UI/DifficultySelector.cs:138)
+Chess.UI.DifficultySelector/<>c__DisplayClass10_0:<BuildUI>b__0 () (at Assets/Chess/UI/DifficultySelector.cs:83)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=False, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Chess.UI.MoveHistoryUI:SetBoard (Chess.ChessBoard) (at Assets/Chess/UI/MoveHistoryUI.cs:236)
+Player:StartRobotGameWithDifficulty (int) (at Assets/Player.cs:277)
+Chess.UI.DifficultySelector:OnDifficultySelected (int) (at Assets/Chess/UI/DifficultySelector.cs:138)
+Chess.UI.DifficultySelector/<>c__DisplayClass10_0:<BuildUI>b__0 () (at Assets/Chess/UI/DifficultySelector.cs:83)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay SKIPPED - _contentRt is null (panel not built yet)
+UnityEngine.Debug:LogWarning (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:245)
+Chess.UI.MoveHistoryUI:SetBoard (Chess.ChessBoard) (at Assets/Chess/UI/MoveHistoryUI.cs:236)
+Player:StartRobotGameWithDifficulty (int) (at Assets/Player.cs:277)
+Chess.UI.DifficultySelector:OnDifficultySelected (int) (at Assets/Chess/UI/DifficultySelector.cs:138)
+Chess.UI.DifficultySelector/<>c__DisplayClass10_0:<BuildUI>b__0 () (at Assets/Chess/UI/DifficultySelector.cs:83)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] SetToggleButtonVisible=True, _toggleBtn exists=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:SetToggleButtonVisible (bool) (at Assets/Chess/UI/MoveHistoryUI.cs:403)
+Player:ShowInGameUI () (at Assets/Player.cs:722)
+Player:StartRobotGameWithDifficulty (int) (at Assets/Player.cs:278)
+Chess.UI.DifficultySelector:OnDifficultySelected (int) (at Assets/Chess/UI/DifficultySelector.cs:138)
+Chess.UI.DifficultySelector/<>c__DisplayClass10_0:<BuildUI>b__0 () (at Assets/Chess/UI/DifficultySelector.cs:83)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Toggle called, _visible=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Show called, _panel exists=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:379)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] EnsurePanel - building panel for first time
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:EnsurePanel () (at Assets/Chess/UI/MoveHistoryUI.cs:87)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:380)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] BuildPanel complete
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:BuildPanel (UnityEngine.Transform) (at Assets/Chess/UI/MoveHistoryUI.cs:128)
+Chess.UI.MoveHistoryUI:EnsurePanel () (at Assets/Chess/UI/MoveHistoryUI.cs:94)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:380)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Panel built successfully, _contentRt=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:EnsurePanel () (at Assets/Chess/UI/MoveHistoryUI.cs:95)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:380)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ExecutedMoves: count=0
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] No moves yet, showing label
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:264)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] UpdateContentSize: entries=1, totalHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:266)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Toggle called, _visible=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Hide called
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Hide () (at Assets/Chess/UI/MoveHistoryUI.cs:390)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:396)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ClearEntries removed 1 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ExecutedMoves: count=1
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Rendering 1 moves in 1 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 1: f3 |  (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] UpdateContentSize: entries=1, totalHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=1, contentHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ClearEntries removed 1 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ExecutedMoves: count=2
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Rendering 2 moves in 1 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 1: f3 | Nc6 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] UpdateContentSize: entries=1, totalHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=1, contentHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Toggle called, _visible=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Show called, _panel exists=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:379)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ClearEntries removed 1 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ExecutedMoves: count=2
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Rendering 2 moves in 1 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 1: f3 | Nc6 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] UpdateContentSize: entries=1, totalHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=1, contentHeight=38
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Toggle called, _visible=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Hide called
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Hide () (at Assets/Chess/UI/MoveHistoryUI.cs:390)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:396)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ClearEntries removed 1 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ExecutedMoves: count=3
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Rendering 3 moves in 2 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 2: f4 |  (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] UpdateContentSize: entries=2, totalHeight=69
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=2, contentHeight=69
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ClearEntries removed 2 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ExecutedMoves: count=4
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Rendering 4 moves in 2 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 2: f4 | Nf6 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] UpdateContentSize: entries=2, totalHeight=69
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=2, contentHeight=69
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ClearEntries removed 2 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] ExecutedMoves: count=5
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Rendering 5 moves in 3 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 2: f4 | Nf6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] Row 3: f5 |  (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] UpdateContentSize: entries=3, totalHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=3, contentHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player:MakeLocalMove (string,string,bool) (at Assets/Player.cs:306)
+Player/<MakeMove>d__55:MoveNext () (at Assets/Player.cs:455)
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<MakeMove>d__55> (Player/<MakeMove>d__55&)
+Player:MakeMove (UnityEngine.GameObject,UnityEngine.Vector3)
+Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:581)
+UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
+UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ClearEntries removed 3 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] ExecutedMoves: count=6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Rendering 6 moves in 3 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 2: f4 | Nf6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Row 3: f5 | Ne5 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] UpdateContentSize: entries=3, totalHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=3, contentHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Player/<DoRobotMoveAsync>d__52:MoveNext () (at Assets/Player.cs:349)
+UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
+
+[MoveHistoryUI] Toggle called, _visible=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Show called, _panel exists=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:379)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ClearEntries removed 3 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ExecutedMoves: count=6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Rendering 6 moves in 3 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 2: f4 | Nf6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 3: f5 | Ne5 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] UpdateContentSize: entries=3, totalHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=3, contentHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Hide called
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Hide () (at Assets/Chess/UI/MoveHistoryUI.cs:390)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Toggle called, _visible=False
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:395)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Show called, _panel exists=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:379)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay called, _contentRt=True, _board=True
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:241)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ClearEntries removed 3 entries
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:ClearEntries () (at Assets/Chess/UI/MoveHistoryUI.cs:374)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:249)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] ExecutedMoves: count=6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:260)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Rendering 6 moves in 3 rows
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:271)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 1: f3 | Nc6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 2: f4 | Nf6
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] Row 3: f5 | Ne5 (last)
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:279)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] UpdateContentSize: entries=3, totalHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:UpdateContentSize () (at Assets/Chess/UI/MoveHistoryUI.cs:220)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:283)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[MoveHistoryUI] RefreshDisplay complete, _entries.Count=3, contentHeight=100
+UnityEngine.Debug:Log (object)
+Chess.UI.MoveHistoryUI:RefreshDisplay () (at Assets/Chess/UI/MoveHistoryUI.cs:289)
+Chess.UI.MoveHistoryUI:Show () (at Assets/Chess/UI/MoveHistoryUI.cs:383)
+Chess.UI.MoveHistoryUI:Toggle () (at Assets/Chess/UI/MoveHistoryUI.cs:397)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
 

@@ -12,11 +12,11 @@ namespace Chess.UI
 
         public Color panelColor = new Color(0.10f, 0.10f, 0.12f, 0.95f);
         public Color headerColor = new Color(0.15f, 0.15f, 0.17f, 1f);
-        public Color evenRowColor = new Color(0.13f, 0.13f, 0.15f, 0.9f);
-        public Color oddRowColor = new Color(0.18f, 0.18f, 0.20f, 0.9f);
+        public Color evenRowColor = new Color(0.13f, 0.13f, 0.15f, 1f);
+        public Color oddRowColor = new Color(0.22f, 0.22f, 0.24f, 1f);
         public Color moveColor = new Color(0.80f, 0.63f, 0.43f);
         public Color numColor = new Color(0.47f, 0.47f, 0.47f);
-        public Color highlightColor = new Color(1f, 1f, 0.4f, 0.15f);
+        public Color highlightColor = new Color(1f, 1f, 0.4f, 0.3f);
         public Color btnColor = new Color(0.22f, 0.22f, 0.28f, 0.9f);
 
         private const float RowHeight = 30f;
@@ -202,11 +202,24 @@ namespace Chess.UI
 
             var contentObj = CreateUIGameObject("Content", scrollObj.transform);
             _contentRt = contentObj.GetComponent<RectTransform>();
-            _contentRt.anchorMin = new Vector2(0f, 1f);
+            _contentRt.anchorMin = new Vector2(0f, 0f);
             _contentRt.anchorMax = new Vector2(1f, 1f);
-            _contentRt.pivot = new Vector2(0.5f, 1f);
-            _contentRt.offsetMin = new Vector2(0f, 0f);
-            _contentRt.offsetMax = new Vector2(0f, 0f);
+            _contentRt.pivot = new Vector2(0.5f, 0.5f);
+            _contentRt.offsetMin = Vector2.zero;
+            _contentRt.offsetMax = Vector2.zero;
+
+            var csf = contentObj.AddComponent<ContentSizeFitter>();
+            csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
+            var vlg = contentObj.AddComponent<VerticalLayoutGroup>();
+            vlg.childAlignment = TextAnchor.UpperCenter;
+            vlg.childControlWidth = true;
+            vlg.childControlHeight = false;
+            vlg.childForceExpandWidth = true;
+            vlg.childForceExpandHeight = false;
+            vlg.spacing = (int)RowSpacing;
+            vlg.padding = new RectOffset((int)ContentPadding, (int)ContentPadding, (int)ContentPadding, (int)ContentPadding);
 
             _scrollRect.content = _contentRt;
             _scrollRect.viewport = scrollRt;
@@ -215,9 +228,9 @@ namespace Chess.UI
         private void UpdateContentSize()
         {
             if (_contentRt == null) return;
-            float totalHeight = ContentPadding * 2 + _entries.Count * RowHeight + Mathf.Max(0, _entries.Count - 1) * RowSpacing;
-            _contentRt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, totalHeight);
-            Debug.Log("[MoveHistoryUI] UpdateContentSize: entries=" + _entries.Count + ", totalHeight=" + totalHeight);
+            // ContentSizeFitter 会自动处理，只需要强制刷新布局
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_contentRt);
+            Debug.Log("[MoveHistoryUI] UpdateContentSize: entries=" + _entries.Count + ", contentHeight=" + _contentRt.rect.height);
         }
 
         private GameObject CreateUIGameObject(string name, Transform parent)
@@ -282,7 +295,6 @@ namespace Chess.UI
 
             UpdateContentSize();
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_contentRt);
             if (_scrollRect != null)
                 _scrollRect.verticalNormalizedPosition = 0f;
 
@@ -291,16 +303,11 @@ namespace Chess.UI
 
         private void AddMoveRow(int num, string white, string black, bool isEven, bool isLast)
         {
-            int rowIndex = _entries.Count;
-            float yPos = ContentPadding + rowIndex * (RowHeight + RowSpacing);
-
             var row = CreateUIGameObject($"Row_{num}", _contentRt);
-            var rowRt = row.GetComponent<RectTransform>();
-            rowRt.anchorMin = new Vector2(0f, 1f);
-            rowRt.anchorMax = new Vector2(1f, 1f);
-            rowRt.pivot = new Vector2(0.5f, 1f);
-            rowRt.offsetMin = new Vector2(ContentPadding, -(yPos + RowHeight));
-            rowRt.offsetMax = new Vector2(-ContentPadding, -yPos);
+            var rowLe = row.AddComponent<LayoutElement>();
+            rowLe.preferredHeight = RowHeight;
+            rowLe.minHeight = RowHeight;
+            rowLe.flexibleHeight = 0;
 
             row.AddComponent<CanvasRenderer>();
             var rowImg = row.AddComponent<Image>();
@@ -310,28 +317,32 @@ namespace Chess.UI
                 rowImg.color = isEven ? evenRowColor : oddRowColor;
             rowImg.raycastTarget = false;
 
-            // No HorizontalLayoutGroup - position cells manually
-            float cellX = 6f;
-            float cellW = 28f;
-            AddTextCell(row.transform, $"{num}.", numColor, FontStyles.Normal, cellX, cellW, 12);
-            cellX += cellW + 4f;
-            cellW = 80f;
-            AddTextCell(row.transform, white, moveColor, FontStyles.Bold, cellX, cellW, 14);
-            cellX += cellW + 4f;
-            AddTextCell(row.transform, black, moveColor, FontStyles.Bold, cellX, cellW, 14);
+            var hlg = row.AddComponent<HorizontalLayoutGroup>();
+            hlg.childAlignment = TextAnchor.MiddleLeft;
+            hlg.childControlWidth = false;
+            hlg.childControlHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = false;
+            hlg.spacing = 4;
+            hlg.padding = new RectOffset(6, 6, 0, 0);
+
+            AddTextCell(row.transform, $"{num}.", numColor, FontStyles.Normal, 30, 12);
+            AddTextCell(row.transform, white, moveColor, FontStyles.Bold, 90, 14);
+            AddTextCell(row.transform, black, moveColor, FontStyles.Bold, 90, 14);
 
             _entries.Add(row);
         }
 
-        private void AddTextCell(Transform parent, string text, Color color, FontStyles style, float x, float width, float fontSize)
+        private void AddTextCell(Transform parent, string text, Color color, FontStyles style, float width, float fontSize)
         {
             var cell = CreateUIGameObject("Cell", parent);
+            var cellLe = cell.AddComponent<LayoutElement>();
+            cellLe.preferredWidth = width;
+            cellLe.minWidth = width;
+            cellLe.flexibleWidth = 0;
+
             var cellRt = cell.GetComponent<RectTransform>();
-            cellRt.anchorMin = new Vector2(0f, 0f);
-            cellRt.anchorMax = new Vector2(0f, 1f);
-            cellRt.pivot = new Vector2(0f, 0.5f);
-            cellRt.offsetMin = new Vector2(x, 0f);
-            cellRt.offsetMax = new Vector2(x + width, 0f);
+            cellRt.sizeDelta = new Vector2(width, RowHeight);
 
             var tmp = cell.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
@@ -344,16 +355,11 @@ namespace Chess.UI
 
         private void AddLabelEntry(string text)
         {
-            int rowIndex = _entries.Count;
-            float yPos = ContentPadding + rowIndex * (RowHeight + RowSpacing);
-
             var obj = CreateUIGameObject("Label", _contentRt);
-            var objRt = obj.GetComponent<RectTransform>();
-            objRt.anchorMin = new Vector2(0f, 1f);
-            objRt.anchorMax = new Vector2(1f, 1f);
-            objRt.pivot = new Vector2(0.5f, 1f);
-            objRt.offsetMin = new Vector2(ContentPadding, -(yPos + RowHeight));
-            objRt.offsetMax = new Vector2(-ContentPadding, -yPos);
+            var objLe = obj.AddComponent<LayoutElement>();
+            objLe.preferredHeight = RowHeight;
+            objLe.minHeight = RowHeight;
+            objLe.flexibleHeight = 0;
 
             var tmp = obj.AddComponent<TextMeshProUGUI>();
             tmp.text = text;
