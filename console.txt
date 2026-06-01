@@ -88,7 +88,7 @@ Unity.Services.Wire.Internal.Client:OnWebsocketMessage (byte[]) (at ./Library/Pa
 Unity.Services.Wire.Internal.Client/<>c__DisplayClass49_0:<WebsocketMessageListener>b__0 () (at ./Library/PackageCache/com.unity.services.wire@1.2.6/Runtime/Centrifuge/Client.cs:666)
 UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
 
-[ChatUI] ConnectToRoom: roomId=whW6fEabqyxRkbJnQRkdAA, playerName=Player, url=ws://121.36.101.82:3001
+[ChatUI] ConnectToRoom: roomId=Dn6uf7k2E9EkeLHQdq2Kin, playerName=Player, url=ws://121.36.101.82:3001
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:ConnectToRoom (string,string) (at Assets/Chess/UI/ChatUI.cs:106)
 Player/<OnGameStart>d__60:MoveNext () (at Assets/Player.cs:541)
@@ -121,7 +121,7 @@ WebSocketSharp.WebSocket:open ()
 WebSocketSharp.WebSocket/<>c__DisplayClass201_0:<ConnectAsync>b__0 (System.IAsyncResult)
 System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
 
-[ChatUI] OnWebSocketMessage: sender=System, message=Player joined
+[ChatUI] OnWebSocketMessage: sender=Player, message=CCCC
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
 Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
@@ -134,39 +134,13 @@ WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (
 WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
 System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
 
-[ChatUI] OnSend: wsClient=True, isConnected=True, text=XX
+[ChatUI] OnSend: wsClient=True, isConnected=True, text=CC
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:OnSend (string) (at Assets/Chess/UI/ChatUI.cs:483)
 Chess.UI.ChatUI:<EnsurePanel>b__28_0 () (at Assets/Chess/UI/ChatUI.cs:248)
 UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
 
-[ChatUI] OnWebSocketMessage: sender=Player, message=XX
-UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
-Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
-WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
-WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
-WebSocketSharp.WebSocket:message ()
-WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
-WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
-WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
-WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
-System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
-
 [ChatUI] OnWebSocketMessage: sender=Player, message=CC
-UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
-Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
-WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
-WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
-WebSocketSharp.WebSocket:message ()
-WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
-WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
-WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
-WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
-System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
-
-[ChatUI] OnWebSocketMessage: sender=System, message=Player left
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
 Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)

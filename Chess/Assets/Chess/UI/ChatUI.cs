@@ -36,23 +36,67 @@ namespace Chess.UI
 
         private void Awake()
         {
-            if (toggleBtnRef == null)
+            FindSceneReferences();
+
+            if (toggleBtnRef != null)
+            {
+                _toggleBtn = toggleBtnRef;
+                var btn = _toggleBtn.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = _toggleBtn.AddComponent<Button>();
+                }
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(Toggle);
+            }
+            else
             {
                 var canvas = FindObjectOfType<Canvas>();
-                if (canvas != null)
-                {
-                    var foundToggle = canvas.transform.Find("ChatToggleBtn");
-                    if (foundToggle != null) toggleBtnRef = foundToggle.gameObject;
-                }
+                if (canvas == null) return;
+                BuildToggleButton(canvas.transform);
+            }
+
+            if (panelRef != null)
+            {
+                panelRef.SetActive(false);
+                Debug.Log("[ChatUI] Awake: panelRef found and hidden");
+            }
+            else
+            {
+                Debug.LogWarning("[ChatUI] Awake: panelRef NOT found!");
+            }
+        }
+
+        private void FindSceneReferences()
+        {
+            var canvas = FindObjectOfType<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogWarning("[ChatUI] FindSceneReferences: Canvas not found!");
+                return;
+            }
+
+            if (toggleBtnRef == null)
+            {
+                var foundToggle = canvas.transform.Find("ChatToggleBtn");
+                if (foundToggle != null) toggleBtnRef = foundToggle.gameObject;
             }
 
             if (panelRef == null)
             {
-                var canvas = FindObjectOfType<Canvas>();
-                if (canvas != null)
+                var foundPanel = canvas.transform.Find("ChatPanel");
+                if (foundPanel != null) panelRef = foundPanel.gameObject;
+            }
+
+            if (panelRef == null)
+            {
+                foreach (Transform child in canvas.transform)
                 {
-                    var foundPanel = canvas.transform.Find("ChatPanel");
-                    if (foundPanel != null) panelRef = foundPanel.gameObject;
+                    if (child.name == "ChatPanel")
+                    {
+                        panelRef = child.gameObject;
+                        break;
+                    }
                 }
             }
 
@@ -74,26 +118,7 @@ namespace Chess.UI
                 if (foundInput != null) inputFieldRef = foundInput.GetComponent<TMP_InputField>();
             }
 
-            if (toggleBtnRef != null)
-            {
-                _toggleBtn = toggleBtnRef;
-                var btn = _toggleBtn.GetComponent<Button>();
-                if (btn == null)
-                {
-                    btn = _toggleBtn.AddComponent<Button>();
-                }
-                btn.onClick.RemoveAllListeners();
-                btn.onClick.AddListener(Toggle);
-            }
-            else
-            {
-                var canvas = FindObjectOfType<Canvas>();
-                if (canvas == null) return;
-                BuildToggleButton(canvas.transform);
-            }
-
-            if (panelRef != null)
-                panelRef.SetActive(false);
+            Debug.Log($"[ChatUI] FindSceneReferences: panelRef={(panelRef != null ? panelRef.name : "NULL")}, toggleBtnRef={(toggleBtnRef != null ? toggleBtnRef.name : "NULL")}, inputFieldRef={(inputFieldRef != null ? "found" : "NULL")}, scrollRectRef={(scrollRectRef != null ? "found" : "NULL")}, contentParentRef={(contentParentRef != null ? "found" : "NULL")}");
         }
 
         private void OnDestroy()
@@ -179,9 +204,12 @@ namespace Chess.UI
         {
             if (_panel != null) return;
 
+            FindSceneReferences();
+
             if (panelRef != null)
             {
                 _panel = panelRef;
+                Debug.Log("[ChatUI] EnsurePanel: using panelRef from scene");
 
                 if (inputFieldRef != null)
                 {
