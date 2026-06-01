@@ -286,7 +286,7 @@ wss.on('connection', (ws) => {
           timestamp: Date.now()
         });
         for (const [client] of roomData.clients) {
-          if (client.readyState === 1) {
+          if (client !== ws && client.readyState === 1) {
             client.send(chatMsg);
           }
         }

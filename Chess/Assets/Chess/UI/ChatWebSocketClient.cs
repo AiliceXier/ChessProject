@@ -37,19 +37,42 @@ namespace Chess.UI
             _ws.OnOpen += (sender, e) =>
             {
                 Debug.Log("[ChatWS] Connected");
-                var joinMsg = new { type = "join", room = _currentRoom, player = _playerName };
-                _ws.Send(JsonConvert.SerializeObject(joinMsg));
-                OnConnected?.Invoke();
+                try
+                {
+                    var joinMsg = new { type = "join", room = _currentRoom, player = _playerName };
+                    var json = JsonConvert.SerializeObject(joinMsg);
+                    Debug.Log($"[ChatWS] Sending join: {json}");
+                    _ws.Send(json);
+                    OnConnected?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[ChatWS] OnOpen error: {ex.Message}");
+                }
             };
 
             _ws.OnMessage += (sender, e) =>
             {
+                Debug.Log($"[ChatWS] Raw message received: {e.Data}");
                 try
                 {
                     var msg = JsonConvert.DeserializeObject<ChatMessage>(e.Data);
-                    if (msg != null && msg.type == "chat")
+                    if (msg != null)
                     {
-                        OnMessageReceived?.Invoke(msg.sender, msg.message);
+                        Debug.Log($"[ChatWS] Parsed: type={msg.type}, sender={msg.sender}, message={msg.message}");
+                        if (msg.type == "chat")
+                        {
+                            OnMessageReceived?.Invoke(msg.sender ?? "System", msg.message ?? "");
+                        }
+                        else if (msg.type == "joined")
+                        {
+                            var joinMsg = $"{msg.player ?? "Someone"} joined the room";
+                            OnMessageReceived?.Invoke("System", joinMsg);
+                        }
+                        else if (msg.type == "error")
+                        {
+                            OnMessageReceived?.Invoke("System", $"Error: {msg.message}");
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -102,6 +125,8 @@ namespace Chess.UI
             public string type;
             public string sender;
             public string message;
+            public string player;
+            public string room;
             public long timestamp;
         }
     }

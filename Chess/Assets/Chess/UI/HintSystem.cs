@@ -26,10 +26,9 @@ namespace Chess.UI
                 _hintBtn = hintBtnRef;
                 var btn = _hintBtn.GetComponent<Button>();
                 if (btn == null)
-                {
                     btn = _hintBtn.AddComponent<Button>();
-                    btn.onClick.AddListener(ShowHint);
-                }
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(ShowHint);
                 return;
             }
 

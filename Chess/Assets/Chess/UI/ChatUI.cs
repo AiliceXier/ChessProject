@@ -34,10 +34,16 @@ namespace Chess.UI
         private ChatWebSocketClient _wsClient;
         private string _localPlayerName;
         private bool _visible;
+        private TMP_FontAsset _cachedFont;
         private readonly ConcurrentQueue<(string sender, string message, bool isSelf)> _messageQueue = new ConcurrentQueue<(string, string, bool)>();
 
         private void Update()
         {
+            if (_contentParent == null && panelRef != null)
+            {
+                EnsurePanel();
+            }
+
             while (_messageQueue.TryDequeue(out var msg))
             {
                 AddMessage(msg.sender, msg.message, msg.isSelf);
@@ -147,7 +153,7 @@ namespace Chess.UI
             _wsClient.OnConnected += () =>
             {
                 Debug.Log("[ChatUI] WebSocket connected successfully");
-                AddMessage("System", "Connected to chat", false);
+                _messageQueue.Enqueue(("System", "Connected to chat", false));
             };
             _wsClient.Connect(roomId, playerName);
         }
@@ -160,7 +166,7 @@ namespace Chess.UI
 
         private void OnWebSocketMessage(string sender, string message)
         {
-            Debug.Log($"[ChatUI] OnWebSocketMessage: sender={sender}, message={message}");
+            Debug.Log($"[ChatUI] OnWebSocketMessage: sender={sender}, message={message}, localPlayer={_localPlayerName}");
             if (sender == "System")
             {
                 _messageQueue.Enqueue(("System", message, false));
@@ -168,8 +174,8 @@ namespace Chess.UI
             else
             {
                 bool isSelf = sender == _localPlayerName;
-                if (!isSelf)
-                    _messageQueue.Enqueue((sender, message, false));
+                Debug.Log($"[ChatUI] isSelf={isSelf}, enqueuing message");
+                _messageQueue.Enqueue((sender, message, isSelf));
             }
         }
 
@@ -220,6 +226,13 @@ namespace Chess.UI
             {
                 _panel = panelRef;
                 Debug.Log("[ChatUI] EnsurePanel: using panelRef from scene");
+
+                if (_cachedFont == null)
+                {
+                    var existingTmp = panelRef.GetComponentInChildren<TextMeshProUGUI>(true);
+                    if (existingTmp != null && existingTmp.font != null)
+                        _cachedFont = existingTmp.font;
+                }
 
                 if (inputFieldRef != null)
                 {
@@ -554,26 +567,50 @@ namespace Chess.UI
                 return;
             }
 
+            bool isSystem = sender == "System";
+            float fontSize = 20;
+
             var msgObj = CreateUIObj("Msg", _contentParent);
             var msgLe = msgObj.AddComponent<LayoutElement>();
-            msgLe.minHeight = 28;
+            msgLe.minHeight = fontSize;
             msgLe.flexibleHeight = -1;
             msgObj.AddComponent<CanvasRenderer>();
-            var msgBg = msgObj.AddComponent<Image>();
-            msgBg.color = isSelf ? selfMsgColor : otherMsgColor;
-            msgBg.raycastTarget = false;
+
+            if (!isSystem)
+            {
+                var msgBg = msgObj.AddComponent<Image>();
+                msgBg.color = isSelf ? selfMsgColor : otherMsgColor;
+                msgBg.raycastTarget = false;
+            }
 
             var msgTxtObj = CreateUIObj("Text", msgObj.transform);
             var msgTxtRt = msgTxtObj.GetComponent<RectTransform>();
             msgTxtRt.anchorMin = Vector2.zero;
             msgTxtRt.anchorMax = Vector2.one;
-            msgTxtRt.offsetMin = Vector2.zero;
-            msgTxtRt.offsetMax = Vector2.zero;
+            msgTxtRt.offsetMin = new Vector2(4, 1);
+            msgTxtRt.offsetMax = new Vector2(-4, -1);
             var msgTxt = msgTxtObj.AddComponent<TextMeshProUGUI>();
-            msgTxt.text = $"<b>{sender}:</b> {message}";
-            msgTxt.fontSize = 13;
+
+            if (_cachedFont != null)
+                msgTxt.font = _cachedFont;
+
+            msgTxt.enableAutoSizing = true;
+            msgTxt.fontSizeMin = 10;
+            msgTxt.fontSizeMax = 20;
+            msgTxt.fontSize = fontSize;
             msgTxt.color = Color.white;
             msgTxt.raycastTarget = false;
+
+            if (isSystem)
+            {
+                msgTxt.text = $"<i><color=#888888>{message}</color></i>";
+                msgTxt.alignment = TextAlignmentOptions.Center;
+            }
+            else
+            {
+                msgTxt.text = $"<b>{sender}:</b> {message}";
+                msgTxt.alignment = TextAlignmentOptions.Left;
+            }
 
             Canvas.ForceUpdateCanvases();
             if (_scrollRect != null)
@@ -585,44 +622,6 @@ namespace Chess.UI
             EnsurePanel();
             if (_panel != null) _panel.SetActive(true);
             _visible = true;
-
-            Debug.Log($"[ChatUI] Show: _contentParent={_contentParent}, _panel={_panel != null}, _scrollRect={_scrollRect != null}");
-
-            if (_contentParent != null)
-            {
-                var existingTest = _contentParent.Find("TestMsg");
-                if (existingTest == null)
-                {
-                    var testObj = new GameObject("TestMsg");
-                    testObj.transform.SetParent(_contentParent, false);
-                    testObj.layer = 5;
-                    var rt = testObj.AddComponent<RectTransform>();
-                    rt.anchorMin = Vector2.zero;
-                    rt.anchorMax = Vector2.one;
-                    rt.sizeDelta = new Vector2(0, 30);
-                    testObj.AddComponent<CanvasRenderer>();
-                    var img = testObj.AddComponent<Image>();
-                    img.color = new Color(0.3f, 0.3f, 0.5f, 0.8f);
-                    var txtObj = new GameObject("Txt");
-                    txtObj.transform.SetParent(testObj.transform, false);
-                    txtObj.layer = 5;
-                    var txtRt = txtObj.AddComponent<RectTransform>();
-                    txtRt.anchorMin = Vector2.zero;
-                    txtRt.anchorMax = Vector2.one;
-                    txtRt.offsetMin = Vector2.zero;
-                    txtRt.offsetMax = Vector2.zero;
-                    var tmp = txtObj.AddComponent<TextMeshProUGUI>();
-                    tmp.text = "TEST MESSAGE - Chat is working!";
-                    tmp.fontSize = 14;
-                    tmp.color = Color.yellow;
-                    tmp.alignment = TextAlignmentOptions.Center;
-                    Debug.Log("[ChatUI] Test message created successfully");
-                }
-            }
-            else
-            {
-                Debug.LogError("[ChatUI] Show: _contentParent is NULL! Cannot display messages.");
-            }
         }
 
         public void Hide()

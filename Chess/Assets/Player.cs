@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI playerNameText;
 
     public GameObject resignButton;
+    public GameObject undoButton;
     public GameObject uiPanel;
     public TextMeshProUGUI resultText;
     public GameObject board;
@@ -59,6 +60,8 @@ public class Player : MonoBehaviour
     private readonly Color32 _selectedColor = new (84, 84, 255, 255);
     private readonly Color32 _lightColor = new(223, 210, 194, 255);
     private readonly Color32 _darkColor = new (84, 84, 84, 255);
+
+    private readonly List<GameObject> _moveHighlights = new();
 
     private enum GameMode { Online, Local, Robot }
     private GameMode _gameMode = GameMode.Online;
@@ -126,6 +129,8 @@ public class Player : MonoBehaviour
             await SubscribeToPlayerMessages();
             if (resignButton != null)
                 resignButton.SetActive(false);
+            if (undoButton != null)
+                undoButton.SetActive(false);
             _isInitialized = true;
             Debug.Log("Unity Services initialized and player signed in successfully.");
         }
@@ -245,6 +250,7 @@ public class Player : MonoBehaviour
         SyncBoard(_localBoard.ToFen());
         if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
+        if (undoButton != null) undoButton.SetActive(true);
         SetPovLocal();
         playerNameText.text = "White's Turn";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
@@ -274,6 +280,7 @@ public class Player : MonoBehaviour
         if (mainMenuUI != null) mainMenuUI.Hide();
         if (difficultySelector != null) difficultySelector.Hide();
         resignButton.SetActive(true);
+        if (undoButton != null) undoButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
         playerNameText.text = "Your Turn (White)";
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
@@ -468,6 +475,7 @@ public class Player : MonoBehaviour
     private async void MakeMove(GameObject piece, Vector3 toPos)
     {
         if (piece == null) return;
+        ClearMoveHighlights();
 
         var fromFen = PosToFen(piece.transform.position);
         var toFen = PosToFen(toPos);
@@ -631,6 +639,7 @@ public class Player : MonoBehaviour
 
     private void SelectPiece(GameObject piece)
     {
+        ClearMoveHighlights();
         if (_selectedPiece != null)
         {
             ChangeMaterialColor(_selectedPiece,
@@ -639,6 +648,56 @@ public class Player : MonoBehaviour
         _selectedPiece = piece;
         if (_selectedPiece == null) return;
         ChangeMaterialColor(_selectedPiece, _selectedColor);
+
+        if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && _localBoard != null)
+            ShowMoveHighlights(_selectedPiece);
+    }
+
+    private void ShowMoveHighlights(GameObject piece)
+    {
+        var pos = piece.transform.position;
+        var x = Mathf.RoundToInt(pos.x);
+        var y = Mathf.RoundToInt(pos.z);
+        if (x < 0 || x > 7 || y < 0 || y > 7) return;
+
+        var position = new Position(x, y);
+        var moves = _localBoard.Moves(position);
+        if (moves == null || moves.Length == 0) return;
+
+        foreach (var move in moves)
+        {
+            var nx = move.NewPosition.X;
+            var ny = move.NewPosition.Y;
+
+            Color color;
+            if (move.Parameter is MoveCastle)
+                color = new Color(1.0f, 0.85f, 0.0f, 0.45f);
+            else if (move.CapturedPiece != null)
+                color = new Color(1.0f, 0.3f, 0.3f, 0.35f);
+            else
+                color = new Color(0.3f, 0.5f, 1.0f, 0.35f);
+
+            var highlight = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            highlight.name = "MoveHighlight";
+            Object.Destroy(highlight.GetComponent<Collider>());
+            var mr = highlight.GetComponent<MeshRenderer>();
+            mr.material = new Material(Shader.Find("Unlit/Transparent"));
+            mr.material.color = color;
+            highlight.transform.SetParent(board.transform, false);
+            highlight.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            highlight.transform.localPosition = new Vector3(nx, 0.02f, ny);
+            highlight.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+            _moveHighlights.Add(highlight);
+        }
+    }
+
+    private void ClearMoveHighlights()
+    {
+        foreach (var h in _moveHighlights)
+        {
+            if (h != null) Destroy(h);
+        }
+        _moveHighlights.Clear();
     }
 
     private static Dictionary<Tuple<int, int>, char> FenToDict(string fen)
@@ -736,6 +795,7 @@ public class Player : MonoBehaviour
     private void ShowGameOver(string resultMessage)
     {
         if (resignButton != null) resignButton.SetActive(false);
+        if (undoButton != null) undoButton.SetActive(false);
         playerNameText.text = "Game Over";
         _gameStarted = false;
         HideInGameUI();
@@ -999,6 +1059,14 @@ public class Player : MonoBehaviour
         }
 
         return (false, $"Unrecognized move: {cmd}\nSupported formats: e2e4 / Nf3 / O-O");
+    }
+
+    public void OnUndoClicked()
+    {
+        var (success, error) = UndoLastLocalMove();
+        if (!success)
+            Debug.LogWarning($"[Player] Undo failed: {error}");
+        ClearMoveHighlights();
     }
 
     private bool TryParseCoordinateMove(string cmd, out string fromPos, out string toPos)
