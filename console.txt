@@ -1,3 +1,26 @@
+The character used for Underline is not available in font asset [MSYH SDF].
+UnityEngine.Debug:LogWarning (object,UnityEngine.Object)
+TMPro.TMP_Text:GetUnderlineSpecialCharacter (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6081)
+TMPro.TMP_Text:GetSpecialCharacters (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6007)
+TMPro.TextMeshProUGUI:LoadFontAsset () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:574)
+TMPro.TextMeshProUGUI:OnValidate () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:298)
+
+The character used for Underline is not available in font asset [MSYH SDF].
+UnityEngine.Debug:LogWarning (object,UnityEngine.Object)
+TMPro.TMP_Text:GetUnderlineSpecialCharacter (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6081)
+TMPro.TMP_Text:GetSpecialCharacters (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6007)
+TMPro.TextMeshProUGUI:LoadFontAsset () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:574)
+TMPro.TextMeshProUGUI:Awake () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:121)
+
+[ChatUI] FindSceneReferences: panelRef=ChatPanel, toggleBtnRef=ChatToggleBtn, inputFieldRef=found, scrollRectRef=found, contentParentRef=found
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:FindSceneReferences () (at Assets/Chess/UI/ChatUI.cs:121)
+Chess.UI.ChatUI:Awake () (at Assets/Chess/UI/ChatUI.cs:39)
+
+[ChatUI] Awake: panelRef found and hidden
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:Awake () (at Assets/Chess/UI/ChatUI.cs:62)
+
 Got player subscription ConnectionStateChanged: Subscribing
 UnityEngine.Debug:Log (object)
 Player:<SubscribeToPlayerMessages>b__62_1 (Unity.Services.CloudCode.Subscriptions.EventConnectionState) (at Assets/Player.cs:583)
@@ -88,9 +111,9 @@ Unity.Services.Wire.Internal.Client:OnWebsocketMessage (byte[]) (at ./Library/Pa
 Unity.Services.Wire.Internal.Client/<>c__DisplayClass49_0:<WebsocketMessageListener>b__0 () (at ./Library/PackageCache/com.unity.services.wire@1.2.6/Runtime/Centrifuge/Client.cs:666)
 UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
 
-[ChatUI] ConnectToRoom: roomId=Dn6uf7k2E9EkeLHQdq2Kin, playerName=Player, url=ws://121.36.101.82:3001
+[ChatUI] ConnectToRoom: roomId=82RdZH8cdHsvBam78Jepfg, playerName=Player, url=ws://121.36.101.82:3001
 UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:ConnectToRoom (string,string) (at Assets/Chess/UI/ChatUI.cs:106)
+Chess.UI.ChatUI:ConnectToRoom (string,string) (at Assets/Chess/UI/ChatUI.cs:131)
 Player/<OnGameStart>d__60:MoveNext () (at Assets/Player.cs:541)
 System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<Player/<OnGameStart>d__60> (Player/<OnGameStart>d__60&)
 Player:OnGameStart (Player/JoinGameResponse)
@@ -114,16 +137,26 @@ System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
 
 [ChatUI] WebSocket connected successfully
 UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:<ConnectToRoom>b__23_0 () (at Assets/Chess/UI/ChatUI.cs:114)
+Chess.UI.ChatUI:<ConnectToRoom>b__24_0 () (at Assets/Chess/UI/ChatUI.cs:139)
 Chess.UI.ChatWebSocketClient:<Connect>b__17_0 (object,System.EventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:42)
 WebSocketSharp.Ext:Emit (System.EventHandler,object,System.EventArgs)
 WebSocketSharp.WebSocket:open ()
 WebSocketSharp.WebSocket/<>c__DisplayClass201_0:<ConnectAsync>b__0 (System.IAsyncResult)
 System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
 
-[ChatUI] OnWebSocketMessage: sender=Player, message=CCCC
+[ChatUI] AddMessage skipped: _contentParent is null. sender=System, msg=Connected to chat
+UnityEngine.Debug:LogWarning (object)
+Chess.UI.ChatUI:AddMessage (string,string,bool) (at Assets/Chess/UI/ChatUI.cs:543)
+Chess.UI.ChatUI:<ConnectToRoom>b__24_0 () (at Assets/Chess/UI/ChatUI.cs:140)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_0 (object,System.EventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:42)
+WebSocketSharp.Ext:Emit (System.EventHandler,object,System.EventArgs)
+WebSocketSharp.WebSocket:open ()
+WebSocketSharp.WebSocket/<>c__DisplayClass201_0:<ConnectAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] OnWebSocketMessage: sender=Player, message=CC
 UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:153)
 Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
 WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
 WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
@@ -134,15 +167,42 @@ WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (
 WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
 System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
 
+[ChatUI] FindSceneReferences: panelRef=ChatPanel, toggleBtnRef=ChatToggleBtn, inputFieldRef=found, scrollRectRef=found, contentParentRef=found
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:FindSceneReferences () (at Assets/Chess/UI/ChatUI.cs:121)
+Chess.UI.ChatUI:EnsurePanel () (at Assets/Chess/UI/ChatUI.cs:207)
+Chess.UI.ChatUI:Show () (at Assets/Chess/UI/ChatUI.cs:575)
+Chess.UI.ChatUI:Toggle () (at Assets/Chess/UI/ChatUI.cs:627)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[ChatUI] EnsurePanel: using panelRef from scene
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:EnsurePanel () (at Assets/Chess/UI/ChatUI.cs:212)
+Chess.UI.ChatUI:Show () (at Assets/Chess/UI/ChatUI.cs:575)
+Chess.UI.ChatUI:Toggle () (at Assets/Chess/UI/ChatUI.cs:627)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[ChatUI] Show: _contentParent=ChatContent (UnityEngine.RectTransform), _panel=True, _scrollRect=True
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:Show () (at Assets/Chess/UI/ChatUI.cs:579)
+Chess.UI.ChatUI:Toggle () (at Assets/Chess/UI/ChatUI.cs:627)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
+[ChatUI] Test message created successfully
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:Show () (at Assets/Chess/UI/ChatUI.cs:609)
+Chess.UI.ChatUI:Toggle () (at Assets/Chess/UI/ChatUI.cs:627)
+UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
+
 [ChatUI] OnSend: wsClient=True, isConnected=True, text=CC
 UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:OnSend (string) (at Assets/Chess/UI/ChatUI.cs:483)
-Chess.UI.ChatUI:<EnsurePanel>b__28_0 () (at Assets/Chess/UI/ChatUI.cs:248)
+Chess.UI.ChatUI:OnSend (string) (at Assets/Chess/UI/ChatUI.cs:511)
+Chess.UI.ChatUI:<EnsurePanel>b__29_0 () (at Assets/Chess/UI/ChatUI.cs:276)
 UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
 
 [ChatUI] OnWebSocketMessage: sender=Player, message=CC
 UnityEngine.Debug:Log (object)
-Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:153)
 Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
 WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
 WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
@@ -162,7 +222,14 @@ WebSocketSharp.WebSocket:close (uint16,string)
 WebSocketSharp.WebSocket:Close ()
 Chess.UI.ChatWebSocketClient:Disconnect () (at Assets/Chess/UI/ChatWebSocketClient.cs:88)
 Chess.UI.ChatWebSocketClient:Dispose () (at Assets/Chess/UI/ChatWebSocketClient.cs:97)
-Chess.UI.ChatUI:OnDestroy () (at Assets/Chess/UI/ChatUI.cs:101)
+Chess.UI.ChatUI:OnDestroy () (at Assets/Chess/UI/ChatUI.cs:126)
+
+The character used for Underline is not available in font asset [MSYH SDF].
+UnityEngine.Debug:LogWarning (object,UnityEngine.Object)
+TMPro.TMP_Text:GetUnderlineSpecialCharacter (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6081)
+TMPro.TMP_Text:GetSpecialCharacters (TMPro.TMP_FontAsset) (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMP_Text.cs:6007)
+TMPro.TextMeshProUGUI:LoadFontAsset () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:574)
+TMPro.TextMeshProUGUI:Awake () (at ./Library/PackageCache/com.unity.textmeshpro@3.0.9/Scripts/Runtime/TMPro_UGUI_Private.cs:121)
 
 Got player subscription ConnectionStateChanged: Unsynced
 UnityEngine.Debug:Log (object)

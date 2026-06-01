@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,6 +34,15 @@ namespace Chess.UI
         private ChatWebSocketClient _wsClient;
         private string _localPlayerName;
         private bool _visible;
+        private readonly ConcurrentQueue<(string sender, string message, bool isSelf)> _messageQueue = new ConcurrentQueue<(string, string, bool)>();
+
+        private void Update()
+        {
+            while (_messageQueue.TryDequeue(out var msg))
+            {
+                AddMessage(msg.sender, msg.message, msg.isSelf);
+            }
+        }
 
         private void Awake()
         {
@@ -153,19 +163,19 @@ namespace Chess.UI
             Debug.Log($"[ChatUI] OnWebSocketMessage: sender={sender}, message={message}");
             if (sender == "System")
             {
-                AddMessage("System", message, false);
+                _messageQueue.Enqueue(("System", message, false));
             }
             else
             {
                 bool isSelf = sender == _localPlayerName;
                 if (!isSelf)
-                    AddMessage(sender, message, false);
+                    _messageQueue.Enqueue((sender, message, false));
             }
         }
 
         private void OnWebSocketError(string error)
         {
-            AddMessage("System", $"Connection error", false);
+            _messageQueue.Enqueue(("System", "Connection error", false));
         }
 
         private void BuildToggleButton(Transform canvasTr)
@@ -575,6 +585,44 @@ namespace Chess.UI
             EnsurePanel();
             if (_panel != null) _panel.SetActive(true);
             _visible = true;
+
+            Debug.Log($"[ChatUI] Show: _contentParent={_contentParent}, _panel={_panel != null}, _scrollRect={_scrollRect != null}");
+
+            if (_contentParent != null)
+            {
+                var existingTest = _contentParent.Find("TestMsg");
+                if (existingTest == null)
+                {
+                    var testObj = new GameObject("TestMsg");
+                    testObj.transform.SetParent(_contentParent, false);
+                    testObj.layer = 5;
+                    var rt = testObj.AddComponent<RectTransform>();
+                    rt.anchorMin = Vector2.zero;
+                    rt.anchorMax = Vector2.one;
+                    rt.sizeDelta = new Vector2(0, 30);
+                    testObj.AddComponent<CanvasRenderer>();
+                    var img = testObj.AddComponent<Image>();
+                    img.color = new Color(0.3f, 0.3f, 0.5f, 0.8f);
+                    var txtObj = new GameObject("Txt");
+                    txtObj.transform.SetParent(testObj.transform, false);
+                    txtObj.layer = 5;
+                    var txtRt = txtObj.AddComponent<RectTransform>();
+                    txtRt.anchorMin = Vector2.zero;
+                    txtRt.anchorMax = Vector2.one;
+                    txtRt.offsetMin = Vector2.zero;
+                    txtRt.offsetMax = Vector2.zero;
+                    var tmp = txtObj.AddComponent<TextMeshProUGUI>();
+                    tmp.text = "TEST MESSAGE - Chat is working!";
+                    tmp.fontSize = 14;
+                    tmp.color = Color.yellow;
+                    tmp.alignment = TextAlignmentOptions.Center;
+                    Debug.Log("[ChatUI] Test message created successfully");
+                }
+            }
+            else
+            {
+                Debug.LogError("[ChatUI] Show: _contentParent is NULL! Cannot display messages.");
+            }
         }
 
         public void Hide()
