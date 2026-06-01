@@ -88,7 +88,7 @@ Unity.Services.Wire.Internal.Client:OnWebsocketMessage (byte[]) (at ./Library/Pa
 Unity.Services.Wire.Internal.Client/<>c__DisplayClass49_0:<WebsocketMessageListener>b__0 () (at ./Library/PackageCache/com.unity.services.wire@1.2.6/Runtime/Centrifuge/Client.cs:666)
 UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
 
-[ChatUI] ConnectToRoom: roomId=TJ5RVzuyuZSweDK3gKwGSm, playerName=Player, url=ws://121.36.101.82:3001
+[ChatUI] ConnectToRoom: roomId=whW6fEabqyxRkbJnQRkdAA, playerName=Player, url=ws://121.36.101.82:3001
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:ConnectToRoom (string,string) (at Assets/Chess/UI/ChatUI.cs:106)
 Player/<OnGameStart>d__60:MoveNext () (at Assets/Player.cs:541)
@@ -104,39 +104,91 @@ Unity.Services.Wire.Internal.Client:OnWebsocketMessage (byte[]) (at ./Library/Pa
 Unity.Services.Wire.Internal.Client/<>c__DisplayClass49_0:<WebsocketMessageListener>b__0 () (at ./Library/PackageCache/com.unity.services.wire@1.2.6/Runtime/Centrifuge/Client.cs:666)
 UnityEngine.UnitySynchronizationContext:ExecuteTasks ()
 
-[ChatUI] OnSend: wsClient=True, isConnected=False, text=DD
+[ChatWS] Connected
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_0 (object,System.EventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:39)
+WebSocketSharp.Ext:Emit (System.EventHandler,object,System.EventArgs)
+WebSocketSharp.WebSocket:open ()
+WebSocketSharp.WebSocket/<>c__DisplayClass201_0:<ConnectAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] WebSocket connected successfully
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:<ConnectToRoom>b__23_0 () (at Assets/Chess/UI/ChatUI.cs:114)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_0 (object,System.EventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:42)
+WebSocketSharp.Ext:Emit (System.EventHandler,object,System.EventArgs)
+WebSocketSharp.WebSocket:open ()
+WebSocketSharp.WebSocket/<>c__DisplayClass201_0:<ConnectAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] OnWebSocketMessage: sender=System, message=Player joined
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
+WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:message ()
+WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
+WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] OnSend: wsClient=True, isConnected=True, text=XX
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatUI:OnSend (string) (at Assets/Chess/UI/ChatUI.cs:483)
 Chess.UI.ChatUI:<EnsurePanel>b__28_0 () (at Assets/Chess/UI/ChatUI.cs:248)
 UnityEngine.EventSystems.EventSystem:Update () (at ./Library/PackageCache/com.unity.ugui@1.0.0/Runtime/EventSystem/EventSystem.cs:530)
 
-[ChatWS] Closed: An exception has occurred while attempting to connect.
+[ChatUI] OnWebSocketMessage: sender=Player, message=XX
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
+WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:message ()
+WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
+WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] OnWebSocketMessage: sender=Player, message=CC
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
+WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:message ()
+WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
+WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatUI] OnWebSocketMessage: sender=System, message=Player left
+UnityEngine.Debug:Log (object)
+Chess.UI.ChatUI:OnWebSocketMessage (string,string) (at Assets/Chess/UI/ChatUI.cs:128)
+Chess.UI.ChatWebSocketClient:<Connect>b__17_1 (object,WebSocketSharp.MessageEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:52)
+WebSocketSharp.Ext:Emit<WebSocketSharp.MessageEventArgs> (System.EventHandler`1<WebSocketSharp.MessageEventArgs>,object,WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:messagec (WebSocketSharp.MessageEventArgs)
+WebSocketSharp.WebSocket:message ()
+WebSocketSharp.WebSocket/<>c__DisplayClass174_0:<startReceiving>b__1 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass84_0:<ReadFrameAsync>b__3 (WebSocketSharp.WebSocketFrame)
+WebSocketSharp.WebSocketFrame/<>c__DisplayClass77_0:<readPayloadDataAsync>b__0 (byte[])
+WebSocketSharp.Ext/<>c__DisplayClass57_0:<ReadBytesAsync>b__0 (System.IAsyncResult)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[ChatWS] Closed: 
 UnityEngine.Debug:Log (object)
 Chess.UI.ChatWebSocketClient/<>c:<Connect>b__17_3 (object,WebSocketSharp.CloseEventArgs) (at Assets/Chess/UI/ChatWebSocketClient.cs:69)
 WebSocketSharp.Ext:Emit<WebSocketSharp.CloseEventArgs> (System.EventHandler`1<WebSocketSharp.CloseEventArgs>,object,WebSocketSharp.CloseEventArgs)
 WebSocketSharp.WebSocket:close (WebSocketSharp.PayloadData,bool,bool,bool)
-WebSocketSharp.WebSocket:fatal (string,uint16)
-WebSocketSharp.WebSocket:fatal (string,System.Exception)
-WebSocketSharp.WebSocket:connect ()
-System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
-
-Piece selected: PawnDark(Clone)
-UnityEngine.Debug:Log (object)
-Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:619)
-UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
-UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
-
-Piece selected: PawnDark(Clone)
-UnityEngine.Debug:Log (object)
-Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:619)
-UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
-UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
-
-Piece selected: PawnDark(Clone)
-UnityEngine.Debug:Log (object)
-Player:PlayerInteract (UnityEngine.InputSystem.InputAction/CallbackContext) (at Assets/Player.cs:619)
-UnityEngine.InputSystem.LowLevel.NativeInputRuntime/<>c__DisplayClass7_0:<set_onUpdate>b__0 (UnityEngineInternal.Input.NativeInputUpdateType,UnityEngineInternal.Input.NativeInputEventBuffer*)
-UnityEngineInternal.Input.NativeInputSystem:NotifyUpdate (UnityEngineInternal.Input.NativeInputUpdateType,intptr)
+WebSocketSharp.WebSocket:close (uint16,string)
+WebSocketSharp.WebSocket:Close ()
+Chess.UI.ChatWebSocketClient:Disconnect () (at Assets/Chess/UI/ChatWebSocketClient.cs:88)
+Chess.UI.ChatWebSocketClient:Dispose () (at Assets/Chess/UI/ChatWebSocketClient.cs:97)
+Chess.UI.ChatUI:OnDestroy () (at Assets/Chess/UI/ChatUI.cs:101)
 
 Got player subscription ConnectionStateChanged: Unsynced
 UnityEngine.Debug:Log (object)

@@ -482,6 +482,8 @@ namespace Chess.UI
 
             Debug.Log($"[ChatUI] OnSend: wsClient={_wsClient != null}, isConnected={_wsClient?.IsConnected}, text={text}");
 
+            EnsurePanel();
+
             if (_wsClient != null && _wsClient.IsConnected)
             {
                 _wsClient.SendChatMessage(text);
@@ -508,7 +510,11 @@ namespace Chess.UI
 
         private void AddMessage(string sender, string message, bool isSelf)
         {
-            if (_contentParent == null) return;
+            if (_contentParent == null)
+            {
+                Debug.LogWarning($"[ChatUI] AddMessage skipped: _contentParent is null. sender={sender}, msg={message}");
+                return;
+            }
 
             var msgObj = CreateUIObj("Msg", _contentParent);
             var msgLe = msgObj.AddComponent<LayoutElement>();
