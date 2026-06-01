@@ -101,6 +101,23 @@ public class Player : MonoBehaviour
         if (chatUI == null)
             chatUI = gameObject.AddComponent<ChatUI>();
         chatUI.player = this;
+
+        if (undoButton == null)
+        {
+            var foundUndo = GameObject.Find("UndoBtn");
+            if (foundUndo != null) undoButton = foundUndo;
+        }
+        if (undoButton != null)
+        {
+            var undoBtn = undoButton.GetComponent<Button>();
+            if (undoBtn != null)
+            {
+                undoBtn.onClick.RemoveAllListeners();
+                undoBtn.onClick.AddListener(OnUndoClicked);
+            }
+            undoButton.SetActive(false);
+        }
+
         if (mainMenuUI == null)
         {
             mainMenuUI = gameObject.AddComponent<MainMenuUI>();
