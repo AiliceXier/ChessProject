@@ -47,9 +47,12 @@ __pycache__/
 *.pyc
 *.pyo
 
-# IDE documents
-.trae/documents/
+# IDE documents and config
+.trae/
 *.code-workspace
+
+# Visual Studio config
+.vsconfig
 
 # Server deployment files (keep locally only)
 ecosystem.config.js
