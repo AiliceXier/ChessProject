@@ -7,31 +7,52 @@
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 
-# Visual Studio
+# Visual Studio / VS Code
 .vs/
+.vscode/
 *.csproj
 *.sln
+*.suo
 *.user
 *.userprefs
 *.userosscache
-*.suo
 *.opendb
 *.db
 
 # Rider
 .idea/
 
+# Unity generated files
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.unitypackage
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Unity meta files (keep)
-!*.meta
 
 # Cloud Code build output
 ChessCloudCode/bin/
 ChessCloudCode/obj/
 
+# Node modules
+node_modules/
+
 # Python
 __pycache__/
 *.pyc
+*.pyo
+
+# IDE documents
+.trae/documents/
+*.code-workspace
+
+# Server deployment files (keep locally only)
+ecosystem.config.js
+
+# Logs and temp files
+console.txt

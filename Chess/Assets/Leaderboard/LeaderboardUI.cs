@@ -62,34 +62,55 @@ namespace Chess.Leaderboard
             "all", "robot", "local", "online", "default"
         };
 
-        private List<string> _serverModes = new List<string>();
+        private bool _bindingsInitialized;
         private bool _isLoading;
+
+        private void OnEnable()
+        {
+            EnsureBindings();
+        }
 
         private void Start()
         {
-            if (openButton != null)
-                openButton.onClick.AddListener(ToggleLeaderboard);
+            EnsureBindings();
+        }
+
+        private void EnsureBindings()
+        {
+            if (_bindingsInitialized) return;
+            _bindingsInitialized = true;
 
             if (refreshButton != null)
+            {
+                refreshButton.onClick.RemoveListener(RefreshData);
                 refreshButton.onClick.AddListener(RefreshData);
+            }
 
             if (closeButton != null)
+            {
+                closeButton.onClick.RemoveListener(HideLeaderboard);
                 closeButton.onClick.AddListener(HideLeaderboard);
+            }
 
             if (modeDropdown != null)
+            {
+                modeDropdown.onValueChanged.RemoveListener(OnModeChanged);
                 modeDropdown.onValueChanged.AddListener(OnModeChanged);
+            }
 
             if (playerNameInput != null)
             {
-                playerNameInput.text = currentPlayerName;
+                if (string.IsNullOrEmpty(playerNameInput.text))
+                    playerNameInput.text = currentPlayerName;
+                playerNameInput.onEndEdit.RemoveListener(OnPlayerNameChanged);
                 playerNameInput.onEndEdit.AddListener(OnPlayerNameChanged);
             }
 
             if (player != null)
                 player.SetLeaderboardPlayerName(currentPlayerName);
 
-            if (panel != null)
-                panel.SetActive(showOnStart);
+            if (panel != null && !panel.activeSelf && showOnStart)
+                panel.SetActive(true);
 
             SetLoading(false);
             UpdateMyRankText(null);
@@ -106,6 +127,7 @@ namespace Chess.Leaderboard
 
         public void ToggleLeaderboard()
         {
+            Debug.Log($"[LeaderboardUI] ToggleLeaderboard: panel={(panel != null ? panel.name : "null")}, activeSelf={(panel != null ? panel.activeSelf.ToString() : "N/A")}");
             if (panel != null && panel.activeSelf)
                 HideLeaderboard();
             else
@@ -114,6 +136,7 @@ namespace Chess.Leaderboard
 
         public void ShowLeaderboard()
         {
+            Debug.Log("[LeaderboardUI] ShowLeaderboard called");
             if (panel != null)
                 panel.SetActive(true);
             RefreshData();
@@ -121,6 +144,7 @@ namespace Chess.Leaderboard
 
         public void HideLeaderboard()
         {
+            Debug.Log("[LeaderboardUI] HideLeaderboard called");
             if (panel != null)
                 panel.SetActive(false);
         }

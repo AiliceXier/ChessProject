@@ -1,12 +1,14 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Chess.Leaderboard;
 
 namespace Chess.UI
 {
     public class MainMenuUI : MonoBehaviour
     {
         public Player player;
+        public GameObject leaderboardPanel;
 
         private GameObject _panel;
         private GameObject _localGameBtn;
@@ -46,6 +48,7 @@ namespace Chess.UI
         {
             _panel = panel;
 
+            var toDestroy = new System.Collections.Generic.List<GameObject>();
             foreach (Transform child in _panel.transform)
             {
                 var name = child.name;
@@ -55,8 +58,14 @@ namespace Chess.UI
                 else if (name == "Join Button") _joinBtn = child.gameObject;
                 else if (name == "Lobby Code Input") _lobbyCodeInput = child.gameObject;
                 else if (name == "Result Text") { _resultTextObj = child.gameObject; _resultText = child.GetComponent<TextMeshProUGUI>(); }
-                else if (name == "LeaderboardButton") _leaderboardBtn = child.gameObject;
+                else if (name == "LeaderboardButton") { _leaderboardBtn = child.gameObject; Debug.Log($"[MainMenuUI] Found LeaderboardButton in scene, layer={child.gameObject.layer}"); }
+                else if (name == "Title" || name == "OnlineTitle" || name == "WaitingPanel"
+                      || name == "OnlineGameBtn" || name == "BackBtn"
+                      || name.StartsWith("Btn_Online") || name.StartsWith("Btn_Back"))
+                    toDestroy.Add(child.gameObject);
             }
+            foreach (var obj in toDestroy)
+                Destroy(obj);
 
             var robotTxt = _robotGameBtn?.GetComponentInChildren<TextMeshProUGUI>();
             if (robotTxt != null) robotTxt.text = "vs AI";
@@ -71,12 +80,14 @@ namespace Chess.UI
             {
                 SetState(MenuState.OnlineOptions);
             });
+            SetupButtonLayout(_onlineGameBtn, OnlineGameColor);
 
             _backBtn = CreateMenuButton("Back", _panel.transform, BackColor, () =>
             {
                 SetState(MenuState.MainMenu);
             });
             _backBtn.SetActive(false);
+            SetupButtonLayout(_backBtn, BackColor);
 
             _waitingObj = new GameObject("WaitingPanel");
             _waitingObj.transform.SetParent(_panel.transform, false);
@@ -173,20 +184,19 @@ namespace Chess.UI
 
         private void ReorderChildren()
         {
-            var t = _panel.transform;
             var order = new GameObject[]
             {
                 _titleObj, _onlineTitleObj, _resultTextObj,
                 _localGameBtn, _robotGameBtn, _onlineGameBtn, _leaderboardBtn,
-                _createBtn, _lobbyCodeInput, _joinBtn, _backBtn
+                _createBtn, _lobbyCodeInput, _joinBtn, _backBtn, _waitingObj
             };
-            foreach (var obj in order)
+            for (int i = order.Length - 1; i >= 0; i--)
             {
-                if (obj != null) obj.transform.SetAsLastSibling();
+                if (order[i] != null) order[i].transform.SetAsFirstSibling();
             }
         }
 
-        private GameObject CreateMenuButton(string text, Transform parent, Color color, UnityEngine.Events.UnityAction onClick)
+        private GameObject CreateMenuButton(string text, Transform parent, Color color, UnityEngine.Events.UnityAction onClick, float height = 56)
         {
             var btnObj = new GameObject($"Btn_{text}");
             btnObj.transform.SetParent(parent, false);
@@ -199,8 +209,8 @@ namespace Chess.UI
             var btn = btnObj.AddComponent<Button>();
             btn.onClick.AddListener(onClick);
             var le = btnObj.AddComponent<LayoutElement>();
-            le.preferredHeight = 56;
-            le.minHeight = 56;
+            le.preferredHeight = height;
+            le.minHeight = height;
             le.flexibleHeight = 0;
 
             var txtObj = new GameObject("Text");
@@ -244,6 +254,50 @@ namespace Chess.UI
             tmp.color = color;
             tmp.raycastTarget = false;
             return obj;
+        }
+
+        public void OnLeaderboardButtonClicked()
+        {
+            Debug.Log("[MainMenuUI] OnLeaderboardButtonClicked called!");
+            if (leaderboardPanel == null)
+            {
+                var found = GameObject.Find("leaderboardPanel");
+                if (found != null) leaderboardPanel = found;
+            }
+            Debug.Log($"[MainMenuUI] leaderboardPanel field: {leaderboardPanel != null}");
+            if (leaderboardPanel != null)
+            {
+                Debug.Log($"[MainMenuUI] leaderboardPanel activeSelf: {leaderboardPanel.activeSelf}, layer: {leaderboardPanel.layer}");
+                var lbUI = leaderboardPanel.GetComponent<Chess.Leaderboard.LeaderboardUI>();
+                if (lbUI != null)
+                {
+                    Debug.Log("[MainMenuUI] delegating to LeaderboardUI.ToggleLeaderboard()");
+                    lbUI.ToggleLeaderboard();
+                }
+                else
+                {
+                    leaderboardPanel.SetActive(!leaderboardPanel.activeSelf);
+                }
+                Debug.Log($"[MainMenuUI] leaderboardPanel now activeSelf: {leaderboardPanel.activeSelf}");
+            }
+            else
+            {
+                Debug.LogWarning("[MainMenuUI] leaderboardPanel is NULL! Searching all objects with LeaderboardUI...");
+                var allLB = Object.FindObjectsOfType<Chess.Leaderboard.LeaderboardUI>(true);
+                Debug.Log($"[MainMenuUI] Found {allLB.Length} LeaderboardUI components");
+                foreach (var lb in allLB)
+                {
+                    Debug.Log($"[MainMenuUI] LeaderboardUI on: {lb.gameObject.name}, active: {lb.gameObject.activeSelf}, path: {GetPath(lb.transform)}");
+                    lb.ToggleLeaderboard();
+                }
+            }
+        }
+
+        private static string GetPath(Transform t)
+        {
+            var path = t.name;
+            while (t.parent != null) { t = t.parent; path = t.name + "/" + path; }
+            return path;
         }
 
         private void SetState(MenuState state)
@@ -351,6 +405,24 @@ namespace Chess.UI
         {
             _state = MenuState.Hidden;
             if (_panel != null) _panel.SetActive(false);
+        }
+
+        public void HideLeaderboardPanel()
+        {
+            if (leaderboardPanel != null)
+            {
+                leaderboardPanel.SetActive(false);
+                Debug.Log("[MainMenuUI] leaderboardPanel hidden via HideLeaderboardPanel()");
+            }
+        }
+
+        public void ShowLeaderboardPanel()
+        {
+            if (leaderboardPanel != null)
+            {
+                leaderboardPanel.SetActive(true);
+                Debug.Log("[MainMenuUI] leaderboardPanel shown via ShowLeaderboardPanel()");
+            }
         }
     }
 }

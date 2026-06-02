@@ -19,6 +19,7 @@ using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using WebSocketSharp;
 
 public class Player : MonoBehaviour
@@ -57,7 +58,7 @@ public class Player : MonoBehaviour
     private Task _initializationTask;
     private bool _isInitialized;
 
-    private readonly Color32 _selectedColor = new (84, 84, 255, 255);
+    private readonly Color32 _selectedColor = new (0, 150, 0, 180); // 绿色选中，参考Lichess
     private readonly Color32 _lightColor = new(223, 210, 194, 255);
     private readonly Color32 _darkColor = new (84, 84, 84, 255);
 
@@ -144,10 +145,6 @@ public class Player : MonoBehaviour
             await UnityServices.InitializeAsync();
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await SubscribeToPlayerMessages();
-            if (resignButton != null)
-                resignButton.SetActive(false);
-            if (undoButton != null)
-                undoButton.SetActive(false);
             _isInitialized = true;
             Debug.Log("Unity Services initialized and player signed in successfully.");
         }
@@ -677,7 +674,7 @@ public class Player : MonoBehaviour
         var y = Mathf.RoundToInt(pos.z);
         if (x < 0 || x > 7 || y < 0 || y > 7) return;
 
-        var position = new Position(x, y);
+        var position = new Position((short)x, (short)y);
         var moves = _localBoard.Moves(position);
         if (moves == null || moves.Length == 0) return;
 
@@ -688,15 +685,15 @@ public class Player : MonoBehaviour
 
             Color color;
             if (move.Parameter is MoveCastle)
-                color = new Color(1.0f, 0.85f, 0.0f, 0.45f);
+                color = new Color(1.0f, 0.85f, 0.0f, 0.6f);
             else if (move.CapturedPiece != null)
-                color = new Color(1.0f, 0.3f, 0.3f, 0.35f);
+                color = new Color(0.85f, 0.1f, 0.1f, 0.65f);
             else
-                color = new Color(0.3f, 0.5f, 1.0f, 0.35f);
+                color = new Color(0.0f, 0.55f, 0.0f, 0.45f);
 
             var highlight = GameObject.CreatePrimitive(PrimitiveType.Quad);
             highlight.name = "MoveHighlight";
-            Object.Destroy(highlight.GetComponent<Collider>());
+            UnityEngine.Object.Destroy(highlight.GetComponent<Collider>());
             var mr = highlight.GetComponent<MeshRenderer>();
             mr.material = new Material(Shader.Find("Unlit/Transparent"));
             mr.material.color = color;
@@ -835,6 +832,8 @@ public class Player : MonoBehaviour
         if (chatUI != null) chatUI.SetToggleButtonVisible(_gameMode == GameMode.Online);
         if (hintSystem != null) hintSystem.ShowButton();
         if (evaluationBar != null) evaluationBar.Show();
+        if (resignButton != null) resignButton.SetActive(true);
+        if (undoButton != null && (_gameMode == GameMode.Local || _gameMode == GameMode.Robot)) undoButton.SetActive(true);
         
         bool isOnline = _gameMode == GameMode.Online;
         if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(isOnline);
@@ -849,6 +848,8 @@ public class Player : MonoBehaviour
         if (chatUI != null) chatUI.SetToggleButtonVisible(false);
         if (hintSystem != null) hintSystem.HideButton();
         if (evaluationBar != null) evaluationBar.Hide();
+        if (resignButton != null) resignButton.SetActive(false);
+        if (undoButton != null) undoButton.SetActive(false);
         
         if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(false);
         if (opponentNameText != null) opponentNameText.gameObject.SetActive(false);

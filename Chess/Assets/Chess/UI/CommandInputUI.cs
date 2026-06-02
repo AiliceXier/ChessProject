@@ -33,12 +33,19 @@ namespace Chess.UI
             if (toggleBtnRef != null)
             {
                 _toggleBtn = toggleBtnRef;
+            }
+            else
+            {
+                _toggleBtn = GameObject.Find("CmdBtn");
+            }
+
+            if (_toggleBtn != null)
+            {
                 var btn = _toggleBtn.GetComponent<Button>();
                 if (btn == null)
-                {
                     btn = _toggleBtn.AddComponent<Button>();
-                    btn.onClick.AddListener(Toggle);
-                }
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(Toggle);
             }
             else
             {
@@ -55,10 +62,11 @@ namespace Chess.UI
             _toggleBtn.layer = 5;
 
             var btnRt = _toggleBtn.AddComponent<RectTransform>();
-            btnRt.anchorMin = new Vector2(1f, 0f);
-            btnRt.anchorMax = new Vector2(1f, 0f);
-            btnRt.offsetMin = new Vector2(-100, 50);
-            btnRt.offsetMax = new Vector2(-10, 84);
+            btnRt.anchorMin = new Vector2(0f, 0f);
+            btnRt.anchorMax = new Vector2(0f, 0f);
+            btnRt.pivot = new Vector2(0.5f, 0.5f);
+            btnRt.anchoredPosition = new Vector2(89, 30);
+            btnRt.sizeDelta = new Vector2(100, 34);
 
             _toggleBtn.AddComponent<CanvasRenderer>();
             var btnImg = _toggleBtn.AddComponent<Image>();
