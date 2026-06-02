@@ -1,6 +1,6 @@
-# Multiplayer Chess Sample
+# 国际象棋项目
 
-A sample project that demonstrates how to implement a server authoritative asynchronous multiplayer game using [Unity Gaming Services](https://unity.com/solutions/gaming-services), without needing a dedicated game server.
+A multiplayer chess game built with Unity.
 
 ## Setup
 
@@ -24,8 +24,8 @@ To deploy Cloud Code Modules in the editor you must first install .NET.
 
 Follow the steps below to set your default .NET path in editor:
 
-1. In the Unity Editor, select `Edit > Preferences… > Cloud Code`.
-2. In the .`NET development environment` section, modify your `.NET path` to the one you have it installed.
+1. In the Unity Editor, select `Edit > Preferences > Cloud Code`.
+2. In the `.NET development environment` section, modify your `.NET path` to the one you have it installed.
 3. Select `Apply`.
 
 ### Alternative Setup
