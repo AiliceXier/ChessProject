@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI opponentNameText;
     
     public TextMeshProUGUI playerNameText;
+    public TextMeshProUGUI scoreText;
 
     public GameObject resignButton;
     public GameObject undoButton;
@@ -58,11 +59,13 @@ public class Player : MonoBehaviour
     private Task _initializationTask;
     private bool _isInitialized;
 
-    private readonly Color32 _selectedColor = new (0, 150, 0, 180); // 绿色选中，参考Lichess
+    private readonly Color32 _selectedColor = new (0, 150, 0, 180);
     private readonly Color32 _lightColor = new(223, 210, 194, 255);
     private readonly Color32 _darkColor = new (84, 84, 84, 255);
+    private readonly Color32 _checkColor = new (220, 50, 50, 255);
 
     private readonly List<GameObject> _moveHighlights = new();
+    private GameObject _checkedKing;
 
     private enum GameMode { Online, Local, Robot }
     private GameMode _gameMode = GameMode.Online;
@@ -74,6 +77,7 @@ public class Player : MonoBehaviour
 
     private int _moveCount;
     private string _leaderboardPlayerName = "Player";
+    private readonly Dictionary<string, int> _currentScores = new();
     private static readonly Dictionary<GameMode, string> GameModeToLeaderboardMode = new Dictionary<GameMode, string>
     {
         { GameMode.Robot, "robot" },
@@ -267,6 +271,7 @@ public class Player : MonoBehaviour
         if (undoButton != null) undoButton.SetActive(true);
         SetPovLocal();
         playerNameText.text = "White's Turn";
+        FetchPlayerScores();
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
         ShowInGameUI();
     }
@@ -297,6 +302,7 @@ public class Player : MonoBehaviour
         if (undoButton != null) undoButton.SetActive(true);
         cameraPivot.transform.eulerAngles = Vector3.zero;
         playerNameText.text = "Your Turn (White)";
+        FetchPlayerScores();
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
         ShowInGameUI();
     }
@@ -317,7 +323,18 @@ public class Player : MonoBehaviour
         var move = new Move(fromFen, toFen);
         if (!_localBoard.IsValidMove(move))
         {
-            Debug.Log($"Invalid move: {fromFen} -> {toFen}");
+            var isWhiteTurn = _localWhiteTurn;
+            bool inCheck = isWhiteTurn ? _localBoard.WhiteKingChecked : _localBoard.BlackKingChecked;
+            if (inCheck)
+            {
+                Debug.Log($"Invalid move (king in check): {fromFen} -> {toFen}");
+                playerNameText.text = isWhiteTurn ? "White King in Check!" : "Black King in Check!";
+                ShowCheckIndicator();
+            }
+            else
+            {
+                Debug.Log($"Invalid move: {fromFen} -> {toFen}");
+            }
             SelectPiece(null);
             return false;
         }
@@ -342,7 +359,11 @@ public class Player : MonoBehaviour
         {
             _localWhiteTurn = !_localWhiteTurn;
             SetPovLocal();
-            playerNameText.text = _localWhiteTurn ? "White's Turn" : "Black's Turn";
+            var isNowWhiteTurn = _localWhiteTurn;
+            bool nowInCheck = isNowWhiteTurn ? _localBoard.WhiteKingChecked : _localBoard.BlackKingChecked;
+            playerNameText.text = nowInCheck
+                ? (isNowWhiteTurn ? "White's Turn - CHECK!" : "Black's Turn - CHECK!")
+                : (isNowWhiteTurn ? "White's Turn" : "Black's Turn");
             Debug.Log($"[Player] MakeLocalMove: _localWhiteTurn={_localWhiteTurn}, move={fromFen}->{toFen}");
         }
         return true;
@@ -384,7 +405,9 @@ public class Player : MonoBehaviour
             {
                 _localWhiteTurn = true;
                 cameraPivot.transform.eulerAngles = Vector3.zero;
-                playerNameText.text = "Your Turn (White)";
+                ShowCheckIndicator();
+                bool whiteInCheck = _localBoard.WhiteKingChecked;
+                playerNameText.text = whiteInCheck ? "Your Turn - CHECK!" : "Your Turn (White)";
                 Debug.Log("[Player] AI turn complete, _localWhiteTurn=true, _aiThinking will be set to false");
             }
         }
@@ -433,6 +456,8 @@ public class Player : MonoBehaviour
 
     private void OnBoardAnimationComplete()
     {
+        ShowCheckIndicator();
+
         if (_pendingFen != null)
         {
             Debug.Log("[Player] OnBoardAnimationComplete: applying pending FEN");
@@ -619,6 +644,7 @@ public class Player : MonoBehaviour
     {
         if (!context.performed) return;
         if (_aiThinking) return;
+        if (_moveAnimator != null && _moveAnimator.IsAnimating) return;
         if (_gameMode == GameMode.Online && string.IsNullOrEmpty(_currentSession)) return;
         if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && (!_gameStarted || (_localBoard != null && _localBoard.IsEndGame))) return;
 
@@ -656,12 +682,15 @@ public class Player : MonoBehaviour
         ClearMoveHighlights();
         if (_selectedPiece != null)
         {
+            bool wasCheckedKing = _selectedPiece == _checkedKing;
             ChangeMaterialColor(_selectedPiece,
-                _selectedPiece.name.Contains("Light") ? _lightColor : _darkColor);
+                wasCheckedKing ? _checkColor :
+                (_selectedPiece.name.Contains("Light") ? _lightColor : _darkColor));
         }
         _selectedPiece = piece;
         if (_selectedPiece == null) return;
-        ChangeMaterialColor(_selectedPiece, _selectedColor);
+        bool isCheckedKing = _selectedPiece == _checkedKing;
+        ChangeMaterialColor(_selectedPiece, isCheckedKing ? _checkColor : _selectedColor);
 
         if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && _localBoard != null)
             ShowMoveHighlights(_selectedPiece);
@@ -709,9 +738,50 @@ public class Player : MonoBehaviour
     {
         foreach (var h in _moveHighlights)
         {
-            if (h != null) Destroy(h);
+            if (h != null) DestroyImmediate(h);
         }
         _moveHighlights.Clear();
+    }
+
+    private void ShowCheckIndicator()
+    {
+        ClearCheckIndicator();
+
+        if (_localBoard == null) return;
+
+        bool whiteChecked = _localBoard.WhiteKingChecked;
+        bool blackChecked = _localBoard.BlackKingChecked;
+
+        if (!whiteChecked && !blackChecked) return;
+
+        Position kingPos = whiteChecked ? _localBoard.WhiteKing : _localBoard.BlackKing;
+        string kingName = whiteChecked ? "KingLight" : "KingDark";
+
+        foreach (Transform child in board.transform)
+        {
+            if (child == null || child.gameObject == null) continue;
+            if (child.gameObject.name.StartsWith(kingName))
+            {
+                int cx = Mathf.RoundToInt(child.localPosition.x);
+                int cz = Mathf.RoundToInt(child.localPosition.z);
+                if (cx == kingPos.X && cz == kingPos.Y)
+                {
+                    _checkedKing = child.gameObject;
+                    ChangeMaterialColor(_checkedKing, _checkColor);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void ClearCheckIndicator()
+    {
+        if (_checkedKing != null)
+        {
+            Color32 restoreColor = _checkedKing.name.Contains("Light") ? _lightColor : _darkColor;
+            ChangeMaterialColor(_checkedKing, restoreColor);
+            _checkedKing = null;
+        }
     }
 
     private static Dictionary<Tuple<int, int>, char> FenToDict(string fen)
@@ -748,8 +818,10 @@ public class Player : MonoBehaviour
 
     private void ChangeMaterialColor(GameObject obj, Color newColor)
     {
+        if (obj == null) return;
         var selectedRenderer = obj.GetComponent<Renderer>();
-        selectedRenderer.material.color = newColor;
+        if (selectedRenderer != null)
+            selectedRenderer.material.color = newColor;
     }
     
     public class HostGameResponse
@@ -834,6 +906,7 @@ public class Player : MonoBehaviour
         if (evaluationBar != null) evaluationBar.Show();
         if (resignButton != null) resignButton.SetActive(true);
         if (undoButton != null && (_gameMode == GameMode.Local || _gameMode == GameMode.Robot)) undoButton.SetActive(true);
+        if (scoreText != null) scoreText.gameObject.SetActive(true);
         
         bool isOnline = _gameMode == GameMode.Online;
         if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(isOnline);
@@ -850,6 +923,7 @@ public class Player : MonoBehaviour
         if (evaluationBar != null) evaluationBar.Hide();
         if (resignButton != null) resignButton.SetActive(false);
         if (undoButton != null) undoButton.SetActive(false);
+        if (scoreText != null) scoreText.gameObject.SetActive(false);
         
         if (lobbyCodeText != null) lobbyCodeText.gameObject.SetActive(false);
         if (opponentNameText != null) opponentNameText.gameObject.SetActive(false);
@@ -868,7 +942,49 @@ public class Player : MonoBehaviour
     public void SetLeaderboardPlayerName(string name)
     {
         if (!string.IsNullOrEmpty(name))
+        {
             _leaderboardPlayerName = name.Trim();
+            FetchPlayerScores();
+        }
+    }
+
+    public void FetchPlayerScores()
+    {
+        if (string.IsNullOrEmpty(_leaderboardPlayerName)) return;
+
+        foreach (var mode in new[] { "robot", "local", "online" })
+        {
+            var capturedMode = mode;
+            StartCoroutine(LeaderboardAPI.GetPlayerRank(
+                _leaderboardPlayerName,
+                capturedMode,
+                onSuccess: resp =>
+                {
+                    if (resp.success && resp.data != null)
+                    {
+                        _currentScores[capturedMode] = resp.data.score;
+                        UpdateScoreDisplay();
+                    }
+                },
+                onError: _ => { }
+            ));
+        }
+    }
+
+    public void UpdateScoreDisplay()
+    {
+        if (scoreText == null) return;
+
+        var mode = _gameMode switch
+        {
+            GameMode.Robot => "robot",
+            GameMode.Local => "local",
+            GameMode.Online => "online",
+            _ => "robot"
+        };
+
+        var score = _currentScores.TryGetValue(mode, out var s) ? s : 0;
+        scoreText.text = $"score:{score}";
     }
 
     private int CalculateScore(EndGameInfo endGame)
@@ -926,7 +1042,11 @@ public class Player : MonoBehaviour
             onSuccess: resp =>
             {
                 if (resp.success)
+                {
                     Debug.Log($"[Leaderboard] Score submitted: {_leaderboardPlayerName} -> {score} (mode: {mode}, rank: #{resp.data.rank})");
+                    _currentScores[mode] = score;
+                    UpdateScoreDisplay();
+                }
             },
             onError: err =>
             {
@@ -1007,6 +1127,12 @@ public class Player : MonoBehaviour
         if (_aiThinking)
             return (false, "AI is thinking, please wait");
 
+        if (_moveAnimator != null && _moveAnimator.IsAnimating)
+            return (false, "Animation in progress, please wait");
+
+        ClearMoveHighlights();
+        SelectPiece(null);
+
         cmd = cmd.Trim();
 
         if (TryParseCoordinateMove(cmd, out var fromPos, out var toPos))
@@ -1037,6 +1163,8 @@ public class Player : MonoBehaviour
             }
             else if (_gameMode == GameMode.Robot)
             {
+                _localWhiteTurn = false;
+                playerNameText.text = "AI Thinking...";
                 _ = DoRobotMoveAsync();
             }
 
@@ -1070,6 +1198,8 @@ public class Player : MonoBehaviour
             }
             else if (_gameMode == GameMode.Robot)
             {
+                _localWhiteTurn = false;
+                playerNameText.text = "AI Thinking...";
                 _ = DoRobotMoveAsync();
             }
 
@@ -1081,6 +1211,8 @@ public class Player : MonoBehaviour
 
     public void OnUndoClicked()
     {
+        if (_aiThinking) return;
+        if (_moveAnimator != null && _moveAnimator.IsAnimating) return;
         var (success, error) = UndoLastLocalMove();
         if (!success)
             Debug.LogWarning($"[Player] Undo failed: {error}");

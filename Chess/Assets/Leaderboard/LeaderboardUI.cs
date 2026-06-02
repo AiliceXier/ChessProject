@@ -19,12 +19,16 @@ namespace Chess.Leaderboard
         public Button openButton;
         public Button refreshButton;
         public Button closeButton;
+        public Button submitScoreButton;
 
         [Header("模式筛选")]
         public TMP_Dropdown modeDropdown;
 
         [Header("玩家名输入")]
         public TMP_InputField playerNameInput;
+
+        [Header("积分提交")]
+        public TMP_InputField scoreInputField;
 
         [Header("游戏玩家引用")]
         public Player player;
@@ -90,6 +94,12 @@ namespace Chess.Leaderboard
             {
                 closeButton.onClick.RemoveListener(HideLeaderboard);
                 closeButton.onClick.AddListener(HideLeaderboard);
+            }
+
+            if (submitScoreButton != null)
+            {
+                submitScoreButton.onClick.RemoveListener(OnSubmitScoreClicked);
+                submitScoreButton.onClick.AddListener(OnSubmitScoreClicked);
             }
 
             if (modeDropdown != null)
@@ -320,6 +330,46 @@ namespace Chess.Leaderboard
                 if (player != null)
                     player.SetLeaderboardPlayerName(currentPlayerName);
             }
+        }
+
+        private void OnSubmitScoreClicked()
+        {
+            var name = GetCurrentPlayerName();
+            if (string.IsNullOrEmpty(name))
+            {
+                Debug.LogWarning("[LeaderboardUI] Cannot submit score: player name is empty");
+                return;
+            }
+
+            if (scoreInputField == null || !int.TryParse(scoreInputField.text.Trim(), out var score) || score <= 0)
+            {
+                Debug.LogWarning("[LeaderboardUI] Cannot submit score: invalid score value");
+                return;
+            }
+
+            var mode = GetSelectedGameMode();
+            if (mode == "all") mode = "robot";
+
+            Debug.Log($"[LeaderboardUI] Submitting score: {name} -> {score} (mode: {mode})");
+            StartCoroutine(LeaderboardAPI.SubmitScore(
+                name,
+                score,
+                mode,
+                onSuccess: resp =>
+                {
+                    if (resp.success)
+                    {
+                        Debug.Log($"[LeaderboardUI] Score submitted successfully! Rank: #{resp.data.rank}");
+                        if (player != null)
+                            player.FetchPlayerScores();
+                        RefreshData();
+                    }
+                },
+                onError: err =>
+                {
+                    Debug.LogWarning($"[LeaderboardUI] Submit failed: {err}");
+                }
+            ));
         }
 
         private string GetSelectedGameMode()

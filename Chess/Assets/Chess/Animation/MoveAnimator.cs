@@ -28,6 +28,8 @@ namespace Chess.Animation
             var oldPieces = new Dictionary<string, GameObject>();
             foreach (Transform child in board.transform)
             {
+                if (child == null || child.gameObject == null) continue;
+                if (child.gameObject.name == "MoveHighlight") continue;
                 var pos = child.localPosition;
                 int x = Mathf.RoundToInt(pos.x);
                 int z = Mathf.RoundToInt(pos.z);
@@ -51,12 +53,12 @@ namespace Chess.Animation
             {
                 if (!newPieces.ContainsKey(oldKvp.Key))
                 {
-                    toCapture.Add(oldKvp.Value);
-                    toRemove.Add(oldKvp.Key);
+                    // Piece might have moved to a new position - handle in unmatchedOld matching below
                 }
                 else
                 {
                     var oldPiece = oldKvp.Value;
+                    if (oldPiece == null) continue;
                     var oldName = oldPiece.name.Replace("(Clone)", "").Trim();
                     var newChar = newPieces[oldKvp.Key].Item3;
                     var newName = GetPieceTypeName(newChar) + (char.IsUpper(newChar) ? "Light" : "Dark");
@@ -104,6 +106,7 @@ namespace Chess.Animation
             foreach (var oldKvp in unmatchedOld)
             {
                 var oldPiece = oldKvp.Value;
+                if (oldPiece == null) continue;
                 var oldName = oldPiece.name.Replace("(Clone)", "").Trim();
 
                 string bestNewKey = null;
@@ -165,12 +168,15 @@ namespace Chess.Animation
 
         private IEnumerator AnimateMove(GameObject piece, int targetX, int targetZ)
         {
+            if (piece == null) yield break;
+
             var startPos = piece.transform.localPosition;
             var endPos = new Vector3(targetX, 0, targetZ);
             var elapsed = 0f;
 
             while (elapsed < moveDuration)
             {
+                if (piece == null) yield break;
                 elapsed += Time.deltaTime;
                 var t = Mathf.Clamp01(elapsed / moveDuration);
                 var smoothT = t * t * (3f - 2f * t);
@@ -182,23 +188,28 @@ namespace Chess.Animation
                 yield return null;
             }
 
-            piece.transform.localPosition = endPos;
+            if (piece != null)
+                piece.transform.localPosition = endPos;
         }
 
         private IEnumerator AnimateCapture(GameObject piece)
         {
+            if (piece == null) yield break;
+
             var elapsed = 0f;
             var startScale = piece.transform.localScale;
 
             while (elapsed < captureDuration)
             {
+                if (piece == null) yield break;
                 elapsed += Time.deltaTime;
                 var t = Mathf.Clamp01(elapsed / captureDuration);
                 piece.transform.localScale = startScale * (1f - t);
                 yield return null;
             }
 
-            Destroy(piece);
+            if (piece != null)
+                Destroy(piece);
         }
 
         private IEnumerator AnimateSpawn(GameObject piece)
