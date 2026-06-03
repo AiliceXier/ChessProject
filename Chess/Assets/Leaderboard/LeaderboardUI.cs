@@ -123,6 +123,7 @@ namespace Chess.Leaderboard
                 if (placeholder != null)
                 {
                     placeholder.fontStyle &= ~FontStyles.Underline;
+                    placeholder.text = "Enter name...";
                 }
             }
 
@@ -395,15 +396,51 @@ namespace Chess.Leaderboard
                 return;
             }
 
-            if (scoreInputField == null || !int.TryParse(scoreInputField.text.Trim(), out var score) || score <= 0)
+            var scoreText = scoreInputField != null ? scoreInputField.text.Trim() : string.Empty;
+            if (string.IsNullOrEmpty(scoreText))
+            {
+                var mode = GetSelectedGameMode();
+                var modeForLookup = mode == "all" ? "robot" : mode;
+                StartCoroutine(SubmitCurrentScore(name, modeForLookup));
+                return;
+            }
+
+            if (!int.TryParse(scoreText, out var score) || score <= 0)
             {
                 Debug.LogWarning("[LeaderboardUI] Cannot submit score: invalid score value");
                 return;
             }
 
-            var mode = GetSelectedGameMode();
-            if (mode == "all") mode = "robot";
+            var modeSubmit = GetSelectedGameMode();
+            if (modeSubmit == "all") modeSubmit = "robot";
+            SubmitScoreInternal(name, score, modeSubmit);
+        }
 
+        private IEnumerator SubmitCurrentScore(string name, string mode)
+        {
+            yield return LeaderboardAPI.GetPlayerRank(name, mode,
+                onSuccess: resp =>
+                {
+                    var score = (resp.success && resp.data != null) ? resp.data.score : 0;
+                    if (score > 0)
+                    {
+                        Debug.Log($"[LeaderboardUI] Auto-submitting current score: {score}");
+                        SubmitScoreInternal(name, score, mode);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("[LeaderboardUI] Cannot submit score: no current score available");
+                    }
+                },
+                onError: err =>
+                {
+                    Debug.LogWarning($"[LeaderboardUI] Cannot submit score: failed to get current score ({err})");
+                }
+            );
+        }
+
+        private void SubmitScoreInternal(string name, int score, string mode)
+        {
             Debug.Log($"[LeaderboardUI] Submitting score: {name} -> {score} (mode: {mode})");
             StartCoroutine(LeaderboardAPI.SubmitScore(
                 name,
@@ -417,6 +454,7 @@ namespace Chess.Leaderboard
                         if (player != null)
                             player.FetchPlayerScores();
                         RefreshData();
+                        RefreshCurrentUserScore();
                     }
                 },
                 onError: err =>
