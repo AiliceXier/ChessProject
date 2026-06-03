@@ -16747,7 +16747,7 @@ MonoBehaviour:
   modeDropdown: {fileID: 1572412972}
   playerNameInput: {fileID: 1284815233}
   scoreInputField: {fileID: 606178091}
-  currentUserScoreText: {fileID: 0}
+  currentUserScoreText: {fileID: 1253679755}
   player: {fileID: 1881174974}
   loadingIndicator: {fileID: 2001610657}
   myRankText: {fileID: 1387395782}
