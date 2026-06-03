@@ -30,6 +30,9 @@ namespace Chess.Leaderboard
         [Header("积分提交")]
         public TMP_InputField scoreInputField;
 
+        [Header("当前用户积分显示")]
+        public TMP_Text currentUserScoreText;
+
         [Header("游戏玩家引用")]
         public Player player;
 
@@ -68,6 +71,7 @@ namespace Chess.Leaderboard
 
         private bool _bindingsInitialized;
         private bool _isLoading;
+        private string _lastConfirmedPlayerName;
 
         private void OnEnable()
         {
@@ -114,7 +118,15 @@ namespace Chess.Leaderboard
                     playerNameInput.text = currentPlayerName;
                 playerNameInput.onEndEdit.RemoveListener(OnPlayerNameChanged);
                 playerNameInput.onEndEdit.AddListener(OnPlayerNameChanged);
+
+                var placeholder = playerNameInput.placeholder as TMP_Text;
+                if (placeholder != null)
+                {
+                    placeholder.fontStyle &= ~FontStyles.Underline;
+                }
             }
+
+            _lastConfirmedPlayerName = currentPlayerName;
 
             if (player != null)
                 player.SetLeaderboardPlayerName(currentPlayerName);
@@ -127,6 +139,9 @@ namespace Chess.Leaderboard
 
             if (showOnStart)
                 RefreshData();
+
+            AutoFindCurrentUserScoreText();
+            RefreshCurrentUserScore();
         }
 
         private void Update()
@@ -150,6 +165,7 @@ namespace Chess.Leaderboard
             if (panel != null)
                 panel.SetActive(true);
             RefreshData();
+            RefreshCurrentUserScore();
         }
 
         public void HideLeaderboard()
@@ -289,16 +305,20 @@ namespace Chess.Leaderboard
         {
             var nameLower = objName.ToLower();
 
-            if (nameLower.Contains("rank"))
+            if (nameLower.Contains("rank") || nameLower.Contains("排名") || nameLower.Contains("序号"))
                 SetTextValue(entry.rank.ToString());
-            else if (nameLower.Contains("name"))
+            else if (nameLower.Contains("name") || nameLower.Contains("玩家") || nameLower.Contains("姓名") || nameLower.Contains("用户"))
                 SetTextValue(entry.player_name);
-            else if (nameLower.Contains("score"))
+            else if (nameLower.Contains("score") || nameLower.Contains("分数") || nameLower.Contains("积分") || nameLower.Contains("得分"))
                 SetTextValue(entry.score.ToString());
-            else if (nameLower.Contains("mode") && showMode)
+            else if ((nameLower.Contains("mode") || nameLower.Contains("模式")) && showMode)
                 SetTextValue(GetModeDisplayName(entry.game_mode));
-            else if (nameLower.Contains("date"))
+            else if (nameLower.Contains("date") || nameLower.Contains("日期") || nameLower.Contains("时间"))
                 SetTextValue(FormatDate(entry.created_at));
+            else
+            {
+                Debug.LogWarning($"[LeaderboardUI] ApplyEntryText: unmatched component name '{objName}' on {textComp.gameObject.name}");
+            }
             return;
 
             void SetTextValue(string val)
@@ -320,15 +340,49 @@ namespace Chess.Leaderboard
         private void OnModeChanged(int index)
         {
             RefreshData();
+            RefreshCurrentUserScore();
         }
 
         private void OnPlayerNameChanged(string newName)
         {
-            if (!string.IsNullOrEmpty(newName))
+            if (string.IsNullOrEmpty(newName)) return;
+            var trimmed = newName.Trim();
+            if (trimmed == _lastConfirmedPlayerName) return;
+
+            currentPlayerName = trimmed;
+            if (player != null)
+                player.SetLeaderboardPlayerName(currentPlayerName);
+
+            if (!string.IsNullOrEmpty(_lastConfirmedPlayerName) && _lastConfirmedPlayerName != trimmed)
             {
-                currentPlayerName = newName.Trim();
-                if (player != null)
-                    player.SetLeaderboardPlayerName(currentPlayerName);
+                StartCoroutine(LeaderboardAPI.UpdatePlayerName(
+                    _lastConfirmedPlayerName,
+                    trimmed,
+                    onSuccess: resp =>
+                    {
+                        if (resp.success)
+                        {
+                            Debug.Log($"[LeaderboardUI] 用户名修改成功: {_lastConfirmedPlayerName} -> {trimmed}");
+                            _lastConfirmedPlayerName = trimmed;
+                            RefreshData();
+                            RefreshCurrentUserScore();
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"[LeaderboardUI] 用户名修改失败: {resp.message}");
+                            _lastConfirmedPlayerName = trimmed;
+                        }
+                    },
+                    onError: err =>
+                    {
+                        Debug.LogWarning($"[LeaderboardUI] 用户名修改请求失败: {err}");
+                        _lastConfirmedPlayerName = trimmed;
+                    }
+                ));
+            }
+            else
+            {
+                _lastConfirmedPlayerName = trimmed;
             }
         }
 
@@ -420,6 +474,52 @@ namespace Chess.Leaderboard
             if (dateStr.Length >= 10)
                 return dateStr.Substring(0, 10);
             return dateStr;
+        }
+
+        private void AutoFindCurrentUserScoreText()
+        {
+            if (currentUserScoreText != null) return;
+            if (scoreInputField == null) return;
+
+            var parent = scoreInputField.transform.parent;
+            if (parent == null) return;
+
+            foreach (Transform child in parent)
+            {
+                if (child == scoreInputField.transform) continue;
+                var tmp = child.GetComponent<TMP_Text>();
+                if (tmp != null)
+                {
+                    currentUserScoreText = tmp;
+                    Debug.Log($"[LeaderboardUI] Auto-found currentUserScoreText: {child.name}");
+                    return;
+                }
+            }
+
+            Debug.LogWarning("[LeaderboardUI] currentUserScoreText is not assigned. Please bind it in the Inspector.");
+        }
+
+        private void RefreshCurrentUserScore()
+        {
+            if (currentUserScoreText == null) return;
+            var mode = GetSelectedGameMode();
+            if (mode == "all") mode = "robot";
+            var name = GetCurrentPlayerName();
+            if (string.IsNullOrEmpty(name))
+            {
+                currentUserScoreText.text = "当前积分: --";
+                return;
+            }
+            StartCoroutine(LeaderboardAPI.GetPlayerRank(name, mode,
+                onSuccess: resp =>
+                {
+                    if (resp.success && resp.data != null)
+                        currentUserScoreText.text = $"当前积分: {resp.data.score}";
+                    else
+                        currentUserScoreText.text = "当前积分: 0";
+                },
+                onError: _ => currentUserScoreText.text = "当前积分: --"
+            ));
         }
 
         private void OnError(string error)

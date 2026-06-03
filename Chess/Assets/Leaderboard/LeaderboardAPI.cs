@@ -166,12 +166,53 @@ namespace Chess.Leaderboard
             }
         }
 
+        public static IEnumerator UpdatePlayerName(
+            string oldName,
+            string newName,
+            Action<PlayerRenameResponse> onSuccess = null,
+            Action<string> onError = null)
+        {
+            var body = new RenameBody { new_name = newName };
+            var json = JsonUtility.ToJson(body);
+
+            var url = BASE_URL + "/player/" + UnityWebRequest.EscapeURL(oldName);
+            using (var req = new UnityWebRequest(url, "PUT"))
+            {
+                var uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+                uploadHandler.contentType = "application/json";
+                req.uploadHandler = uploadHandler;
+                req.downloadHandler = new DownloadHandlerBuffer();
+                req.SetRequestHeader("Content-Type", "application/json");
+
+                yield return req.SendWebRequest();
+
+                if (req.result == UnityWebRequest.Result.Success)
+                {
+                    var resp = JsonUtility.FromJson<PlayerRenameResponse>(req.downloadHandler.text);
+                    if (resp != null && resp.success)
+                        onSuccess?.Invoke(resp);
+                    else
+                        onError?.Invoke(resp?.message ?? "重命名失败");
+                }
+                else
+                {
+                    onError?.Invoke(req.error);
+                }
+            }
+        }
+
         [Serializable]
         private class SubmitScoreBody
         {
             public string player_name;
             public int score;
             public string game_mode;
+        }
+
+        [Serializable]
+        private class RenameBody
+        {
+            public string new_name;
         }
     }
 }

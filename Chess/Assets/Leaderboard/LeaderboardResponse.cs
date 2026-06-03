@@ -84,4 +84,11 @@ namespace Chess.Leaderboard
         public string status;
         public string time;
     }
+
+    [Serializable]
+    public class PlayerRenameResponse
+    {
+        public bool success;
+        public string message;
+    }
 }
