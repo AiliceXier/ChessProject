@@ -174,6 +174,44 @@ app.get('/rank/:player_name', (req, res) => {
   });
 });
 
+// Update player name (rename all records)
+app.put('/player/:old_name', (req, res) => {
+  const { old_name } = req.params;
+  const { new_name } = req.body;
+
+  if (!new_name || typeof new_name !== 'string') {
+    return res.status(400).json({ success: false, message: '缺少 new_name 字段' });
+  }
+
+  const trimmedNew = new_name.trim();
+  if (trimmedNew.length < 1 || trimmedNew.length > 20) {
+    return res.status(400).json({ success: false, message: 'new_name 长度必须在 1-20 个字符之间' });
+  }
+
+  if (old_name === trimmedNew) {
+    return res.json({ success: true, message: '名称未变更' });
+  }
+
+  const oldExists = db.prepare('SELECT 1 FROM scores WHERE player_name = ? LIMIT 1').get(old_name);
+  if (!oldExists) {
+    return res.status(404).json({ success: false, message: '旧玩家名不存在' });
+  }
+
+  const newExists = db.prepare('SELECT 1 FROM scores WHERE player_name = ? LIMIT 1').get(trimmedNew);
+  if (newExists) {
+    return res.status(409).json({ success: false, message: '新玩家名已被占用' });
+  }
+
+  try {
+    const update = db.prepare('UPDATE scores SET player_name = ? WHERE player_name = ?');
+    const result = update.run(trimmedNew, old_name);
+    res.json({ success: true, message: `已将 ${old_name} 更名为 ${trimmedNew}，共更新 ${result.changes} 条记录` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: '重命名失败' });
+  }
+});
+
 // Delete player (admin only)
 app.delete('/score/:player_name', (req, res) => {
   if (req.headers['x-admin-key'] !== ADMIN_KEY) {
