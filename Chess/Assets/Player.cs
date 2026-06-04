@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using TMPro;
 using Chess;
 using Chess.Animation;
+using Chess.Audio;
 using Chess.Leaderboard;
 using Chess.UI;
 using Unity.Services.Authentication;
@@ -50,6 +51,7 @@ public class Player : MonoBehaviour
     public ChatUI chatUI;
     public MainMenuUI mainMenuUI;
     private MoveAnimator _moveAnimator;
+    private GameEndAnimator _gameEndAnimator;
     
     private readonly Dictionary<string, UnityEngine.Object> _prefabs = new();
     private const string StartingBoard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -128,8 +130,14 @@ public class Player : MonoBehaviour
             mainMenuUI = gameObject.AddComponent<MainMenuUI>();
             mainMenuUI.player = this;
         }
-        _moveAnimator = gameObject.AddComponent<MoveAnimator>();
+        _moveAnimator = GetComponent<MoveAnimator>();
+        if (_moveAnimator == null)
+            _moveAnimator = gameObject.AddComponent<MoveAnimator>();
         _moveAnimator.board = board;
+        _gameEndAnimator = GetComponent<GameEndAnimator>();
+        if (_gameEndAnimator == null)
+            _gameEndAnimator = gameObject.AddComponent<GameEndAnimator>();
+        _gameEndAnimator.board = board;
         if (mainMenuUI != null) mainMenuUI.Initialize(uiPanel);
         if (uiPanel != null)
         {
@@ -150,7 +158,13 @@ public class Player : MonoBehaviour
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await SubscribeToPlayerMessages();
             _isInitialized = true;
-            Debug.Log("Unity Services initialized and player signed in successfully.");
+
+            var playerId = AuthenticationService.Instance.PlayerId;
+            var shortId = playerId.Length > 8 ? playerId.Substring(0, 8) : playerId;
+            _leaderboardPlayerName = $"Player_{shortId}";
+            FetchPlayerScores();
+
+            Debug.Log($"Unity Services initialized. Player: {_leaderboardPlayerName}");
         }
         catch (Exception e)
         {
@@ -274,6 +288,8 @@ public class Player : MonoBehaviour
         FetchPlayerScores();
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
         ShowInGameUI();
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayBGM();
     }
 
     public void StartRobotGame()
@@ -305,6 +321,8 @@ public class Player : MonoBehaviour
         FetchPlayerScores();
         if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
         ShowInGameUI();
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayBGM();
     }
 
     private bool CurrentPlayerIsWhite() =>
@@ -582,6 +600,8 @@ public class Player : MonoBehaviour
         _gameStarted = true;
         playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
         ShowInGameUI();
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayBGM();
 
         if (chatUI != null && !string.IsNullOrEmpty(_currentSession))
         {
@@ -644,6 +664,7 @@ public class Player : MonoBehaviour
     {
         if (!context.performed) return;
         if (_aiThinking) return;
+        if (_gameEndAnimator != null && _gameEndAnimator.IsAnimating) return;
         if (_moveAnimator != null && _moveAnimator.IsAnimating) return;
         if (_gameMode == GameMode.Online && string.IsNullOrEmpty(_currentSession)) return;
         if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && (!_gameStarted || (_localBoard != null && _localBoard.IsEndGame))) return;
@@ -691,6 +712,9 @@ public class Player : MonoBehaviour
         if (_selectedPiece == null) return;
         bool isCheckedKing = _selectedPiece == _checkedKing;
         ChangeMaterialColor(_selectedPiece, isCheckedKing ? _checkColor : _selectedColor);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayPieceSelect();
 
         if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && _localBoard != null)
             ShowMoveHighlights(_selectedPiece);
@@ -753,6 +777,9 @@ public class Player : MonoBehaviour
         bool blackChecked = _localBoard.BlackKingChecked;
 
         if (!whiteChecked && !blackChecked) return;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayCheck();
 
         Position kingPos = whiteChecked ? _localBoard.WhiteKing : _localBoard.BlackKing;
         string kingName = whiteChecked ? "KingLight" : "KingDark";
@@ -885,6 +912,35 @@ public class Player : MonoBehaviour
         playerNameText.text = "Game Over";
         _gameStarted = false;
         HideInGameUI();
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBGM();
+        }
+
+        StartCoroutine(PlayGameEndAnimation(resultMessage));
+    }
+
+    private IEnumerator PlayGameEndAnimation(string resultMessage)
+    {
+        EndGameInfo endGame = null;
+        if (_gameMode == GameMode.Local || _gameMode == GameMode.Robot)
+            endGame = _localBoard?.EndGame;
+
+        if (_gameEndAnimator != null && endGame != null)
+        {
+            if (endGame.WonSide != null)
+            {
+                yield return StartCoroutine(_gameEndAnimator.PlayWinAnimation(endGame.WonSide, null));
+            }
+            else
+            {
+                yield return StartCoroutine(_gameEndAnimator.PlayDrawAnimation(null));
+            }
+        }
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayGameOver();
         if (chatUI != null) chatUI.Disconnect();
         if (mainMenuUI != null) mainMenuUI.ShowWithResult(resultMessage);
     }
@@ -948,6 +1004,16 @@ public class Player : MonoBehaviour
         }
     }
 
+    public string GetLeaderboardPlayerName()
+    {
+        return _leaderboardPlayerName;
+    }
+
+    public int GetCurrentScore(string mode)
+    {
+        return _currentScores.TryGetValue(mode, out var score) ? score : 0;
+    }
+
     public void FetchPlayerScores()
     {
         if (string.IsNullOrEmpty(_leaderboardPlayerName)) return;
@@ -963,8 +1029,12 @@ public class Player : MonoBehaviour
                     if (resp.success && resp.data != null)
                     {
                         _currentScores[capturedMode] = resp.data.score;
-                        UpdateScoreDisplay();
                     }
+                    else
+                    {
+                        _currentScores[capturedMode] = 0;
+                    }
+                    UpdateScoreDisplay();
                 },
                 onError: _ => { }
             ));
@@ -1044,8 +1114,7 @@ public class Player : MonoBehaviour
                 if (resp.success)
                 {
                     Debug.Log($"[Leaderboard] Score submitted: {_leaderboardPlayerName} -> {score} (mode: {mode}, rank: #{resp.data.rank})");
-                    _currentScores[mode] = score;
-                    UpdateScoreDisplay();
+                    FetchPlayerScores();
                 }
             },
             onError: err =>
@@ -1068,7 +1137,10 @@ public class Player : MonoBehaviour
             onSuccess: resp =>
             {
                 if (resp.success)
+                {
                     Debug.Log($"[Leaderboard] Online score submitted: {_leaderboardPlayerName} -> {score} (rank: #{resp.data.rank})");
+                    FetchPlayerScores();
+                }
             },
             onError: err =>
             {
