@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Chess.Audio;
 
 namespace Chess.Animation
 {
     public class GameEndAnimator : MonoBehaviour
     {
         public GameObject board;
+        public GameObject cameraPivot;
 
         private bool _animating;
 
@@ -121,6 +123,13 @@ namespace Chess.Animation
         {
             _animating = true;
 
+            // 播放胜利音效
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayWin();
+
+            // 同时启动相机俯仰动画
+            var cameraCoroutine = cameraPivot != null ? StartCoroutine(AnimateCameraTilt(-40f, 1.5f)) : null;
+
             var isWhite = wonSide == PieceColor.White;
             var wonKing = FindKing(isWhite);
             var lostKing = FindKing(!isWhite);
@@ -162,6 +171,8 @@ namespace Chess.Animation
                 yield return coroutine;
             foreach (var coroutine in fallCoroutines)
                 yield return coroutine;
+            if (cameraCoroutine != null)
+                yield return cameraCoroutine;
 
             _animating = false;
             onComplete?.Invoke();
@@ -174,6 +185,13 @@ namespace Chess.Animation
         {
             _animating = true;
 
+            // 播放失败音效
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayLose();
+
+            // 同时启动相机俯仰动画
+            var cameraCoroutine = cameraPivot != null ? StartCoroutine(AnimateCameraTilt(-40f, 1.5f)) : null;
+
             var whiteKing = FindKing(true);
             var blackKing = FindKing(false);
 
@@ -183,6 +201,7 @@ namespace Chess.Animation
 
             if (whiteKingCoroutine != null) yield return whiteKingCoroutine;
             if (blackKingCoroutine != null) yield return blackKingCoroutine;
+            if (cameraCoroutine != null) yield return cameraCoroutine;
 
             _animating = false;
             onComplete?.Invoke();
@@ -334,6 +353,35 @@ namespace Chess.Animation
         }
 
         /// <summary>
+        /// 相机俯仰动画：将 CameraPivot 的 X 轴旋转平滑过渡到目标角度
+        /// </summary>
+        private IEnumerator AnimateCameraTilt(float targetAngleX, float duration)
+        {
+            if (cameraPivot == null) yield break;
+
+            var startEuler = cameraPivot.transform.eulerAngles;
+            var startAngleX = startEuler.x;
+            // 处理角度环绕问题
+            if (startAngleX > 180f) startAngleX -= 360f;
+            var targetX = targetAngleX;
+            var y = startEuler.y;
+            var z = startEuler.z;
+            var elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                var t = Mathf.Clamp01(elapsed / duration);
+                var smoothT = t * t * (3f - 2f * t);
+                var currentX = Mathf.Lerp(startAngleX, targetX, smoothT);
+                cameraPivot.transform.eulerAngles = new Vector3(currentX, y, z);
+                yield return null;
+            }
+
+            cameraPivot.transform.eulerAngles = new Vector3(targetX, y, z);
+        }
+
+        /// <summary>
         /// 重置所有棋子的缩放和旋转，用于新一局开始前恢复被动画修改的棋子
         /// </summary>
         public void ResetAllPieces()
@@ -348,6 +396,10 @@ namespace Chess.Animation
                 var isWhite = child.gameObject.name.Contains("Light");
                 child.localRotation = Quaternion.Euler(0, isWhite ? 0 : 180, 0);
             }
+
+            // 恢复相机角度
+            if (cameraPivot != null)
+                cameraPivot.transform.eulerAngles = new Vector3(0, cameraPivot.transform.eulerAngles.y, 0);
 
             _animating = false;
         }

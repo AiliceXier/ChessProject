@@ -138,6 +138,7 @@ public class Player : MonoBehaviour
         if (_gameEndAnimator == null)
             _gameEndAnimator = gameObject.AddComponent<GameEndAnimator>();
         _gameEndAnimator.board = board;
+        _gameEndAnimator.cameraPivot = cameraPivot;
         if (mainMenuUI != null) mainMenuUI.Initialize(uiPanel);
         if (uiPanel != null)
         {
@@ -942,8 +943,6 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlayGameOver();
         if (chatUI != null) chatUI.Disconnect();
         if (mainMenuUI != null) mainMenuUI.ShowWithResult(resultMessage);
     }
