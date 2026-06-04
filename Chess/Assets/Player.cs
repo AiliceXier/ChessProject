@@ -279,6 +279,7 @@ public class Player : MonoBehaviour
         _localWhiteTurn = true;
         _gameStarted = true;
         _moveCount = 0;
+        if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(_localBoard.ToFen());
         if (mainMenuUI != null) mainMenuUI.Hide();
         resignButton.SetActive(true);
@@ -311,6 +312,7 @@ public class Player : MonoBehaviour
         _aiThinking = false;
         _moveCount = 0;
         _chessAI = new ChessAI(maxDepth: depth);
+        if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(_localBoard.ToFen());
         if (mainMenuUI != null) mainMenuUI.Hide();
         if (difficultySelector != null) difficultySelector.Hide();
@@ -592,6 +594,7 @@ public class Player : MonoBehaviour
     {
         Debug.Log($"Opponent joined: {joinGameResponse.OpponentId}");
         _currentSession = joinGameResponse.Session;
+        if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(joinGameResponse.Board);
         if (mainMenuUI != null) mainMenuUI.Hide();
         if (resignButton != null) resignButton.SetActive(true);

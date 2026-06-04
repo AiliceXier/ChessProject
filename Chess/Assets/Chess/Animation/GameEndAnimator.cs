@@ -332,5 +332,24 @@ namespace Chess.Animation
             if (piece == null || king == null) return float.MaxValue;
             return Vector3.Distance(piece.transform.localPosition, king.transform.localPosition);
         }
+
+        /// <summary>
+        /// 重置所有棋子的缩放和旋转，用于新一局开始前恢复被动画修改的棋子
+        /// </summary>
+        public void ResetAllPieces()
+        {
+            if (board == null) return;
+
+            foreach (Transform child in board.transform)
+            {
+                if (child == null || child.gameObject == null) continue;
+                if (child.gameObject.name == "MoveHighlight") continue;
+                child.localScale = Vector3.one;
+                var isWhite = child.gameObject.name.Contains("Light");
+                child.localRotation = Quaternion.Euler(0, isWhite ? 0 : 180, 0);
+            }
+
+            _animating = false;
+        }
     }
 }
