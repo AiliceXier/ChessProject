@@ -59,3 +59,17 @@ ecosystem.config.js
 
 # Logs and temp files
 console.txt
+
+# Project documentation and utilities (keep locally only)
+PROJECT_UI_GUIDE.md
+convert_to_docx.py
+dotnet-install.ps1
+
+# AI usage report (keep locally only)
+AI使用实践报告.md
+
+# Presentation files (large, keep locally only)
+*.pptx
+
+# Build output with typo (bulid → Build)
+bulid/
