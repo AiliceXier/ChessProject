@@ -80,6 +80,7 @@ public class Player : MonoBehaviour
     // compute the SAN of the just-played move by enumeration + comparison.
     private string _lastOnlineFen;
     private string _lastOnlineWonSide;
+    private bool _didResignSelf;
     private int _aiDepth = 3; // 1/3 → local MinMax, 4 → Claude no-thinking, 5 → Claude thinking
     private bool _aiThinking;
     private string _pendingFen;
@@ -234,6 +235,7 @@ public class Player : MonoBehaviour
 
         try
         {
+            _didResignSelf = true;
             var boardUpdate = await CloudCodeService.Instance.CallModuleEndpointAsync<BoardUpdateResponse>("ChessCloudCode", "Resign",
                 new Dictionary<string, object> { { "session", _currentSession } });
             OnBoardUpdate(boardUpdate);
@@ -691,6 +693,7 @@ public class Player : MonoBehaviour
         Debug.Log($"Opponent joined: {joinGameResponse.OpponentId}");
         _currentSession = joinGameResponse.Session;
         _lastOnlineWonSide = null;
+        _didResignSelf = false;
         if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(joinGameResponse.Board);
         if (mainMenuUI != null) mainMenuUI.Hide();
@@ -1050,11 +1053,28 @@ public class Player : MonoBehaviour
             // Determine the winning side. For online mode, _localBoard.EndGame
             // may be null because the FEN stored in Cloud Save doesn't encode
             // endgame state for resignation / timeout. Fall back to the WonSide
-            // field the server sends inside BoardUpdateResponse.
+            // field the server sends inside BoardUpdateResponse, or infer from
+            // _didResignSelf if the server hasn't been updated yet.
             PieceColor? wonSide = endGame?.WonSide;
-            if (wonSide == null && _gameMode == GameMode.Online && !string.IsNullOrEmpty(_lastOnlineWonSide))
+            if (wonSide == null && _gameMode == GameMode.Online)
             {
-                wonSide = _lastOnlineWonSide == "White" ? PieceColor.White : PieceColor.Black;
+                if (!string.IsNullOrEmpty(_lastOnlineWonSide))
+                {
+                    wonSide = _lastOnlineWonSide == "White" ? PieceColor.White : PieceColor.Black;
+                }
+                else
+                {
+                    // Server didn't send WonSide (old cloud code). Infer from _didResignSelf.
+                    var msg = resultMessage?.ToLower() ?? "";
+                    bool isDraw = msg.Contains("stalemate") || msg.Contains("draw") ||
+                                  msg.Contains("insufficient") || msg.Contains("fifty") ||
+                                  msg.Contains("repetition");
+                    if (!isDraw)
+                    {
+                        var myColor = _isWhite ? PieceColor.White : PieceColor.Black;
+                        wonSide = _didResignSelf ? myColor.OppositeColor() : myColor;
+                    }
+                }
             }
 
             if (wonSide != null)
