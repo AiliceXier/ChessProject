@@ -227,6 +227,11 @@ namespace Chess.UI
                 _panel = panelRef;
                 Debug.Log("[ChatUI] EnsurePanel: using panelRef from scene");
 
+                // The scene ships with ChatScrollView (and some other chat children)
+                // marked inactive. Activate the full chat subtree so the scroll view,
+                // viewport, content, and input row are all rendered when the panel opens.
+                ActivateSubtree(panelRef.transform);
+
                 if (_cachedFont == null)
                 {
                     var existingTmp = panelRef.GetComponentInChildren<TextMeshProUGUI>(true);
@@ -527,6 +532,20 @@ namespace Chess.UI
             return obj;
         }
 
+        // Walk the entire subtree and SetActive(true) on everything. The shipped
+        // scene marks some chat children (notably ChatScrollView) as inactive —
+        // that would otherwise hide the message list and input row once the
+        // parent ChatPanel becomes visible. We re-enable them defensively.
+        private static void ActivateSubtree(Transform root)
+        {
+            if (root == null) return;
+            root.gameObject.SetActive(true);
+            for (int i = 0; i < root.childCount; i++)
+            {
+                ActivateSubtree(root.GetChild(i));
+            }
+        }
+
         private void OnSend(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
@@ -561,6 +580,7 @@ namespace Chess.UI
 
         private void AddMessage(string sender, string message, bool isSelf)
         {
+            Debug.Log($"[ChatUI] AddMessage: sender={sender}, msg={message}, isSelf={isSelf}, _contentParent={(_contentParent != null ? _contentParent.name : "NULL")}, _panel={(_panel != null ? _panel.name : "NULL")}, panelActive={(_panel != null ? _panel.activeInHierarchy.ToString() : "?")}");
             if (_contentParent == null)
             {
                 Debug.LogWarning($"[ChatUI] AddMessage skipped: _contentParent is null. sender={sender}, msg={message}");
@@ -613,8 +633,15 @@ namespace Chess.UI
             }
 
             Canvas.ForceUpdateCanvases();
+            if (_contentParent != null)
+            {
+                UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    _contentParent.GetComponent<RectTransform>());
+            }
             if (_scrollRect != null)
+            {
                 _scrollRect.verticalNormalizedPosition = 0f;
+            }
         }
 
         public void Show()

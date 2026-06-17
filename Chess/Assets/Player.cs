@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using TMPro;
 using Chess;
+using Chess.AI;
 using Chess.Animation;
 using Chess.Audio;
 using Chess.Leaderboard;
@@ -74,6 +75,7 @@ public class Player : MonoBehaviour
     private ChessBoard _localBoard;
     private bool _localWhiteTurn = true;
     private ChessAI _chessAI;
+    private int _aiDepth = 3; // 1/3 → local MinMax, 4 → Claude no-thinking, 5 → Claude thinking
     private bool _aiThinking;
     private string _pendingFen;
 
@@ -312,7 +314,10 @@ public class Player : MonoBehaviour
         _gameStarted = true;
         _aiThinking = false;
         _moveCount = 0;
-        _chessAI = new ChessAI(maxDepth: depth);
+        _aiDepth = depth;
+        // Depth 1 / 3 use the on-device MinMax engine.
+        // Depth 4 / 5 are routed to the cloud Claude provider (see DoRobotMoveAsync).
+        _chessAI = depth <= 3 ? new ChessAI(maxDepth: depth) : null;
         if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(_localBoard.ToFen());
         if (mainMenuUI != null) mainMenuUI.Hide();
@@ -399,10 +404,26 @@ public class Player : MonoBehaviour
         {
             Move aiMove = null;
             var boardSnapshot = ChessBoard.LoadFromFen(_localBoard.ToFen());
-            await Task.Run(() =>
+
+            if (_aiDepth <= 3)
             {
-                aiMove = _chessAI.GetBestMove(boardSnapshot);
-            });
+                // Local engine — keep on a background thread to avoid blocking the main loop.
+                await Task.Run(() =>
+                {
+                    aiMove = _chessAI.GetBestMove(boardSnapshot);
+                });
+            }
+            else
+            {
+                // Cloud engine — depth 4 = no thinking, depth 5 = extended thinking.
+                bool useThinking = _aiDepth >= 5;
+                playerNameText.text = useThinking ? "Cloud AI (thinking)..." : "Cloud AI...";
+                var provider = new ClaudeApiProvider(
+                    maxTokens: useThinking ? 1024 : 64,
+                    thinkingBudget: useThinking ? 6000 : 0,
+                    timeoutSeconds: 45);
+                aiMove = await provider.GetBestMoveAsync(boardSnapshot, useThinking);
+            }
 
             if (aiMove == null || !_gameStarted || _gameMode != GameMode.Robot)
             {
@@ -578,6 +599,21 @@ public class Player : MonoBehaviour
     private async void OnBoardUpdate(BoardUpdateResponse boardUpdateResponse)
     {
         SyncBoard(boardUpdateResponse.Board);
+
+        // Keep the move history panel in sync with the cloud-authoritative state
+        // for online games. Re-seed _localBoard from the latest FEN (cheap; we are
+        // not driving moves off it in online mode) so the history list reflects
+        // the full move list whenever the opponent plays.
+        try
+        {
+            _localBoard = ChessBoard.LoadFromFen(boardUpdateResponse.Board);
+            if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[Player] OnBoardUpdate: failed to refresh move history: {e.Message}");
+        }
+
         if (boardUpdateResponse.GameOver)
         {
             ShowGameOver(boardUpdateResponse.EndgameType);
@@ -606,6 +642,20 @@ public class Player : MonoBehaviour
         ShowInGameUI();
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayBGM();
+
+        // Online mode never constructs _localBoard via StartLocalGame/StartRobotGame,
+        // so the move history UI never has a board to render. Mirror the cloud FEN
+        // into a local board now so the history panel shows the opening position
+        // (and so subsequent OnBoardUpdate calls can refresh it incrementally).
+        try
+        {
+            _localBoard = ChessBoard.LoadFromFen(joinGameResponse.Board);
+            if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[Player] OnGameStart: failed to seed _localBoard from FEN: {e.Message}");
+        }
 
         if (chatUI != null && !string.IsNullOrEmpty(_currentSession))
         {

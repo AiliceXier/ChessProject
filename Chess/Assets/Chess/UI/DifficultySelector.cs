@@ -20,8 +20,8 @@ namespace Chess.UI
         {
             ("Easy", 1, "Beginner friendly", "\u2654", new Color(0.35f, 0.65f, 0.35f)),
             ("Medium", 3, "Casual challenge", "\u2655", new Color(0.25f, 0.55f, 0.80f)),
-            ("Hard", 4, "Serious opponent", "\u2656", new Color(0.80f, 0.50f, 0.20f)),
-            ("Master", 5, "Grandmaster level", "\u2657", new Color(0.75f, 0.20f, 0.20f))
+            ("Hard", 4, "Cloud AI \u2014 fast", "\u2656", new Color(0.80f, 0.50f, 0.20f)),
+            ("Master", 5, "Cloud AI \u2014 thinking", "\u2657", new Color(0.75f, 0.20f, 0.20f))
         };
 
         private Color panelColor = new Color(0.08f, 0.08f, 0.10f, 0.98f);
@@ -125,7 +125,7 @@ namespace Chess.UI
             var subtitleLe = subtitleObj.AddComponent<LayoutElement>();
             subtitleLe.preferredHeight = 22;
             var subtitleTxt = subtitleObj.AddComponent<TextMeshProUGUI>();
-            subtitleTxt.text = "Choose your AI opponent strength";
+            subtitleTxt.text = "Easy/Medium use on-device engine • Hard/Master use Claude (network)";
             subtitleTxt.fontSize = 13;
             subtitleTxt.alignment = TextAlignmentOptions.Center;
             subtitleTxt.color = new Color(0.6f, 0.6f, 0.6f, 1f);
