@@ -1059,7 +1059,7 @@ public class Player : MonoBehaviour
 
             if (wonSide != null)
             {
-                yield return StartCoroutine(_gameEndAnimator.PlayWinAnimation(wonSide.Value, null));
+                yield return StartCoroutine(_gameEndAnimator.PlayWinAnimation(wonSide, null));
             }
             else
             {
