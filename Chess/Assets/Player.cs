@@ -75,6 +75,11 @@ public class Player : MonoBehaviour
     private ChessBoard _localBoard;
     private bool _localWhiteTurn = true;
     private ChessAI _chessAI;
+    // For online play, we don't drive moves through _localBoard, so its
+    // ExecutedMoves is always empty. We remember the last cloud FEN to
+    // compute the SAN of the just-played move by enumeration + comparison.
+    private string _lastOnlineFen;
+    private string _lastOnlineWonSide;
     private int _aiDepth = 3; // 1/3 → local MinMax, 4 → Claude no-thinking, 5 → Claude thinking
     private bool _aiThinking;
     private string _pendingFen;
@@ -418,10 +423,14 @@ public class Player : MonoBehaviour
                 // Cloud engine — depth 4 = no thinking, depth 5 = extended thinking.
                 bool useThinking = _aiDepth >= 5;
                 playerNameText.text = useThinking ? "Cloud AI (thinking)..." : "Cloud AI...";
+                // When thinking is enabled, max_tokens must be strictly greater than
+                // thinking.budget_tokens, otherwise the model spends the entire output
+                // budget on internal reasoning and never emits a text block (the move).
+                // We don't care about token cost here, so we leave plenty of room.
                 var provider = new ClaudeApiProvider(
-                    maxTokens: useThinking ? 1024 : 64,
+                    maxTokens: useThinking ? 8192 : 64,
                     thinkingBudget: useThinking ? 6000 : 0,
-                    timeoutSeconds: 45);
+                    timeoutSeconds: 60);
                 aiMove = await provider.GetBestMoveAsync(boardSnapshot, useThinking);
             }
 
@@ -601,13 +610,34 @@ public class Player : MonoBehaviour
         SyncBoard(boardUpdateResponse.Board);
 
         // Keep the move history panel in sync with the cloud-authoritative state
-        // for online games. Re-seed _localBoard from the latest FEN (cheap; we are
-        // not driving moves off it in online mode) so the history list reflects
-        // the full move list whenever the opponent plays.
+        // for online games. _localBoard's ExecutedMoves is always empty (FEN has
+        // no move list), so we maintain the history via PushMove on the UI and
+        // compute the SAN of the just-played move by enumeration + FEN diff.
         try
         {
             _localBoard = ChessBoard.LoadFromFen(boardUpdateResponse.Board);
-            if (moveHistoryUI != null) moveHistoryUI.RefreshDisplay();
+            if (moveHistoryUI != null)
+            {
+                moveHistoryUI.SetBoard(_localBoard);
+                if (_gameMode == GameMode.Online && _lastOnlineFen != null)
+                {
+                    var san = FindSanBetween(_lastOnlineFen, boardUpdateResponse.Board);
+                    if (!string.IsNullOrEmpty(san))
+                    {
+                        moveHistoryUI.PushMove(san);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[Player] OnBoardUpdate: no legal move bridges FENs. " +
+                                         $"old={_lastOnlineFen} new={boardUpdateResponse.Board}");
+                    }
+                }
+                else
+                {
+                    moveHistoryUI.RefreshDisplay();
+                }
+            }
+            _lastOnlineFen = boardUpdateResponse.Board;
         }
         catch (Exception e)
         {
@@ -616,6 +646,7 @@ public class Player : MonoBehaviour
 
         if (boardUpdateResponse.GameOver)
         {
+            _lastOnlineWonSide = boardUpdateResponse.WonSide;
             ShowGameOver(boardUpdateResponse.EndgameType);
             SubmitOnlineScore(boardUpdateResponse.EndgameType);
         }
@@ -627,10 +658,39 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Enumerate all legal moves from oldFen, run each on a fresh board, and
+    // return the SAN whose resulting position matches newFen. Used to recover
+    // the move played on the server during online play so we can show it in
+    // the local move history.
+    private static string FindSanBetween(string oldFen, string newFen)
+    {
+        if (string.IsNullOrEmpty(oldFen) || string.IsNullOrEmpty(newFen)) return null;
+        try
+        {
+            var newPos = newFen.Split(' ')[0];
+            var snapshot = ChessBoard.LoadFromFen(oldFen);
+            foreach (var m in snapshot.Moves())
+            {
+                var testBoard = ChessBoard.LoadFromFen(oldFen);
+                testBoard.Move(m);
+                if (testBoard.ToFen().Split(' ')[0] == newPos)
+                {
+                    return m.San ?? m.ToString();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[Player] FindSanBetween: {e.Message}");
+        }
+        return null;
+    }
+
     private async void OnGameStart(JoinGameResponse joinGameResponse)
     {
         Debug.Log($"Opponent joined: {joinGameResponse.OpponentId}");
         _currentSession = joinGameResponse.Session;
+        _lastOnlineWonSide = null;
         if (_gameEndAnimator != null) _gameEndAnimator.ResetAllPieces();
         SyncBoard(joinGameResponse.Board);
         if (mainMenuUI != null) mainMenuUI.Hide();
@@ -650,7 +710,12 @@ public class Player : MonoBehaviour
         try
         {
             _localBoard = ChessBoard.LoadFromFen(joinGameResponse.Board);
-            if (moveHistoryUI != null) moveHistoryUI.SetBoard(_localBoard);
+            _lastOnlineFen = joinGameResponse.Board;
+            if (moveHistoryUI != null)
+            {
+                moveHistoryUI.SetBoard(_localBoard);
+                moveHistoryUI.ResetManualMoves();
+            }
         }
         catch (Exception e)
         {
@@ -915,6 +980,7 @@ public class Player : MonoBehaviour
         public string Board { get; set; }
         public bool GameOver { get; set; }
         public string EndgameType { get; set; }
+        public string WonSide { get; set; }
     }
 
     public class JoinGameResponse
@@ -977,15 +1043,23 @@ public class Player : MonoBehaviour
 
     private IEnumerator PlayGameEndAnimation(string resultMessage)
     {
-        EndGameInfo endGame = null;
-        if (_gameMode == GameMode.Local || _gameMode == GameMode.Robot)
-            endGame = _localBoard?.EndGame;
+        EndGameInfo endGame = _localBoard?.EndGame;
 
-        if (_gameEndAnimator != null && endGame != null)
+        if (_gameEndAnimator != null)
         {
-            if (endGame.WonSide != null)
+            // Determine the winning side. For online mode, _localBoard.EndGame
+            // may be null because the FEN stored in Cloud Save doesn't encode
+            // endgame state for resignation / timeout. Fall back to the WonSide
+            // field the server sends inside BoardUpdateResponse.
+            PieceColor? wonSide = endGame?.WonSide;
+            if (wonSide == null && _gameMode == GameMode.Online && !string.IsNullOrEmpty(_lastOnlineWonSide))
             {
-                yield return StartCoroutine(_gameEndAnimator.PlayWinAnimation(endGame.WonSide, null));
+                wonSide = _lastOnlineWonSide == "White" ? PieceColor.White : PieceColor.Black;
+            }
+
+            if (wonSide != null)
+            {
+                yield return StartCoroutine(_gameEndAnimator.PlayWinAnimation(wonSide.Value, null));
             }
             else
             {

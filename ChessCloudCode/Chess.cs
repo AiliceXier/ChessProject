@@ -189,9 +189,10 @@ public class Chess
         
         var boardUpdatedResponse = new BoardUpdateResponse
         {
-            Board = chessBoard.ToFen(), 
-            GameOver = chessBoard.IsEndGame, 
-            EndgameType = chessBoard.EndGame?.EndgameType.ToString()
+            Board = chessBoard.ToFen(),
+            GameOver = chessBoard.IsEndGame,
+            EndgameType = chessBoard.EndGame?.EndgameType.ToString(),
+            WonSide = chessBoard.EndGame?.WonSide?.ToString()
         };
         await _pushClient.SendPlayerMessageAsync(context, JsonConvert.SerializeObject(boardUpdatedResponse), "boardUpdated",
             opponentId);
@@ -227,9 +228,10 @@ public class Chess
         
         var boardUpdatedResponse = new BoardUpdateResponse
         {
-            Board = chessBoard.ToFen(), 
-            GameOver = chessBoard.IsEndGame, 
-            EndgameType = chessBoard.EndGame?.EndgameType.ToString()
+            Board = chessBoard.ToFen(),
+            GameOver = chessBoard.IsEndGame,
+            EndgameType = chessBoard.EndGame?.EndgameType.ToString(),
+            WonSide = chessBoard.EndGame?.WonSide?.ToString()
         };
         await _pushClient.SendPlayerMessageAsync(context, JsonConvert.SerializeObject(boardUpdatedResponse), "boardUpdated",
             opponentId);
@@ -255,4 +257,5 @@ public class BoardUpdateResponse
     public string Board { get; set; }
     public bool GameOver { get; set; }
     public string EndgameType { get; set; }
+    public string WonSide { get; set; }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Chess.Audio;
 using UnityEngine;
 
 namespace Chess.Animation
@@ -189,12 +190,19 @@ namespace Chess.Animation
             }
 
             if (piece != null)
+            {
                 piece.transform.localPosition = endPos;
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayPieceMove();
+            }
         }
 
         private IEnumerator AnimateCapture(GameObject piece)
         {
             if (piece == null) yield break;
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayCapture();
 
             var elapsed = 0f;
             var startScale = piece.transform.localScale;

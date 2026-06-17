@@ -48,60 +48,112 @@ namespace Chess.AI
 
         /// <summary>
         /// Asks the cloud model for the best move in the current position.
+        /// On any failure (no text, no UCI, illegal UCI) it retries once with the
+        /// legal-move list explicitly injected; if that also fails it returns a
+        /// random legal move so the game never stalls.
         /// </summary>
-        /// <param name="board">A snapshot board. Will not be mutated.</param>
-        /// <param name="useThinking">true → extended thinking (depth 5); false → direct (depth 4).</param>
-        /// <param name="ct">Cancellation token.</param>
-        /// <returns>The matching legal Move, or null if no legal move exists / parsing failed.</returns>
         public async Task<Move> GetBestMoveAsync(ChessBoard board, bool useThinking, CancellationToken ct = default)
         {
             if (board == null) return null;
+
             var fen = board.ToFen();
             var turn = board.Turn == PieceColor.White ? "White" : "Black";
-            var systemPrompt = BuildSystemPrompt();
-            var userPrompt   = BuildUserPrompt(fen, turn);
 
-            string body = useThinking
-                ? BuildRequestBody(systemPrompt, userPrompt, thinkingEnabled: true)
-                : BuildRequestBody(systemPrompt, userPrompt, thinkingEnabled: false);
+            // First attempt: bare prompt. The model sometimes hallucinates an
+            // illegal move (e.g. "c5d4" when the position has no such pawn).
+            var move = await TryGetMoveAsync(board, fen, turn, useThinking, includeLegalList: false, ct);
+            if (move != null) return move;
 
-            string raw;
+            // Second attempt: explicitly constrain to the legal-move list so the
+            // model has a closed set to pick from and can't pick an off-board square.
+            Debug.LogWarning("[ClaudeApiProvider] First attempt failed; retrying with legal-move constraint.");
+            move = await TryGetMoveAsync(board, fen, turn, useThinking, includeLegalList: true, ct);
+            if (move != null) return move;
+
+            // Last resort: random legal move so the game continues. Better than
+            // stalling the turn and freezing the board on the player's UI.
+            move = PickRandomLegalMove(board);
+            if (move != null)
+            {
+                var label = !string.IsNullOrEmpty(move.San) ? move.San : move.ToString();
+                Debug.LogWarning($"[ClaudeApiProvider] All API attempts failed; using random legal move: {label}");
+            }
+            return move;
+        }
+
+        private async Task<Move> TryGetMoveAsync(ChessBoard board, string fen, string turn, bool useThinking, bool includeLegalList, CancellationToken ct)
+        {
             try
             {
-                raw = await PostAsync(ClaudeConfig.MessagesUrl, body, ct);
+                var systemPrompt = BuildSystemPrompt();
+                var userPrompt = includeLegalList
+                    ? BuildUserPromptWithLegalList(fen, turn, BuildLegalMoveList(board))
+                    : BuildUserPrompt(fen, turn);
+                var body = useThinking
+                    ? BuildRequestBody(systemPrompt, userPrompt, thinkingEnabled: true)
+                    : BuildRequestBody(systemPrompt, userPrompt, thinkingEnabled: false);
+
+                string raw;
+                try
+                {
+                    raw = await PostAsync(ClaudeConfig.MessagesUrl, body, ct);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[ClaudeApiProvider] HTTP call failed: {e.Message}\n" +
+                                   $"  url={ClaudeConfig.MessagesUrl}\n" +
+                                   $"  model={ClaudeConfig.Model}\n" +
+                                   $"  timeout={_timeoutSeconds}s\n" +
+                                   $"  hint: confirm DNS/firewall allow outbound to volces.com, " +
+                                   $"and that the .NET TLS stack can negotiate TLS 1.2+.");
+                    return null;
+                }
+
+                string text = ExtractTextBlock(raw);
+                if (string.IsNullOrEmpty(text))
+                {
+                    // Fallback: in thinking mode the model can spend the entire max_tokens
+                    // budget on the reasoning block and never emit a text block. Try to
+                    // fish a move out of the thinking text itself before giving up.
+                    string thinking = ExtractThinkingBlock(raw);
+                    if (!string.IsNullOrEmpty(thinking))
+                    {
+                        text = thinking;
+                        Debug.LogWarning("[ClaudeApiProvider] No text block; falling back to thinking content for UCI parse.");
+                    }
+                }
+                if (string.IsNullOrEmpty(text))
+                {
+                    Debug.LogWarning($"[ClaudeApiProvider] No text/thinking block in response. Raw: {Truncate(raw, 400)}");
+                    return null;
+                }
+
+                string uci = ExtractUci(text);
+                Move move = !string.IsNullOrEmpty(uci) ? FindLegalMove(board, uci) : null;
+                if (move == null)
+                {
+                    // The model replied in SAN (e.g. "Nf3", "Bxc6", "O-O") rather
+                    // than UCI. Look up the matching legal move by its San field.
+                    move = FindMoveBySan(board, text);
+                    if (move != null)
+                    {
+                        Debug.LogWarning($"[ClaudeApiProvider] Parsed SAN instead of UCI from: {Truncate(text, 200)}");
+                    }
+                }
+                if (move == null && !string.IsNullOrEmpty(uci))
+                {
+                    Debug.LogWarning($"[ClaudeApiProvider] UCI {uci} is not a legal move in this position.");
+                }
+                return move;
             }
             catch (Exception e)
             {
-                // Surface both the inner error and a hint about likely causes.
-                Debug.LogError($"[ClaudeApiProvider] HTTP call failed: {e.Message}\n" +
-                               $"  url={ClaudeConfig.MessagesUrl}\n" +
-                               $"  model={ClaudeConfig.Model}\n" +
-                               $"  timeout={_timeoutSeconds}s\n" +
-                               $"  hint: confirm DNS/firewall allow outbound to volces.com, " +
-                               $"and that the .NET TLS stack can negotiate TLS 1.2+.");
+                // Last line of defense: never let a parser / library exception
+                // tear down the AI loop. The outer GetBestMoveAsync will retry
+                // or fall back to a random legal move.
+                Debug.LogError($"[ClaudeApiProvider] TryGetMoveAsync swallowed {e.GetType().Name}: {e.Message}");
                 return null;
             }
-
-            string text = ExtractTextBlock(raw);
-            if (string.IsNullOrEmpty(text))
-            {
-                Debug.LogWarning($"[ClaudeApiProvider] No text block in response. Raw: {Truncate(raw, 400)}");
-                return null;
-            }
-
-            string uci = ExtractUci(text);
-            if (string.IsNullOrEmpty(uci))
-            {
-                Debug.LogWarning($"[ClaudeApiProvider] No UCI move parsed from: {Truncate(text, 200)}");
-                return null;
-            }
-
-            var move = FindLegalMove(board, uci);
-            if (move == null)
-            {
-                Debug.LogWarning($"[ClaudeApiProvider] UCI {uci} is not a legal move in this position.");
-            }
-            return move;
         }
 
         // ---------- Prompt construction ----------
@@ -117,6 +169,37 @@ namespace Chess.AI
         private static string BuildUserPrompt(string fen, string turn)
         {
             return $"FEN: {fen}\nSide to move: {turn}\nBest move (UCI):";
+        }
+
+        // Constrained retry: tell the model exactly which SAN moves are legal
+        // so it can't hallucinate a square that has no piece on it.
+        private static string BuildUserPromptWithLegalList(string fen, string turn, string legalSanList)
+        {
+            return $"FEN: {fen}\nSide to move: {turn}\n" +
+                   $"Legal moves (SAN): {legalSanList}\n" +
+                   $"Pick exactly one move from the list above and reply with its UCI only:";
+        }
+
+        private static string BuildLegalMoveList(ChessBoard board)
+        {
+            var moves = board.Moves();
+            if (moves == null || moves.Length == 0) return "(none)";
+            var sb = new StringBuilder(moves.Length * 6);
+            for (int i = 0; i < moves.Length; i++)
+            {
+                if (i > 0) sb.Append(", ");
+                var label = !string.IsNullOrEmpty(moves[i].San) ? moves[i].San : moves[i].ToString();
+                sb.Append(label);
+            }
+            return sb.ToString();
+        }
+
+        // Last-resort fallback so the player's turn doesn't stall forever.
+        private static Move PickRandomLegalMove(ChessBoard board)
+        {
+            var moves = board.Moves();
+            if (moves == null || moves.Length == 0) return null;
+            return moves[UnityEngine.Random.Range(0, moves.Length)];
         }
 
         // ---------- Request body ----------
@@ -199,6 +282,29 @@ namespace Chess.AI
             return null;
         }
 
+        // Pull the FIRST "thinking":"..." block from the response. The gateway
+        // returns the reasoning text in a {"type":"thinking","thinking":"..."}
+        // content block. We use this as a fallback when the model spends all
+        // its output budget on reasoning and never emits a text block.
+        private static string ExtractThinkingBlock(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return null;
+            try
+            {
+                var matches = Regex.Matches(raw, "\"thinking\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"");
+                for (int i = 0; i < matches.Count; i++)
+                {
+                    var decoded = DecodeJsonString(matches[i].Groups[1].Value);
+                    if (!string.IsNullOrWhiteSpace(decoded)) return decoded;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[ClaudeApiProvider] thinking-extract failed: {e.Message}");
+            }
+            return null;
+        }
+
         private static string ExtractUci(string text)
         {
             if (string.IsNullOrEmpty(text)) return null;
@@ -206,6 +312,38 @@ namespace Chess.AI
             var m = Regex.Match(text, "\\b([a-h][1-8])([a-h][1-8])([qrbn])?\\b", RegexOptions.IgnoreCase);
             if (!m.Success) return null;
             return m.Value.ToLower();
+        }
+
+        // The model sometimes returns Standard Algebraic Notation (e.g. "Nf3",
+        // "Bxc6", "exf3", "O-O", "O-O-O") instead of UCI. Look for a legal move
+        // whose San matches the first SAN-shaped token in the text. Returns the
+        // matching Move, or null if nothing matches.
+        private static Move FindMoveBySan(ChessBoard board, string text)
+        {
+            if (string.IsNullOrEmpty(text)) return null;
+            try
+            {
+                var moves = board.Moves();
+                if (moves == null || moves.Length == 0) return null;
+
+                // Match a SAN-shaped token: optional piece letter, optional
+                // disambiguation file/rank, optional 'x', target square,
+                // optional promotion (e.g. e8=Q), optional check/mate.
+                var m = Regex.Match(text, "\\b([KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)\\b");
+                if (!m.Success) return null;
+                var san = m.Value.TrimEnd('+', '#');
+
+                foreach (var mv in moves)
+                {
+                    if (string.IsNullOrEmpty(mv.San)) continue;
+                    if (string.Equals(mv.San, san, StringComparison.OrdinalIgnoreCase)) return mv;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[ClaudeApiProvider] FindMoveBySan threw: {e.Message}");
+            }
+            return null;
         }
 
         // ---------- Move resolution ----------
@@ -222,10 +360,20 @@ namespace Chess.AI
 
             var from = new Position { X = fromX, Y = fromY };
             var to   = new Position { X = toX,   Y = toY   };
-            var legal = board.Moves(from, generateSan: false);
-            foreach (var m in legal)
+            try
             {
-                if (m.NewPosition.X == to.X && m.NewPosition.Y == to.Y) return m;
+                var legal = board.Moves(from, generateSan: false);
+                foreach (var m in legal)
+                {
+                    if (m.NewPosition.X == to.X && m.NewPosition.Y == to.Y) return m;
+                }
+            }
+            catch (Exception e)
+            {
+                // Gera throws ChessPieceNotFoundException when there's no piece on
+                // `from` (the model hallucinated an empty square). Treat as
+                // "not a legal move" so the caller can retry / fall back.
+                Debug.LogWarning($"[ClaudeApiProvider] FindLegalMove({uci}) threw: {e.GetType().Name}: {e.Message}");
             }
             return null;
         }

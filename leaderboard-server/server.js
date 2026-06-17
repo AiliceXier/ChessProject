@@ -89,17 +89,16 @@ app.post('/score', (req, res) => {
   ).get(player_name, game_mode);
 
   if (existing) {
-    if (score > existing.score) {
-      db.prepare('UPDATE scores SET score = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?')
-        .run(score, existing.id);
-    }
+    db.prepare('UPDATE scores SET score = score + ?, created_at = CURRENT_TIMESTAMP WHERE id = ?')
+      .run(score, existing.id);
   } else {
     db.prepare('INSERT INTO scores (player_name, score, game_mode) VALUES (?, ?, ?)')
       .run(player_name, score, game_mode);
   }
 
+  const updated = db.prepare('SELECT score FROM scores WHERE player_name = ? AND game_mode = ?').get(player_name, game_mode);
   const rank = getPlayerRank(player_name, game_mode);
-  res.json({ success: true, message: '分数已提交', data: { rank } });
+  res.json({ success: true, message: '分数已提交', data: { rank, total_score: updated.score } });
 });
 
 // Get leaderboard
@@ -164,7 +163,7 @@ app.get('/rank/:player_name', (req, res) => {
   ).get(player_name, game_mode);
 
   if (!player) {
-    return res.json({ success: false, message: '玩家不存在' });
+    return res.json({ success: true, data: { rank: null, player_name, score: 0 } });
   }
 
   const rank = getPlayerRank(player_name, game_mode);

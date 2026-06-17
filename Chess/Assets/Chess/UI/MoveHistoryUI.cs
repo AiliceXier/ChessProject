@@ -36,6 +36,10 @@ namespace Chess.UI
         private ScrollRect _scrollRect;
         private readonly List<GameObject> _entries = new();
         private ChessBoard _board;
+        // Online games don't drive moves through a local ChessBoard, so
+        // ExecutedMoves stays empty even after a FEN sync. Maintain a
+        // separate, incremental SAN list for online play.
+        private readonly List<string> _manualMoveSans = new();
         private bool _visible;
 
         private void Awake()
@@ -268,12 +272,45 @@ namespace Chess.UI
             RefreshDisplay();
         }
 
+        // Online play doesn't drive moves through a local ChessBoard, so we let
+        // the caller push individual SAN strings as the cloud sends updates.
+        public void PushMove(string san)
+        {
+            if (string.IsNullOrEmpty(san)) return;
+            _manualMoveSans.Add(san);
+            RefreshDisplay();
+        }
+
+        // Clear the manually-pushed SAN list (e.g. when starting a new game).
+        public void ResetManualMoves()
+        {
+            _manualMoveSans.Clear();
+            RefreshDisplay();
+        }
+
         public void RefreshDisplay()
         {
             if (_contentRt == null) return;
 
             ClearEntries();
 
+            // Online path: render from the manual SAN list if it has anything.
+            if (_manualMoveSans.Count > 0)
+            {
+                for (int i = 0; i < _manualMoveSans.Count; i += 2)
+                {
+                    int num = (i / 2) + 1;
+                    string w = _manualMoveSans[i];
+                    string b = (i + 1 < _manualMoveSans.Count) ? _manualMoveSans[i + 1] : "";
+                    bool isLast = (i + 2 >= _manualMoveSans.Count);
+                    AddMoveRow(num, w, b, (i / 2) % 2 == 0, isLast);
+                }
+                UpdateContentSize();
+                if (_scrollRect != null) _scrollRect.verticalNormalizedPosition = 0f;
+                return;
+            }
+
+            // Local / robot path: render from the ChessBoard's ExecutedMoves.
             if (_board == null)
             {
                 AddLabelEntry("No board set");

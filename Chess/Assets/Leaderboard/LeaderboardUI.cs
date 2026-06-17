@@ -24,21 +24,18 @@ namespace Chess.Leaderboard
         [Header("模式筛选")]
         public TMP_Dropdown modeDropdown;
 
-        [Header("玩家名输入")]
-        public TMP_InputField playerNameInput;
+        [Header("玩家名显示")]
+        public TMP_Text playerNameText;
 
-        [Header("积分提交")]
-        public TMP_InputField scoreInputField;
-
-        [Header("当前用户积分显示")]
-        public TMP_Text currentUserScoreText;
+        [Header("积分显示")]
+        public TMP_Text scoreDisplayText;
 
         [Header("游戏玩家引用")]
         public Player player;
 
         [Header("状态显示")]
         public GameObject loadingIndicator;
-        public Text myRankText;
+        public TMP_Text myRankText;
 
         [Header("默认玩家名")]
         public string currentPlayerName = "Player";
@@ -71,7 +68,6 @@ namespace Chess.Leaderboard
 
         private bool _bindingsInitialized;
         private bool _isLoading;
-        private string _lastConfirmedPlayerName;
 
         private void OnEnable()
         {
@@ -112,24 +108,13 @@ namespace Chess.Leaderboard
                 modeDropdown.onValueChanged.AddListener(OnModeChanged);
             }
 
-            if (playerNameInput != null)
+            if (playerNameText != null)
             {
-                if (string.IsNullOrEmpty(playerNameInput.text))
-                    playerNameInput.text = currentPlayerName;
-                playerNameInput.onEndEdit.RemoveListener(OnPlayerNameChanged);
-                playerNameInput.onEndEdit.AddListener(OnPlayerNameChanged);
-
-                var placeholder = playerNameInput.placeholder as TMP_Text;
-                if (placeholder != null)
-                {
-                    placeholder.fontStyle &= ~FontStyles.Underline;
-                    placeholder.text = "Enter name...";
-                }
+                var name = (player != null) ? player.GetLeaderboardPlayerName() : currentPlayerName;
+                playerNameText.text = !string.IsNullOrEmpty(name) ? name : currentPlayerName;
             }
 
-            _lastConfirmedPlayerName = currentPlayerName;
-
-            if (player != null)
+            if (player != null && !string.IsNullOrEmpty(currentPlayerName) && currentPlayerName != "Player")
                 player.SetLeaderboardPlayerName(currentPlayerName);
 
             if (panel != null && !panel.activeSelf && showOnStart)
@@ -137,12 +122,10 @@ namespace Chess.Leaderboard
 
             SetLoading(false);
             UpdateMyRankText(null);
+            RefreshScoreDisplay();
 
             if (showOnStart)
                 RefreshData();
-
-            AutoFindCurrentUserScoreText();
-            RefreshCurrentUserScore();
         }
 
         private void Update()
@@ -165,8 +148,10 @@ namespace Chess.Leaderboard
             Debug.Log("[LeaderboardUI] ShowLeaderboard called");
             if (panel != null)
                 panel.SetActive(true);
+            if (playerNameText != null && player != null)
+                playerNameText.text = player.GetLeaderboardPlayerName();
             RefreshData();
-            RefreshCurrentUserScore();
+            RefreshScoreDisplay();
         }
 
         public void HideLeaderboard()
@@ -245,7 +230,7 @@ namespace Chess.Leaderboard
                 mode,
                 onSuccess: resp =>
                 {
-                    if (resp.success && resp.data != null)
+                    if (resp.success && resp.data != null && resp.data.rank > 0)
                         UpdateMyRankText(resp.data.rank);
                     else
                         UpdateMyRankText(null);
@@ -341,50 +326,7 @@ namespace Chess.Leaderboard
         private void OnModeChanged(int index)
         {
             RefreshData();
-            RefreshCurrentUserScore();
-        }
-
-        private void OnPlayerNameChanged(string newName)
-        {
-            if (string.IsNullOrEmpty(newName)) return;
-            var trimmed = newName.Trim();
-            if (trimmed == _lastConfirmedPlayerName) return;
-
-            currentPlayerName = trimmed;
-            if (player != null)
-                player.SetLeaderboardPlayerName(currentPlayerName);
-
-            if (!string.IsNullOrEmpty(_lastConfirmedPlayerName) && _lastConfirmedPlayerName != trimmed)
-            {
-                StartCoroutine(LeaderboardAPI.UpdatePlayerName(
-                    _lastConfirmedPlayerName,
-                    trimmed,
-                    onSuccess: resp =>
-                    {
-                        if (resp.success)
-                        {
-                            Debug.Log($"[LeaderboardUI] 用户名修改成功: {_lastConfirmedPlayerName} -> {trimmed}");
-                            _lastConfirmedPlayerName = trimmed;
-                            RefreshData();
-                            RefreshCurrentUserScore();
-                        }
-                        else
-                        {
-                            Debug.LogWarning($"[LeaderboardUI] 用户名修改失败: {resp.message}");
-                            _lastConfirmedPlayerName = trimmed;
-                        }
-                    },
-                    onError: err =>
-                    {
-                        Debug.LogWarning($"[LeaderboardUI] 用户名修改请求失败: {err}");
-                        _lastConfirmedPlayerName = trimmed;
-                    }
-                ));
-            }
-            else
-            {
-                _lastConfirmedPlayerName = trimmed;
-            }
+            RefreshScoreDisplay();
         }
 
         private void OnSubmitScoreClicked()
@@ -396,71 +338,40 @@ namespace Chess.Leaderboard
                 return;
             }
 
-            var scoreText = scoreInputField != null ? scoreInputField.text.Trim() : string.Empty;
-            if (string.IsNullOrEmpty(scoreText))
-            {
-                var mode = GetSelectedGameMode();
-                var modeForLookup = mode == "all" ? "robot" : mode;
-                StartCoroutine(SubmitCurrentScore(name, modeForLookup));
-                return;
-            }
+            var mode = GetSelectedGameMode();
+            if (mode == "all") mode = "robot";
 
-            if (!int.TryParse(scoreText, out var score) || score <= 0)
-            {
-                Debug.LogWarning("[LeaderboardUI] Cannot submit score: invalid score value");
-                return;
-            }
-
-            var modeSubmit = GetSelectedGameMode();
-            if (modeSubmit == "all") modeSubmit = "robot";
-            SubmitScoreInternal(name, score, modeSubmit);
-        }
-
-        private IEnumerator SubmitCurrentScore(string name, string mode)
-        {
-            yield return LeaderboardAPI.GetPlayerRank(name, mode,
+            StartCoroutine(LeaderboardAPI.GetPlayerRank(name, mode,
                 onSuccess: resp =>
                 {
                     var score = (resp.success && resp.data != null) ? resp.data.score : 0;
                     if (score > 0)
                     {
-                        Debug.Log($"[LeaderboardUI] Auto-submitting current score: {score}");
-                        SubmitScoreInternal(name, score, mode);
+                        Debug.Log($"[LeaderboardUI] Submitting current score: {score}");
+                        StartCoroutine(LeaderboardAPI.SubmitScore(
+                            name,
+                            score,
+                            mode,
+                            onSuccess: submitResp =>
+                            {
+                                if (submitResp.success)
+                                {
+                                    Debug.Log($"[LeaderboardUI] Score submitted! Rank: #{submitResp.data.rank}");
+                                    if (player != null)
+                                        player.FetchPlayerScores();
+                                    RefreshData();
+                                    RefreshScoreDisplay();
+                                }
+                            },
+                            onError: err => Debug.LogWarning($"[LeaderboardUI] Submit failed: {err}")
+                        ));
                     }
                     else
                     {
-                        Debug.LogWarning("[LeaderboardUI] Cannot submit score: no current score available");
+                        Debug.LogWarning("[LeaderboardUI] No current score to submit");
                     }
                 },
-                onError: err =>
-                {
-                    Debug.LogWarning($"[LeaderboardUI] Cannot submit score: failed to get current score ({err})");
-                }
-            );
-        }
-
-        private void SubmitScoreInternal(string name, int score, string mode)
-        {
-            Debug.Log($"[LeaderboardUI] Submitting score: {name} -> {score} (mode: {mode})");
-            StartCoroutine(LeaderboardAPI.SubmitScore(
-                name,
-                score,
-                mode,
-                onSuccess: resp =>
-                {
-                    if (resp.success)
-                    {
-                        Debug.Log($"[LeaderboardUI] Score submitted successfully! Rank: #{resp.data.rank}");
-                        if (player != null)
-                            player.FetchPlayerScores();
-                        RefreshData();
-                        RefreshCurrentUserScore();
-                    }
-                },
-                onError: err =>
-                {
-                    Debug.LogWarning($"[LeaderboardUI] Submit failed: {err}");
-                }
+                onError: err => Debug.LogWarning($"[LeaderboardUI] Failed to get current score ({err})")
             ));
         }
 
@@ -482,8 +393,14 @@ namespace Chess.Leaderboard
 
         private string GetCurrentPlayerName()
         {
-            if (playerNameInput != null && !string.IsNullOrEmpty(playerNameInput.text))
-                return playerNameInput.text.Trim();
+            if (player != null)
+            {
+                var playerName = player.GetLeaderboardPlayerName();
+                if (!string.IsNullOrEmpty(playerName))
+                    return playerName;
+            }
+            if (playerNameText != null && !string.IsNullOrEmpty(playerNameText.text))
+                return playerNameText.text.Trim();
             return currentPlayerName;
         }
 
@@ -514,50 +431,31 @@ namespace Chess.Leaderboard
             return dateStr;
         }
 
-        private void AutoFindCurrentUserScoreText()
+        private void RefreshScoreDisplay()
         {
-            if (currentUserScoreText != null) return;
-            if (scoreInputField == null) return;
+            if (scoreDisplayText == null) return;
+            var mode = GetSelectedGameMode();
 
-            var parent = scoreInputField.transform.parent;
-            if (parent == null) return;
-
-            foreach (Transform child in parent)
+            if (player != null)
             {
-                if (child == scoreInputField.transform) continue;
-                var tmp = child.GetComponent<TMP_Text>();
-                if (tmp != null)
+                if (mode == "all")
                 {
-                    currentUserScoreText = tmp;
-                    Debug.Log($"[LeaderboardUI] Auto-found currentUserScoreText: {child.name}");
-                    return;
+                    var robotScore = player.GetCurrentScore("robot");
+                    var localScore = player.GetCurrentScore("local");
+                    var onlineScore = player.GetCurrentScore("online");
+                    var maxScore = Mathf.Max(robotScore, localScore, onlineScore);
+                    scoreDisplayText.text = $"score:{maxScore}";
+                }
+                else
+                {
+                    var score = player.GetCurrentScore(mode);
+                    scoreDisplayText.text = $"score:{score}";
                 }
             }
-
-            Debug.LogWarning("[LeaderboardUI] currentUserScoreText is not assigned. Please bind it in the Inspector.");
-        }
-
-        private void RefreshCurrentUserScore()
-        {
-            if (currentUserScoreText == null) return;
-            var mode = GetSelectedGameMode();
-            if (mode == "all") mode = "robot";
-            var name = GetCurrentPlayerName();
-            if (string.IsNullOrEmpty(name))
+            else
             {
-                currentUserScoreText.text = "当前积分: --";
-                return;
+                scoreDisplayText.text = "score:--";
             }
-            StartCoroutine(LeaderboardAPI.GetPlayerRank(name, mode,
-                onSuccess: resp =>
-                {
-                    if (resp.success && resp.data != null)
-                        currentUserScoreText.text = $"当前积分: {resp.data.score}";
-                    else
-                        currentUserScoreText.text = "当前积分: 0";
-                },
-                onError: _ => currentUserScoreText.text = "当前积分: --"
-            ));
         }
 
         private void OnError(string error)
