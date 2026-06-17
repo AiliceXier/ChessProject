@@ -73,3 +73,12 @@ AI使用实践报告.md
 
 # Build output with typo (bulid → Build)
 bulid/
+
+# Project config for Claude Code (keep locally only)
+CLAUDE.md
+
+# Memory files (keep locally only)
+memory/
+
+# Audio temp files (keep locally only)
+音频/

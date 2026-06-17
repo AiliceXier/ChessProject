@@ -1,2 +1,0 @@
-- [Unity 工作流](workflow.md) — Unity MCP、场景编辑、编译调试
-- [远程服务器](server.md) — 排行榜 API 服务器连接信息
