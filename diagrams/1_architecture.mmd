@@ -1,0 +1,101 @@
+graph TB
+    subgraph CLIENT["<b>Unity 客户端 (C#) — 运行于 Windows 10/11</b>"]
+        direction TB
+        Player["<b>Player.cs</b><br/>游戏主控 · 用户输入<br/>AI走棋调度 · 在线对战管理<br/>1607行"]
+        ChessAI_cs["<b>ChessAI.cs</b><br/>MinMax搜索 + Alpha-Beta剪枝<br/>Piece-Square Table评估<br/>6种棋子位置价值表"]
+        ClaudeProvider["<b>ClaudeApiProvider.cs</b><br/>Volces Ark HTTP调用<br/>UCI/SAN解析+回退<br/>TLS 1.2+ 强制启用"]
+        LeaderboardClient["<b>LeaderboardAPI.cs</b><br/>HTTP Client 封装<br/>GET/POST/PUT请求"]
+
+        subgraph UI["UI 模块"]
+            MainMenu["MainMenuUI<br/>主菜单 · 按钮布局"]
+            MoveHist["MoveHistoryUI<br/>走棋历史面板"]
+            EvalBar["EvaluationBar<br/>局面评估条"]
+            Hint["HintSystem<br/>最佳走法提示"]
+            ChatClient["ChatUI + ChatWebSocketClient<br/>在线聊天"]
+            CmdInput["CommandInputUI<br/>命令输入 e2e4/Nf3"]
+            DiffSel["DifficultySelector<br/>AI难度选择"]
+            LbUI["LeaderboardUI<br/>排行榜界面"]
+        end
+
+        subgraph AnimAudio["动画与音效"]
+            MoveAnim["<b>MoveAnimator.cs</b><br/>棋子移动动画<br/>吃子动画<br/>增量更新三步逻辑"]
+            EndAnim["<b>GameEndAnimator.cs</b><br/>胜利/失败/和棋动画<br/>棋子倒下效果"]
+            Audio["<b>AudioManager.cs</b><br/>BGM · 走棋音效<br/>将军音效 · 胜负音效"]
+        end
+
+        subgraph Engine["Gera Chess Library (内嵌C#库)"]
+            ChessBoard["<b>ChessBoard.cs</b><br/>FEN解析与生成<br/>Move() · Cancel()<br/>IsCheckmate/Stalemate/Draw"]
+            Generations["ChessGenerations.cs<br/>走法生成(21种走法类型)"]
+            Validations["ChessValidations.cs<br/>合法性校验<br/>王车易位/过路兵/升变"]
+            FEN_PGN["FEN/PGN/SAN转换<br/>Fen.cs · Pgn.cs · San.cs"]
+            EndGame["EndGame检测<br/>将杀/逼和/三次重复<br/>50步规则/子力不足"]
+        end
+    end
+
+    subgraph CLOUD_CODE["<b>UGS Cloud Code (C#) — 服务端走法验证</b>"]
+        HostGame["<b>HostGame()</b><br/>CreateLobby(max=2)<br/>初始化Cloud Save<br/>board=FEN + whitePlayerId"]
+        JoinGame["<b>JoinGame()</b><br/>JoinLobbyByCode<br/>随机分配黑白(rng≥0.5)<br/>Push opponentJoined"]
+        MakeMove["<b>MakeMove()</b><br/>GetCustomItems读取状态<br/>校验turn==当前玩家<br/>IsValidMove合法性检查<br/>board.Move()执行走棋<br/>SetCustomItem保存FEN<br/>Push boardUpdated"]
+        Resign["<b>Resign()</b><br/>LoadFromFen读取状态<br/>chessBoard.Resign(color)<br/>SetCustomItem保存FEN<br/>Push boardUpdated"]
+
+        Rejoin["<b>Rejoin逻辑</b><br/>JoinLobbyByCode异常时触发<br/>GetJoinedLobbies查询已有房间<br/>GetCustomItems恢复FEN<br/>支持断线重连/页面刷新"]
+    end
+
+    subgraph UGS["<b>UGS 云服务 (Unity Gaming Services)</b>"]
+        direction LR
+        Lobby["Lobby Service<br/>房间创建/加入<br/>玩家管理"]
+        CloudSave["Cloud Save<br/>FEN字符串存储<br/>Key: Lobby ID"]
+        Push["Player Messages<br/>Push 实时推送<br/>boardUpdated / opponentJoined"]
+        Auth["Authentication<br/>匿名登录<br/>PlayerId 生成"]
+    end
+
+    subgraph ECS["<b>华为云 ECS (121.36.101.82 · Ubuntu 24.04 · t6.medium.2 · 1vCPU/2GiB)</b>"]
+        direction LR
+        LBServer["<b>Node.js + Express + better-sqlite3</b><br/>Port 3000 · PM2守护<br/>POST /score 提交分数<br/>GET /leaderboard 查询排行<br/>PUT /player/:name 改名<br/>Joi参数校验 · Helmet安全头<br/>express-rate-limit 限流"]
+        ChatServer["<b>WebSocket Chat Server</b><br/>Port 3001 · PM2守护<br/>ws库 · 房间隔离<br/>join/chat/leave 消息<br/>成员广播"]
+        CloudAI["<b>Volces Ark API</b><br/>ark.cn-beijing.volces.com<br/>model: ark-code-latest<br/>→ MiniMax-M3 后端<br/>Anthropic Messages API"]
+    end
+
+    Player --> ChessBoard
+    Player --> ChessAI_cs
+    Player --> ClaudeProvider
+    Player --> LeaderboardClient
+    Player --> UI
+    Player --> AnimAudio
+
+    ClaudeProvider -->|HTTP POST /v1/messages| CloudAI
+    LeaderboardClient -->|HTTP REST| LBServer
+    ChatClient -->|WebSocket| ChatServer
+
+    HostGame --> Lobby
+    HostGame --> CloudSave
+    JoinGame --> Lobby
+    JoinGame --> CloudSave
+    JoinGame --> Push
+    MakeMove --> CloudSave
+    MakeMove --> Push
+    Resign --> CloudSave
+    Resign --> Push
+
+    ChessAI_cs -->|depth=1/3<br/>本地MinMax| Player
+    ClaudeProvider -->|depth=4/5<br/>云端API| Player
+
+    style CLIENT fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style CLOUD_CODE fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style UGS fill:#fce4ec,stroke:#d32f2f,stroke-width:2px
+    style ECS fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style Player fill:#fff,stroke:#42a5f5
+    style ChessAI_cs fill:#fff,stroke:#42a5f5
+    style ClaudeProvider fill:#fff,stroke:#42a5f5
+    style LeaderboardClient fill:#fff,stroke:#42a5f5
+    style HostGame fill:#fff,stroke:#ffb74d
+    style JoinGame fill:#fff,stroke:#ffb74d
+    style MakeMove fill:#fff,stroke:#ffb74d
+    style Resign fill:#fff,stroke:#ffb74d
+    style Rejoin fill:#fff,stroke:#ffb74d
+    style MoveAnim fill:#e8eaf6,stroke:#7986cb
+    style EndAnim fill:#e8eaf6,stroke:#7986cb
+    style Audio fill:#e8eaf6,stroke:#7986cb
+    style LBServer fill:#c8e6c9,stroke:#66bb6a
+    style ChatServer fill:#c8e6c9,stroke:#66bb6a
+    style CloudAI fill:#ede7f6,stroke:#5c6bc0
