@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 500" width="850" height="500">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#333"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#C62828"/>
+    </marker>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2c3e50"/>
+      <stop offset="100%" stop-color="#34495e"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="850" height="38" fill="url(#headerGrad)" rx="3"/>
+  <text x="425" y="25" text-anchor="middle" fill="white" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold">图3-2  AI 混合路由决策流程</text>
+
+  <!-- Start -->
+  <rect x="350" y="55" width="150" height="36" fill="#2c3e50" rx="18"/>
+  <text x="425" y="78" text-anchor="middle" fill="white" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold">AI 走棋请求</text>
+  <line x1="425" y1="91" x2="425" y2="110" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Decision diamond: depth check -->
+  <polygon points="425,115 290,155 425,195 560,155" fill="#FFF9C4" stroke="#F9A825" stroke-width="1.5"/>
+  <text x="425" y="152" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="bold" fill="#333">AI 难度?</text>
+  <text x="425" y="168" text-anchor="middle" font-family="Consolas, sans-serif" font-size="10" fill="#666">depth ≤ 3 or depth ≥ 4?</text>
+
+  <!-- Left branch: Local -->
+  <text x="310" y="140" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#2E7D32">depth ≤ 3</text>
+  <line x1="290" y1="155" x2="160" y2="155" stroke="#2E7D32" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="50" y="135" width="200" height="40" fill="#C8E6C9" stroke="#43A047" stroke-width="1.5" rx="5"/>
+  <text x="150" y="153" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#2E7D32">本地 MinMax 引擎</text>
+  <text x="150" y="168" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">ChessAI.cs · Piece-Square Table</text>
+
+  <line x1="150" y1="175" x2="150" y2="260" stroke="#2E7D32" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Left detail box -->
+  <rect x="30" y="265" width="240" height="100" fill="#f1f8e9" stroke="#81C784" stroke-width="1" rx="5"/>
+  <text x="150" y="285" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#2E7D32">MinMax + α-β 剪枝</text>
+  <text x="45" y="304" font-family="Consolas, sans-serif" font-size="9" fill="#555">depth=1 (Easy):</text>
+  <text x="160" y="304" font-family="Consolas, sans-serif" font-size="9" fill="#666">≈ 30 节点, &lt;1s</text>
+  <text x="45" y="320" font-family="Consolas, sans-serif" font-size="9" fill="#555">depth=3 (Medium):</text>
+  <text x="160" y="320" font-family="Consolas, sans-serif" font-size="9" fill="#666">≈ 8000 节点, 3~5s</text>
+  <text x="45" y="336" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">评估函数: Piece-Square Table</text>
+  <text x="45" y="352" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">优势: 完全离线 · 结果确定 · 速度快</text>
+
+  <!-- Right branch: Cloud -->
+  <text x="540" y="140" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#1565C0">depth ≥ 4</text>
+  <line x1="560" y1="155" x2="690" y2="155" stroke="#1565C0" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="600" y="135" width="220" height="40" fill="#BBDEFB" stroke="#1976D2" stroke-width="1.5" rx="5"/>
+  <text x="710" y="153" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#1565C0">云端 Claude API</text>
+  <text x="710" y="168" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">ClaudeApiProvider.cs · Volces Ark</text>
+
+  <line x1="710" y1="175" x2="710" y2="210" stroke="#1565C0" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Right decision: thinking? -->
+  <polygon points="710,215 620,245 710,275 800,245" fill="#E3F2FD" stroke="#1976D2" stroke-width="1.2"/>
+  <text x="710" y="242" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#333">thinking?</text>
+  <text x="710" y="258" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">depth=4 vs depth=5</text>
+
+  <text x="630" y="230" font-family="Microsoft YaHei, sans-serif" font-size="10" fill="#1565C0">depth=4</text>
+  <text x="780" y="230" font-family="Microsoft YaHei, sans-serif" font-size="10" fill="#0D47A1">depth=5</text>
+
+  <line x1="620" y1="245" x2="580" y2="245" stroke="#1565C0" stroke-width="1.5"/>
+  <line x1="580" y1="245" x2="580" y2="310" stroke="#1565C0" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <line x1="800" y1="245" x2="830" y2="245" stroke="#0D47A1" stroke-width="1.5"/>
+  <line x1="830" y1="245" x2="830" y2="310" stroke="#0D47A1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="490" y="314" width="180" height="50" fill="#E3F2FD" stroke="#1976D2" stroke-width="1" rx="5"/>
+  <text x="580" y="334" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#1565C0">无思考模式</text>
+  <text x="580" y="350" text-anchor="middle" font-family="Consolas, sans-serif" font-size="9" fill="#555">thinking: disabled · max_tokens: 64</text>
+
+  <rect x="720" y="314" width="110" height="50" fill="#E8EAF6" stroke="#3F51B5" stroke-width="1" rx="5"/>
+  <text x="775" y="334" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" font-weight="bold" fill="#283593">思考模式</text>
+  <text x="775" y="350" text-anchor="middle" font-family="Consolas, sans-serif" font-size="9" fill="#555">budget: 6K tokens</text>
+
+  <!-- API call details -->
+  <rect x="490" y="380" width="340" height="55" fill="#F5F5F5" stroke="#9E9E9E" stroke-width="1" rx="5"/>
+  <text x="660" y="398" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="10" font-weight="bold" fill="#333">Volces Ark Anthropic API</text>
+  <text x="660" y="415" text-anchor="middle" font-family="Consolas, sans-serif" font-size="8" fill="#666">POST /api/coding/v1/messages · model=ark-code-latest</text>
+  <text x="660" y="430" text-anchor="middle" font-family="Consolas, sans-serif" font-size="8" fill="#666">UCI格式提取 → SAN回退 → 合法性校验 → Random Fallback</text>
+
+  <!-- Result merge -->
+  <line x1="150" y1="365" x2="150" y2="455" stroke="#2E7D32" stroke-width="1.5"/>
+  <line x1="150" y1="455" x2="425" y2="455" stroke="#333" stroke-width="1.5"/>
+  <line x1="660" y1="435" x2="660" y2="455" stroke="#333" stroke-width="1.5"/>
+  <line x1="660" y1="455" x2="425" y2="455" stroke="#333" stroke-width="1.5"/>
+  <line x1="425" y1="455" x2="425" y2="475" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Return result -->
+  <rect x="350" y="478" width="150" height="20" fill="#2c3e50" rx="10"/>
+  <text x="425" y="492" text-anchor="middle" fill="white" font-family="Microsoft YaHei, sans-serif" font-size="11">返回最佳走法 (UCI)</text>
+</svg>

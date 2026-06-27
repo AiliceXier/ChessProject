@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" width="900" height="650">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#555"/>
+    </marker>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2c3e50"/>
+      <stop offset="100%" stop-color="#34495e"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="900" height="38" fill="url(#headerGrad)" rx="3"/>
+  <text x="450" y="25" text-anchor="middle" fill="white" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold">图3-1  系统总体架构图</text>
+
+  <!-- Client Layer -->
+  <rect x="40" y="55" width="820" height="200" fill="#e8f4fd" stroke="#2196F3" stroke-width="1.5" rx="6"/>
+  <text x="55" y="75" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1565C0">Unity 客户端 (C#)</text>
+
+  <!-- Client modules -->
+  <rect x="60" y="88" width="180" height="42" fill="white" stroke="#42A5F5" stroke-width="1" rx="4"/>
+  <text x="150" y="106" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">Player.cs</text>
+  <text x="150" y="121" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">游戏主控 · 输入处理 · 状态管理</text>
+
+  <rect x="260" y="88" width="180" height="42" fill="white" stroke="#42A5F5" stroke-width="1" rx="4"/>
+  <text x="350" y="106" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">ChessAI.cs</text>
+  <text x="350" y="121" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">MinMax搜索 · 评估表 · 难度分级</text>
+
+  <rect x="460" y="88" width="180" height="42" fill="white" stroke="#42A5F5" stroke-width="1" rx="4"/>
+  <text x="550" y="106" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">ClaudeApiProvider.cs</text>
+  <text x="550" y="121" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">Volces Ark 网关 · 云端AI推理</text>
+
+  <rect x="660" y="88" width="180" height="42" fill="white" stroke="#42A5F5" stroke-width="1" rx="4"/>
+  <text x="750" y="106" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">LeaderboardAPI.cs</text>
+  <text x="750" y="121" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">排行榜客户端 · HTTP请求封装</text>
+
+  <!-- UI modules row 2 -->
+  <rect x="60" y="145" width="130" height="32" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="125" y="164" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">MainMenuUI</text>
+
+  <rect x="205" y="145" width="130" height="32" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="270" y="164" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">MoveHistoryUI</text>
+
+  <rect x="350" y="145" width="130" height="32" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="415" y="164" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">EvaluationBar</text>
+
+  <rect x="495" y="145" width="130" height="32" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="560" y="164" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">HintSystem</text>
+
+  <rect x="640" y="145" width="130" height="32" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="705" y="164" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">ChatUI + ChatWS</text>
+
+  <!-- Animation & Audio row 3 -->
+  <rect x="60" y="190" width="180" height="28" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="150" y="208" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">MoveAnimator · GameEndAnimator</text>
+
+  <rect x="260" y="190" width="180" height="28" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="350" y="208" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">AudioManager · BoardCoordinateLabels</text>
+
+  <rect x="460" y="190" width="380" height="28" fill="#f0f8ff" stroke="#90CAF9" stroke-width="1" rx="3"/>
+  <text x="650" y="208" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">CommandInputUI · DifficultySelector · LeaderboardUI</text>
+
+  <!-- Chess Engine inset -->
+  <rect x="90" y="228" width="740" height="20" fill="#FFE0B2" stroke="#FF9800" stroke-width="0.8" rx="3"/>
+  <text x="460" y="242" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#E65100">Gera Chess Library（内嵌）: ChessBoard.cs · ChessGenerations · ChessValidations · FEN/PGN/SAN转换 · endgame检测</text>
+
+  <!-- Cloud Code Layer -->
+  <rect x="40" y="270" width="820" height="120" fill="#fff3e0" stroke="#FF9800" stroke-width="1.5" rx="6"/>
+  <text x="55" y="290" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#E65100">Unity Gaming Services — Cloud Code (C#)</text>
+
+  <rect x="60" y="305" width="185" height="36" fill="white" stroke="#FFB74D" stroke-width="1" rx="4"/>
+  <text x="152" y="319" text-anchor="middle" font-family="Consolas, sans-serif" font-size="10" font-weight="bold" fill="#333">HostGame</text>
+  <text x="152" y="333" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="8" fill="#888">CreateLobby · 初始化 Cloud Save</text>
+
+  <rect x="260" y="305" width="185" height="36" fill="white" stroke="#FFB74D" stroke-width="1" rx="4"/>
+  <text x="352" y="319" text-anchor="middle" font-family="Consolas, sans-serif" font-size="10" font-weight="bold" fill="#333">JoinGame</text>
+  <text x="352" y="333" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="8" fill="#888">JoinLobby · 随机分配黑白 · Rejoin</text>
+
+  <rect x="460" y="305" width="185" height="36" fill="white" stroke="#FFB74D" stroke-width="1" rx="4"/>
+  <text x="552" y="319" text-anchor="middle" font-family="Consolas, sans-serif" font-size="10" font-weight="bold" fill="#333">MakeMove</text>
+  <text x="552" y="333" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="8" fill="#888">走法校验 · 更新FEN · Push推送</text>
+
+  <rect x="660" y="305" width="185" height="36" fill="white" stroke="#FFB74D" stroke-width="1" rx="4"/>
+  <text x="752" y="319" text-anchor="middle" font-family="Consolas, sans-serif" font-size="10" font-weight="bold" fill="#333">Resign</text>
+  <text x="752" y="333" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="8" fill="#888">Resign() · 保存FEN · Push推送</text>
+
+  <!-- UGS services row -->
+  <text x="460" y="380" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="10" fill="#E65100">↓ 依赖 ↓</text>
+
+  <!-- UGS Services -->
+  <rect x="40" y="395" width="820" height="55" fill="#fce4ec" stroke="#E91E63" stroke-width="1.5" rx="6"/>
+  <text x="55" y="415" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#C62828">UGS 云服务</text>
+
+  <rect x="60" y="425" width="185" height="20" fill="white" stroke="#F48FB1" stroke-width="0.8" rx="3"/>
+  <text x="152" y="439" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">Lobby Service（房间管理）</text>
+
+  <rect x="260" y="425" width="185" height="20" fill="white" stroke="#F48FB1" stroke-width="0.8" rx="3"/>
+  <text x="352" y="439" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">Cloud Save（FEN持久化）</text>
+
+  <rect x="460" y="425" width="185" height="20" fill="white" stroke="#F48FB1" stroke-width="0.8" rx="3"/>
+  <text x="552" y="439" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">Player Messages（Push推送）</text>
+
+  <rect x="660" y="425" width="185" height="20" fill="white" stroke="#F48FB1" stroke-width="0.8" rx="3"/>
+  <text x="752" y="439" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#555">Authentication（匿名登录）</text>
+
+  <!-- External Services Layer -->
+  <rect x="40" y="465" width="820" height="175" fill="#e8f5e9" stroke="#4CAF50" stroke-width="1.5" rx="6"/>
+  <text x="55" y="485" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#2E7D32">华为云 ECS (121.36.101.82 · Ubuntu 24.04 · t6.medium.2)</text>
+
+  <rect x="60" y="500" width="370" height="60" fill="white" stroke="#81C784" stroke-width="1" rx="4"/>
+  <text x="245" y="518" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">Node.js + Express + SQLite (Port 3000)</text>
+  <text x="245" y="535" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">POST /score · GET /leaderboard · GET /rank/:name</text>
+  <text x="245" y="550" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">PUT /player/:old · DELETE /score/:name（管理员）</text>
+
+  <rect x="470" y="500" width="370" height="60" fill="white" stroke="#81C784" stroke-width="1" rx="4"/>
+  <text x="655" y="518" text-anchor="middle" font-family="Consolas, sans-serif" font-size="11" font-weight="bold" fill="#333">WebSocket Chat Server (Port 3001)</text>
+  <text x="655" y="535" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">ws://121.36.101.82:3001 · 房间隔离 · 系统广播</text>
+  <text x="655" y="550" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#666">PM2 进程守护（ecosystem.config.js）</text>
+
+  <!-- External AI -->
+  <rect x="60" y="575" width="780" height="28" fill="#E8EAF6" stroke="#3F51B5" stroke-width="1" rx="4"/>
+  <text x="75" y="594" font-family="Microsoft YaHei, sans-serif" font-size="10" fill="#283593">Volces Ark API Gateway: https://ark.cn-beijing.volces.com/api/coding/v1/messages · model=ark-code-latest → MiniMax-M3</text>
+
+  <!-- Arrows between layers -->
+  <line x1="450" y1="255" x2="450" y2="270" stroke="#1565C0" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="390" x2="450" y2="395" stroke="#E65100" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="450" x2="450" y2="465" stroke="#C62828" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Client-to-Cloud arrows -->
+  <line x1="170" y1="230" x2="170" y2="305" stroke="#42A5F5" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+  <line x1="730" y1="130" x2="730" y2="305" stroke="#42A5F5" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4,3"/>
+
+  <!-- Port labels -->
+  <text x="245" y="565" text-anchor="middle" font-family="Consolas, sans-serif" font-size="8" fill="#999">HTTP</text>
+  <text x="655" y="565" text-anchor="middle" font-family="Consolas, sans-serif" font-size="8" fill="#999">WebSocket</text>
+</svg>
