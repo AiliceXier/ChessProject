@@ -705,6 +705,8 @@ public class Player : MonoBehaviour
         _isWhite = joinGameResponse.IsWhite;
         SetPov();
         _gameStarted = true;
+        var shortOppId = joinGameResponse.OpponentId.Length > 8 ? joinGameResponse.OpponentId.Substring(0, 8) : joinGameResponse.OpponentId;
+        if (opponentNameText != null) opponentNameText.text = $"vs Player_{shortOppId}";
         playerNameText.text = _isWhite ? "Your Turn (White)" : "Your Turn (Black)";
         ShowInGameUI();
         if (AudioManager.Instance != null)
