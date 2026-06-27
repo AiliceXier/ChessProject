@@ -1,0 +1,1 @@
+iconv: D:/unity/my_chess/docx_content.txt:1:0: cannot convert
