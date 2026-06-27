@@ -363,7 +363,7 @@ def convert_md_to_docx(md_content, output_path):
     print(f"Doc saved to: {output_path}")
 
 if __name__ == '__main__':
-    input_file = r'D:\unity\my_chess\AI使用实践报告.md'
+    input_file = r'D:\unity\my_chess\full_report.md'
     output_file = r'D:\unity\my_chess\课程设计报告.docx'
 
     md_content = read_markdown(input_file)
