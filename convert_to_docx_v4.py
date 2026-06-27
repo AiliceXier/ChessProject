@@ -118,7 +118,7 @@ def add_table_from_rows(doc, headers, rows, col_widths=None):
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.style = 'Table Grid'
 
-    # Header row - BLACK with white text
+    # Header row - TRANSPARENT background, black text
     for ci, h in enumerate(headers):
         cell = table.rows[0].cells[ci]
         cell.text = ''
@@ -127,8 +127,6 @@ def add_table_from_rows(doc, headers, rows, col_widths=None):
         set_para_spacing(p, 1.2, 2, 2)
         run = p.add_run(h)
         set_run_font(run, '宋体', 9, bold=True, east_asia='宋体')
-        run.font.color.rgb = RGBColor(255, 255, 255)
-        set_cell_shading(cell, "2C3E50")
 
     # Data rows
     for ri, row_data in enumerate(rows):
@@ -177,7 +175,6 @@ def add_diagram(doc, diag_key):
         set_para_spacing(cap, 1.2, 2, 8)
         run = cap.add_run(f'{diag_key}  系统架构图')
         set_run_font(run, '宋体', 9, east_asia='宋体')
-        run.font.color.rgb = RGBColor(100, 100, 100)
 
 
 def convert(md_path, output_path):
