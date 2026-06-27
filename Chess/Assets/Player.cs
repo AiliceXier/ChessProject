@@ -163,7 +163,11 @@ public class Player : MonoBehaviour
     {
         try
         {
-            await UnityServices.InitializeAsync();
+            var options = new InitializationOptions();
+            var args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i] == "-profile") options.SetProfile(args[i + 1]);
+            await UnityServices.InitializeAsync(options);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await SubscribeToPlayerMessages();
             _isInitialized = true;
