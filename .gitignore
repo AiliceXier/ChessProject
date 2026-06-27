@@ -82,3 +82,24 @@ memory/
 
 # Audio temp files (keep locally only)
 音频/
+
+# Generated docs, scripts, diagrams (keep locally only)
+diagrams/
+check_headings.py
+convert_svg_to_png.py
+convert_to_docx_v*.py
+extract_docx.py
+gen_png_diagrams.py
+generate_diagrams.py
+verify_*.py
+docx_*.txt
+verify_result.txt
+full_report.md
+server.md
+*.docx
+pdf_render_check/
+report_*.docx
+report_*.pdf
+template_work.docx
+AGENTS.md
+项目功能介绍文档.md
