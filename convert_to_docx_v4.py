@@ -168,7 +168,8 @@ def add_diagram(doc, diag_key):
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         set_para_spacing(p, 1.0, 8, 8)
         run = p.add_run()
-        run.add_picture(DIAGRAMS[diag_key], width=Inches(5.8))
+        # 页面可用宽度 ≈ 14.6cm (A4 21cm - 左右边距 3.17cm×2)
+        run.add_picture(DIAGRAMS[diag_key], width=Cm(14.2))
         # Caption
         cap = doc.add_paragraph()
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
