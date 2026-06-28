@@ -318,8 +318,9 @@ namespace Chess.Animation
             foreach (Transform child in board.transform)
             {
                 if (child == null || child.gameObject == null) continue;
-                if (child.gameObject.name == "MoveHighlight") continue;
-                if (child.gameObject.name.Contains(searchName))
+                var name = child.gameObject.name;
+                if (name == "MoveHighlight" || name == "HintHighlight") continue;
+                if (name.Contains(searchName))
                     pieces.Add(child.gameObject);
             }
 
@@ -391,9 +392,10 @@ namespace Chess.Animation
             foreach (Transform child in board.transform)
             {
                 if (child == null || child.gameObject == null) continue;
-                if (child.gameObject.name == "MoveHighlight") continue;
+                var name = child.gameObject.name;
+                if (name == "MoveHighlight" || name == "HintHighlight") continue;
                 child.localScale = Vector3.one;
-                var isWhite = child.gameObject.name.Contains("Light");
+                var isWhite = name.Contains("Light");
                 child.localRotation = Quaternion.Euler(0, isWhite ? 0 : 180, 0);
             }
 

@@ -30,7 +30,8 @@ namespace Chess.Animation
             foreach (Transform child in board.transform)
             {
                 if (child == null || child.gameObject == null) continue;
-                if (child.gameObject.name == "MoveHighlight") continue;
+                var name = child.gameObject.name;
+                if (name == "MoveHighlight" || name == "HintHighlight") continue;
                 var pos = child.localPosition;
                 int x = Mathf.RoundToInt(pos.x);
                 int z = Mathf.RoundToInt(pos.z);

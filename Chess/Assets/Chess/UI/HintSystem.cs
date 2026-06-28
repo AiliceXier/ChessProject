@@ -97,7 +97,7 @@ namespace Chess.UI
                 _highlight.name = "HintHighlight";
                 Object.Destroy(_highlight.GetComponent<Collider>());
                 var mr = _highlight.GetComponent<MeshRenderer>();
-                mr.material = new Material(Shader.Find("Unlit/Transparent"));
+                mr.material = new Material(Shader.Find("Sprites/Default"));
                 var c = new Color(0.0f, 0.6f, 0.85f, 0.55f);
                 mr.material.color = c;
             }

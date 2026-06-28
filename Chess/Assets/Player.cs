@@ -613,6 +613,7 @@ public class Player : MonoBehaviour
 
     private async void OnBoardUpdate(BoardUpdateResponse boardUpdateResponse)
     {
+        ClearMoveHighlights();
         SyncBoard(boardUpdateResponse.Board);
 
         // Keep the move history panel in sync with the cloud-authoritative state
@@ -844,7 +845,7 @@ public class Player : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayPieceSelect();
 
-        if ((_gameMode == GameMode.Local || _gameMode == GameMode.Robot) && _localBoard != null)
+        if (_localBoard != null)
             ShowMoveHighlights(_selectedPiece);
     }
 
@@ -876,7 +877,7 @@ public class Player : MonoBehaviour
             highlight.name = "MoveHighlight";
             UnityEngine.Object.Destroy(highlight.GetComponent<Collider>());
             var mr = highlight.GetComponent<MeshRenderer>();
-            mr.material = new Material(Shader.Find("Unlit/Transparent"));
+            mr.material = new Material(Shader.Find("Sprites/Default"));
             mr.material.color = color;
             highlight.transform.SetParent(board.transform, false);
             highlight.transform.localRotation = Quaternion.Euler(90, 0, 0);
